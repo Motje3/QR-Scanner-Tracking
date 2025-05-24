@@ -1,5 +1,5 @@
 // src/app/homescreen/AppFeedback.tsx
-import React, { useState, useEffect, useRef } from "react"; // Added useRef
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
