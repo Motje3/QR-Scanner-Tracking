@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React from "react";
 import { icons } from "@/constants/icons";
-import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for the feedback icon
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
