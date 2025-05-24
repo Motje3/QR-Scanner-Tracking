@@ -120,7 +120,6 @@ const AppFeedback: React.FC = () => {
     }, 2500); // Slightly shorter duration for user experience
   };
 
-  // Success Overlay - Identical structure to editprofile.tsx
   if (showFeedbackSuccess) {
     return (
       <Animated.View
