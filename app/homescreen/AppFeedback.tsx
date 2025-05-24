@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  // Alert, // We'll use the success screen instead of Alert for success
   BackHandler,
   StatusBar,
   KeyboardAvoidingView,
