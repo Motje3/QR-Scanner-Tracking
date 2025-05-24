@@ -91,9 +91,6 @@ const AppFeedback: React.FC = () => {
       return;
     }
 
-    // --- Simulate API Call ---
-    // In a real app, you would send this data to a server here.
-    // For now, we'll just log it and proceed to the success screen.
     console.log("Feedback to submit:", {
       overallRating,
       bestFeature,
