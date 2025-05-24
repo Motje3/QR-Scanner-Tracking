@@ -118,7 +118,7 @@ const NewShipment = () => {
   };
 
   return (
-    <div className="space-y-8 p-4 md:p-8 min-h-[90vh] bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white">
+    <div className="space-y-8 p-4 md:p-8 min-h-[92vh] bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white">
       <div className="flex items-center space-x-4 mb-8">
         <PackagePlus size={48} className="text-yellow-300" />
         <div>
