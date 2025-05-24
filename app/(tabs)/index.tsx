@@ -95,12 +95,35 @@ const Home = () => {
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* 🕒 Placeholder Buttons */}
-        {[1, 2].map((i) => (
-          <TouchableOpacity
-            key={i}
-            style={{ borderRadius: wp(3), overflow: 'hidden', width: '100%', marginBottom: hp(2) }}
+        {/* Feedback Button  */}
+        <TouchableOpacity
+          style={{ borderRadius: wp(3), overflow: 'hidden', width: '100%', marginBottom: hp(2) }}
+          onPress={() => {
+            setTimeout(() => {
+              router.push('./homescreen/AppFeedback'); // Navigate to the new feedback page
+            }, 50);
+          }}
+        >
+          <LinearGradient
+            colors={["#FF6B6B", "#FF4757"]} // Example new colors for feedback - choose what you like!
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={{
+              padding: wp(6),
+              borderRadius: wp(3),
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
+            {/* You can add an icon here if you have one for feedback, e.g., icons.feedback */}
+            {/* <Image source={icons.feedback as ImageSourcePropType} style={{ width: wp(10), height: wp(10), tintColor: "#fff" }} /> */}
+            <Text style={{ color: "#fff", fontSize: wp(4), marginTop: hp(1) }}>Geef Feedback</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Second Placeholder Button (if you still want one) */}
+        <TouchableOpacity
+            style={{ borderRadius: wp(3), overflow: 'hidden', width: '100%', marginBottom: hp(2) }}
+        >
             <LinearGradient
               colors={["#4B5563", "#131921"]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
@@ -114,8 +137,7 @@ const Home = () => {
             >
               <Text style={{ color: "#D1D5DB", fontSize: wp(4) }}>Binnenkort beschikbaar</Text>
             </LinearGradient>
-          </TouchableOpacity>
-        ))}
+        </TouchableOpacity>
       </View>
     </View>
   );
