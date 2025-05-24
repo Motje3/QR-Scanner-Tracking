@@ -177,8 +177,8 @@ const Home = () => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
-              padding: wp(6), // Same padding as other main buttons
-              borderRadius: wp(3), // Same border radius
+              padding: wp(6), 
+              borderRadius: wp(3), 
               justifyContent: "center",
               alignItems: "center",
             }}
