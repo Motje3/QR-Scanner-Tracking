@@ -10,7 +10,7 @@ namespace backend_api.Services
 
         public ShipmentService(AppDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<Shipment>> GetAllShipmentsAsync()
@@ -52,7 +52,5 @@ namespace backend_api.Services
                          .Where(s => s.AssignedTo == username)
                          .ToListAsync();
         }
-
-
     }
 }

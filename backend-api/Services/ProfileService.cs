@@ -11,7 +11,7 @@ namespace backend_api.Services
 
         public ProfileService(AppDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<Profile?> LoginAsync(string username, string password)
@@ -19,7 +19,6 @@ namespace backend_api.Services
             return await _context.Profiles
                 .FirstOrDefaultAsync(u => u.Username == username && u.Password == password);
         }
-
 
         public async Task<Profile?> GetProfileAsync(int id)
         {
@@ -53,6 +52,7 @@ namespace backend_api.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
         public async Task<Profile> UpdateSettingsAsync(int id, UpdateSettingsDto dto)
         {
             var profile = await _context.Profiles.FindAsync(id);

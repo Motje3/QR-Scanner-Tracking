@@ -15,11 +15,17 @@ namespace backend_api.Services
 
         public async Task<IEnumerable<IssueReport>> GetAllAsync()
         {
-            return await _context.IssueReports.Include(r => r.Shipment).OrderBy(i => i.CreatedAt).ToListAsync();
+            return await _context.IssueReports
+                .Include(r => r.Shipment)
+                .OrderBy(i => i.CreatedAt)
+                .ToListAsync();
         }
 
         public async Task<IssueReport> CreateAsync(IssueReport report)
         {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+
             _context.IssueReports.Add(report);
             await _context.SaveChangesAsync();
             return report;

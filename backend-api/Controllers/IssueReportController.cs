@@ -20,23 +20,61 @@ namespace backend_api.Controllers
         public async Task<ActionResult<IEnumerable<IssueReport>>> GetAll()
         {
             var reports = await _service.GetAllAsync();
-            return Ok(reports);
+
+            // ✅ Altijd een lege lijst teruggeven in plaats van NoContent()
+            return Ok(reports ?? new List<IssueReport>());
         }
 
         [HttpPost]
         public async Task<ActionResult<IssueReport>> Create([FromBody] CreateIssueReportDto dto)
         {
+            // ✅ Validatie op lege string
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                var error = new ValidationProblemDetails(new Dictionary<string, string[]>
+                {
+                    { "Title", new[] { "The Title field is required." } }
+                });
+                return BadRequest(error);
+            }
+
+            // ✅ Validatie op maximale lengte
+            if (dto.Title.Length > 255)
+            {
+                var error = new ValidationProblemDetails(new Dictionary<string, string[]>
+                {
+                    { "Title", new[] { "The Title must be 255 characters or fewer." } }
+                });
+                return BadRequest(error);
+            }
+
+            // ✅ Validatie op negatieve ShipmentId
+            if (dto.ShipmentId.HasValue && dto.ShipmentId < 0)
+            {
+                var error = new ValidationProblemDetails(new Dictionary<string, string[]>
+                {
+                    { "ShipmentId", new[] { "ShipmentId must be a positive number." } }
+                });
+                return BadRequest(error);
+            }
+
             var report = new IssueReport
             {
-                Title = dto.Title,
-                Description = dto.Description,
-                ImageUrl = dto.ImageUrl,
+                Title = dto.Title.Trim(),
+                Description = dto.Description?.Trim(),
+                ImageUrl = dto.ImageUrl?.Trim(),
                 ShipmentId = dto.ShipmentId
             };
 
-            var created = await _service.CreateAsync(report);
-            return CreatedAtAction(nameof(GetAll), new { id = created.Id }, created);
+            try
+            {
+                var created = await _service.CreateAsync(report);
+                return CreatedAtAction(nameof(GetAll), new { id = created.Id }, created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
         }
-
     }
 }

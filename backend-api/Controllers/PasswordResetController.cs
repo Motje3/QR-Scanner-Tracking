@@ -19,8 +19,23 @@ namespace backend_api.Controllers
         [HttpPost]
         public async Task<IActionResult> RequestReset([FromBody] PasswordResetRequestDto dto)
         {
-            await _service.CreateAsync(dto);
-            return Ok(new { message = "Resetverzoek ingediend" });
+            try
+            {
+                await _service.CreateAsync(dto);
+                return Ok(new { message = "Resetverzoek ingediend" });
+            }
+            catch (ArgumentException ex)
+            {
+                var problem = new ValidationProblemDetails(new Dictionary<string, string[]>
+                {
+                    { ex.ParamName ?? "Input", new[] { ex.Message } }
+                });
+                return BadRequest(problem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
         }
     }
 }
