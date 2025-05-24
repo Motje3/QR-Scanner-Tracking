@@ -173,7 +173,7 @@ const Home = () => {
           }}
         >
           <LinearGradient
-            colors={["#4a964d", "#19331a"]} // Dark Red to Lighter Red gradient (#D32F2F is a darker red, #FF6B6B is a lighter red)
+            colors={["#4a964d", "#19331a"]} 
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
