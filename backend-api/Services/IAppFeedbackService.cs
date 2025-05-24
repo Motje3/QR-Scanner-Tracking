@@ -8,6 +8,5 @@ namespace backend_api.Services // Ensure this namespace matches your project str
     {
         Task<AppFeedback> CreateFeedbackAsync(AppFeedback feedback);
         Task<IEnumerable<AppFeedback>> GetAllFeedbackAsync(); // Optional: if you want to retrieve feedback
-        // Add other methods here if needed, e.g., GetFeedbackByIdAsync, UpdateFeedbackAsync, DeleteFeedbackAsync
     }
 }
