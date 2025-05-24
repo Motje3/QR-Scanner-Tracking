@@ -67,6 +67,26 @@ namespace backend_api.Controllers
             return Ok(list);
         }
 
+        [HttpPost]
+        public async Task<ActionResult<Shipment>> CreateShipment([FromBody] CreateShipmentDto shipmentDto)
+        {
+            
+            try
+            {
+                var createdShipment = await _service.CreateShipmentAsync(shipmentDto);
 
+                
+                return CreatedAtAction(nameof(GetById), new { id = createdShipment.Id }, createdShipment);
+            }
+            catch (ArgumentNullException ex) // Example of specific exception handling
+            {
+                return BadRequest(new ProblemDetails { Title = "Invalid input for shipment creation.", Detail = ex.Message });
+            }
+            catch (System.Exception ex) // Catch-all for other unexpected errors during creation
+            {
+                Console.WriteLine($"Error creating shipment: {ex.ToString()}");
+                return StatusCode(500, new ProblemDetails { Title = "An unexpected error occurred while creating the shipment." });
+            }
+        }
     }
 }
