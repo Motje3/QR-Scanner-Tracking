@@ -7,7 +7,7 @@ import {
   ImageSourcePropType,
 } from "react-native";
 import React from "react";
-import { icons } from "@/constants/icons"; // Your custom icons
+import { icons } from "@/constants/icons";
 import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for the feedback icon
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
