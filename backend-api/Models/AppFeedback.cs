@@ -20,15 +20,9 @@ namespace backend_api.Models // Ensure this namespace matches your project struc
         public string? MissingFeature { get; set; } // "Zijn er functies die u mist..."
 
         [MaxLength(2000, ErrorMessage = "Suggestions cannot exceed 2000 characters.")]
-        public string? Suggestions { get; set; } // "Heeft u suggesties..."
+        public string? Suggestions { get; set; }
 
-        public bool? WouldRecommend { get; set; } // "Zou u deze app aanbevelen..." (true for Yes, false for No, null if not answered)
-
-        // Optional: Link to the user who submitted the feedback
-        // public string? UserId { get; set; } // If you use string User IDs from ASP.NET Core Identity
-        // public Guid? ProfileId { get; set; } // If you have a separate Profile model with Guid Id
-        // [ForeignKey("ProfileId")]
-        // public Profile? Profile { get; set; }
+        public bool? WouldRecommend { get; set; }
 
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
