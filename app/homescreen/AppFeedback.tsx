@@ -7,22 +7,27 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
   BackHandler,
   StatusBar,
   KeyboardAvoidingView,
   Platform,
   Animated,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { wp, hp } from "../utils/responsive"; // Adjust path if necessary
+import { wp, hp } from "../utils/responsive"; 
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { useApp } from "../context/AppContext"; // Adjust path if necessary
+import { useApp } from "../context/AppContext";
+import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../config/env";
 
 const AppFeedback: React.FC = () => {
   const { darkMode, accentColor } = useApp();
+  const { token } = useAuth(); 
   const router = useRouter();
 
   const [overallRating, setOverallRating] = useState(0);
@@ -30,9 +35,10 @@ const AppFeedback: React.FC = () => {
   const [missingFeature, setMissingFeature] = useState("");
   const [suggestions, setSuggestions] = useState("");
   const [recommend, setRecommend] = useState<boolean | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const [showFeedbackSuccess, setShowFeedbackSuccess] = useState(false); // New state for success screen
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Animation value
+  const [showFeedbackSuccess, setShowFeedbackSuccess] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const theme = {
     background: darkMode ? "#030014" : "#f0f4f8",
@@ -44,10 +50,11 @@ const AppFeedback: React.FC = () => {
     buttonText: "#FFFFFF",
     backIcon: darkMode ? "#ffffff" : "#0f0D23",
     successText: "#10B981",
+    errorText: darkMode ? "#FF7A7A" : "#D32F2F",
   };
 
   const handleBack = () => {
-    if (showFeedbackSuccess) return true;
+    if (showFeedbackSuccess || submitting) return true;
     router.replace("/(tabs)");
     return true;
   };
@@ -58,13 +65,13 @@ const AppFeedback: React.FC = () => {
       handleBack
     );
     return () => backHandler.remove();
-  }, [router, showFeedbackSuccess]);
+  }, [router, showFeedbackSuccess, submitting]);
 
   const StarRating = ({ rating, onRate }: { rating: number; onRate: (rate: number) => void }) => {
     return (
       <View style={styles.starContainer}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity key={star} onPress={() => onRate(star)}>
+          <TouchableOpacity key={star} onPress={() => onRate(star)} disabled={submitting}>
             <MaterialIcons
               name={star <= rating ? "star" : "star-border"}
               size={wp(8)}
@@ -77,54 +84,80 @@ const AppFeedback: React.FC = () => {
     );
   };
 
-  const handleSubmit = () => {
-    Keyboard.dismiss(); // Dismiss keyboard before showing success screen
+  const handleSubmit = async () => {
+    Keyboard.dismiss();
 
-    // Basic validation (can be expanded)
     if (overallRating === 0) {
-      // You might want a custom modal for errors eventually
-      alert("Beoordeling vereist: Geef alstublieft een algemene beoordeling.");
-      return;
-    }
-    if (!bestFeature.trim()) {
-      alert("Feedback vereist: Vertel ons wat u het beste vindt aan de app.");
+      Alert.alert("Beoordeling vereist", "Geef alstublieft een algemene beoordeling.");
       return;
     }
 
-    console.log("Feedback to submit:", {
-      overallRating,
-      bestFeature,
-      missingFeature,
-      suggestions,
-      recommend,
-    });
+    setSubmitting(true);
 
-    // Show success overlay
-    setShowFeedbackSuccess(true);
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    const feedbackPayload = {
+      overallRating: overallRating,
+      bestFeature: bestFeature.trim() || null, // Send null if empty, matching DTO
+      missingFeature: missingFeature.trim() || null,
+      suggestions: suggestions.trim() || null,
+      wouldRecommend: recommend,
+    };
 
-    // After 3s, hide and navigate back
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/AppFeedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+        body: JSON.stringify(feedbackPayload),
+      });
+
+      if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+        }
+        console.error("API Error Response:", errorData);
+        throw new Error(errorData?.detail || errorData?.title || `Serverfout: ${response.status}`);
+      }
+
+
+      // Show success overlay
+      setShowFeedbackSuccess(true);
       Animated.timing(fadeAnim, {
-        toValue: 0,
+        toValue: 1,
         duration: 300,
         useNativeDriver: true,
-      }).start(() => {
-        setShowFeedbackSuccess(false); // Reset state
-        router.replace("/(tabs)"); // Navigate back to home or previous screen
-      });
-    }, 2500); // Slightly shorter duration for user experience
+      }).start();
+
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          setShowFeedbackSuccess(false);
+          router.replace("/(tabs)");
+        });
+      }, 2500);
+
+    } catch (error: any) {
+      console.error("Failed to submit feedback:", error);
+      Alert.alert(
+        "Versturen Mislukt",
+        error.message || "Kon feedback niet versturen. Probeer het later opnieuw."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (showFeedbackSuccess) {
     return (
       <Animated.View
         style={[
-          styles.successOverlayContainer, // Renamed style for clarity
+          styles.successOverlayContainer,
           { backgroundColor: theme.background, opacity: fadeAnim },
         ]}
       >
@@ -156,7 +189,7 @@ const AppFeedback: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+            <TouchableOpacity onPress={handleBack} style={styles.backButton} disabled={submitting}>
               <Ionicons name="arrow-back" size={wp(7)} color={theme.backIcon} />
             </TouchableOpacity>
             <Text style={[styles.headerTitle, { color: theme.text }]}>Geef uw Feedback</Text>
@@ -185,6 +218,7 @@ const AppFeedback: React.FC = () => {
               value={bestFeature}
               onChangeText={setBestFeature}
               multiline
+              editable={!submitting}
             />
 
             <Text style={[styles.label, { color: theme.text, marginTop: hp(2) }]}>
@@ -204,6 +238,7 @@ const AppFeedback: React.FC = () => {
               value={missingFeature}
               onChangeText={setMissingFeature}
               multiline
+              editable={!submitting}
             />
 
             <Text style={[styles.label, { color: theme.text, marginTop: hp(2) }]}>
@@ -223,6 +258,7 @@ const AppFeedback: React.FC = () => {
               value={suggestions}
               onChangeText={setSuggestions}
               multiline
+              editable={!submitting}
             />
 
             <Text style={[styles.label, { color: theme.text, marginTop: hp(2) }]}>
@@ -234,9 +270,11 @@ const AppFeedback: React.FC = () => {
                   styles.recommendButton,
                   { backgroundColor: recommend === true ? accentColor : theme.inputBackground,
                     borderColor: recommend === true ? accentColor : theme.inputBorder,
+                    opacity: submitting ? 0.5 : 1,
                   },
                 ]}
                 onPress={() => setRecommend(true)}
+                disabled={submitting}
               >
                 <Text style={[styles.recommendButtonText, { color: recommend === true ? theme.buttonText : theme.text }]}>
                   Ja
@@ -247,9 +285,11 @@ const AppFeedback: React.FC = () => {
                   styles.recommendButton,
                   { backgroundColor: recommend === false ? accentColor : theme.inputBackground,
                     borderColor: recommend === false ? accentColor : theme.inputBorder,
+                    opacity: submitting ? 0.5 : 1,
                   },
                 ]}
                 onPress={() => setRecommend(false)}
+                disabled={submitting}
               >
                 <Text style={[styles.recommendButtonText, { color: recommend === false ? theme.buttonText : theme.text }]}>
                   Nee
@@ -257,8 +297,19 @@ const AppFeedback: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={handleSubmit} style={[styles.submitButton, { backgroundColor: accentColor }]}>
-              <Text style={[styles.submitButtonText, { color: theme.buttonText }]}>Verstuur Feedback</Text>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              style={[
+                styles.submitButton,
+                { backgroundColor: accentColor, opacity: submitting ? 0.6 : 1 }
+              ]}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <ActivityIndicator size="small" color={theme.buttonText} />
+              ) : (
+                <Text style={[styles.submitButtonText, { color: theme.buttonText }]}>Verstuur Feedback</Text>
+              )}
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -317,21 +368,19 @@ const styles = StyleSheet.create({
   },
   recommendContainer: {
     flexDirection: "row",
-    justifyContent: "space-around", // Changed to space-around for better spacing
+    justifyContent: "space-around",
     marginTop: hp(1),
     marginBottom: hp(3),
   },
   recommendButton: {
     paddingVertical: hp(1.5),
-    paddingHorizontal: wp(6), // Adjusted padding
+    paddingHorizontal: wp(6),
     borderRadius: wp(2),
     borderWidth: 1,
-    // borderColor dynamically set
-    flex: 1, // Make buttons take equal width
-    marginHorizontal: wp(1), // Add some space between buttons
-    alignItems: 'center', // Center text
+    flex: 1,
+    marginHorizontal: wp(1),
+    alignItems: 'center',
   },
-  // recommendButtonSelected style removed as backgroundColor is handled inline
   recommendButtonText: {
     fontSize: wp(4),
     fontWeight: "bold",
@@ -347,12 +396,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    minHeight: hp(6.5), // Ensure button height is consistent with ActivityIndicator
+    justifyContent: 'center', // Center ActivityIndicator or Text
   },
   submitButtonText: {
     fontSize: wp(4.5),
     fontWeight: "bold",
   },
-  successOverlayContainer: { 
+  successOverlayContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
