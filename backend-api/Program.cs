@@ -18,6 +18,7 @@ builder.Services.AddScoped<IIssueReportService, IssueReportService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+builder.Services.AddScoped<IAppFeedbackService, AppFeedbackService>();
 
 // 🔐 JWT Auth setup
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
