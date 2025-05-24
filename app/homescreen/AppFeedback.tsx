@@ -98,7 +98,6 @@ const AppFeedback: React.FC = () => {
       suggestions,
       recommend,
     });
-    // --- End Simulate API Call ---
 
     // Show success overlay
     setShowFeedbackSuccess(true);
