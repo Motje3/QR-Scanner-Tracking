@@ -17,6 +17,7 @@
     "@nextui-org/react": "^2.6.11",
     "@tailwindcss/vite": "^4.1.4",
     "lucide-react": "^0.503.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.2",
