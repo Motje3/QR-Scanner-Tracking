@@ -278,9 +278,7 @@ const NewShipment = () => {
               level="H"
             />
           </div>
-          <p className="text-xs text-gray-400 mt-2">
-            Scan deze QR-code met de mobiele app.
-          </p>
+          
 
           <button
             onClick={handleDownloadQR}
