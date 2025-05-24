@@ -1,8 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // Required for ProfileId if you add it
 
-namespace backend_api.Models // Ensure this namespace matches your project structure
+namespace backend_api.Models 
 {
     public class AppFeedback
     {
