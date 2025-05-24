@@ -43,11 +43,11 @@ const AppFeedback: React.FC = () => {
     inputBorder: darkMode ? "#334155" : "#CBD5E1",
     buttonText: "#FFFFFF",
     backIcon: darkMode ? "#ffffff" : "#0f0D23",
-    successText: "#10B981", // Same success color as editprofile
+    successText: "#10B981",
   };
 
   const handleBack = () => {
-    if (showFeedbackSuccess) return true; // Prevent back action while success screen is briefly shown
+    if (showFeedbackSuccess) return true;
     router.replace("/(tabs)");
     return true;
   };
