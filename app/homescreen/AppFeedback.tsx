@@ -352,13 +352,12 @@ const styles = StyleSheet.create({
     fontSize: wp(4.5),
     fontWeight: "bold",
   },
-  // Styles for the success overlay, similar to editprofile.tsx
-  successOverlayContainer: { // Renamed from successContainer for clarity
+  successOverlayContainer: { 
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  successOverlayText: { // Renamed from successText for clarity
+  successOverlayText: {
     fontSize: wp(6),
     marginTop: hp(2),
     fontWeight: 'bold',
