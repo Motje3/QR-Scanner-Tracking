@@ -32,10 +32,6 @@ namespace backend_api.Models // Ensure this namespace matches your project struc
 
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
-        // Constructor can be added if needed, for example, to ensure SubmittedAt is always set.
-        // public AppFeedback()
-        // {
-        //     SubmittedAt = DateTime.UtcNow;
-        // }
+        
     }
 }
