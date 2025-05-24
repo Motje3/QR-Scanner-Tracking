@@ -11,7 +11,7 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
-  Animated, // Added Animated
+  Animated,
   Keyboard, // Added Keyboard
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
