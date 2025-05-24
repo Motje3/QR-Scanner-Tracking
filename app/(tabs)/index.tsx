@@ -183,11 +183,7 @@ const Home = () => {
               alignItems: "center",
             }}
           >
-            {/* Using Ionicons as an example. 
-              Replace 'chatbubble-ellipses-outline' with your desired icon name from Ionicons,
-              or replace the <Ionicons> component entirely with your custom <Image> component
-              if you add a 'feedback' icon to your `icons.ts` (e.g., icons.feedback).
-            */}
+            
             <Ionicons
               name="chatbubble-ellipses-outline"
               size={wp(10)}
