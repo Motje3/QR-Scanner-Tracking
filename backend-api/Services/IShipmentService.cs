@@ -13,7 +13,5 @@ namespace backend_api.Services
         Task<IEnumerable<Shipment>> GetShipmentsForUserAsync(string username, DateTime date);
         Task<IEnumerable<Shipment>> GetShipmentsForUserAsync(string username);
         Task<Shipment> CreateShipmentAsync(CreateShipmentDto shipmentDto);
-
-
     }
 }

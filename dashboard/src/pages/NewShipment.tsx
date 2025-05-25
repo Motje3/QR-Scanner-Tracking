@@ -13,6 +13,9 @@ import {
   Download,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface CreatedShipment {
   id: number;
   status: string;
@@ -44,9 +47,6 @@ const NewShipment = () => {
     useState<CreatedShipment | null>(null);
 
   const qrCodeRef = useRef<HTMLDivElement>(null);
-
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:5070";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
