@@ -81,7 +81,6 @@ namespace backend_api.Services
             }
 
             // Check if email already exists (if email is provided and should be unique)
-            // (Consider if email should be unique across all profiles)
             if (!string.IsNullOrEmpty(dto.Email) && await _context.Profiles.AnyAsync(p => p.Email == dto.Email))
             {
                 throw new Exception($"Email '{dto.Email}' is already in use.");
