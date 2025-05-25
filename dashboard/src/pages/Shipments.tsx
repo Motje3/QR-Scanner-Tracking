@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Input,
+  Input, // Only Input and Button are used from NextUI in this version
   Button,
 } from "@nextui-org/react";
+// Removed Table, TableHeader, etc. as they are not used in your current file structure for the table
 
 interface Shipment {
   id: number;
@@ -52,6 +47,8 @@ const CustomDropdown = ({
       </button>
       {open && (
         <ul className="absolute z-50 bg-[#1E1B33] w-full mt-1 rounded-md shadow-lg border border-[#3A365A] max-h-60 overflow-y-auto">
+          {" "}
+          {/* z-50 from previous fix */}
           {options.map((option) => (
             <li
               key={option}
@@ -78,7 +75,7 @@ const Shipments = () => {
 
   const uniqueStatuses = [
     "Alle Statussen",
-    ...new Set(shipments.map((s) => s.status)),
+    ...new Set(shipments.map((s) => s.status).filter(Boolean)), // Ensure to filter out null/undefined statuses if any
   ];
 
   const API_BASE_URL =
@@ -98,7 +95,7 @@ const Shipments = () => {
     const lowerQuery = query.toLowerCase();
     const filteredList = shipments.filter(
       (s) =>
-        (s.id.toString().includes(lowerQuery) ||
+        (s.id.toString().includes(lowerQuery) || // Make sure to search ID as string
           s.destination?.toLowerCase().includes(lowerQuery) ||
           s.status?.toLowerCase().includes(lowerQuery) ||
           s.assignedTo?.toLowerCase().includes(lowerQuery)) &&
@@ -109,7 +106,7 @@ const Shipments = () => {
     setFiltered(filteredList);
   }, [query, shipments, selectedStatus]);
 
-  const inputWrapperBaseStyle =
+  const inputWrapperBaseStyle = // Used by the Reset Filters button
     "bg-[#1E1B33] border border-[#3A365A] text-white rounded-md transition-colors duration-200";
 
   const handleRowClick = (shipmentId: number) => {
@@ -117,29 +114,58 @@ const Shipments = () => {
     alert(`Zending ID ${shipmentId} geklikt! Functionaliteit volgt nog.`);
   };
 
+  // Helper function to get status color
+  const getStatusColorClass = (status: string) => {
+    switch (
+      status?.toLowerCase() // Added optional chaining and toLowerCase for robustness
+    ) {
+      case "geleverd":
+        return "text-green-400";
+      case "onderweg":
+        return "text-orange-400";
+      case "in afwachting":
+        return "text-yellow-400";
+      // You can add more Dutch status cases here
+      case "in transit": // Example if some data might still have English
+        return "text-blue-400"; // Or map to a Dutch equivalent's color
+      case "delivered":
+        return "text-green-400";
+      case "pending":
+        return "text-yellow-400";
+      case "failed":
+        return "text-red-400";
+      default:
+        return "text-gray-400"; // Default color for unknown or other statuses
+    }
+  };
+
   return (
     <div className="p-6 space-y-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 min-h-[92vh]">
       <h1 className="text-4xl font-bold text-white mb-8">
         Zendingen Overzicht
       </h1>
-      
+
       {/* Filter bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 p-4 bg-indigo-900/60 backdrop-blur-sm rounded-xl shadow-lg relative z-30">
+        {" "}
+        {/* z-30 for dropdown context */}
         <Input
           placeholder="Zoek op ID, status, bestemming..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="max-w-md"
+          // startContent prop from NextUI for adding elements like icons easily
+          
           classNames={{
-            base: "h-12",
+            // Using classNames for precise styling of NextUI Input parts
             inputWrapper: [
               "bg-[#1E1B33]",
               "border",
               "border-[#3A365A]",
               "rounded-md",
               "shadow-sm",
-              "h-12",
-              "px-4",
+              "h-12", // Explicit height
+              // "px-3", // Let startContent and input's own padding handle internal spacing
               "group-data-[focus=true]:border-purple-500",
               "group-data-[focus=true]:ring-2",
               "group-data-[focus=true]:ring-purple-500/50",
@@ -147,7 +173,7 @@ const Shipments = () => {
               "transition-all",
               "duration-200",
               "flex",
-              "items-center",
+              "items-center", // Ensure vertical alignment
             ],
             input: [
               "text-sm",
@@ -155,14 +181,13 @@ const Shipments = () => {
               "placeholder:text-gray-400",
               "bg-transparent",
               "outline-none",
-              "border-none",
+              "border-none", // Crucial: input itself is borderless and transparent
               "flex-1",
               "h-full",
-              "py-0",
+              "p-0 pl-1", // Adjust pl-1 if needed for space after icon
             ],
           }}
         />
-
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <CustomDropdown
             options={uniqueStatuses}
@@ -171,7 +196,7 @@ const Shipments = () => {
             placeholder="Filter op status"
           />
           <Button
-            className={`${inputWrapperBaseStyle} text-sm px-4 py-2 hover:bg-[#2A2745]`}
+            className={`${inputWrapperBaseStyle} text-sm h-12 px-4 hover:bg-[#2A2745] min-w-[150px]`} // Matched height
             variant="flat"
             onClick={() => {
               setQuery("");
@@ -209,6 +234,8 @@ const Shipments = () => {
 
         {/* Table Body with proper spacing */}
         <div className="space-y-3">
+          {" "}
+          {/* This controls the space between shipment rows */}
           {filtered.length === 0 ? (
             <div className="text-center text-gray-400 py-8 bg-indigo-800/70 backdrop-blur-sm rounded-lg">
               Geen zendingen gevonden die voldoen aan uw criteria.
@@ -220,38 +247,35 @@ const Shipments = () => {
                 onClick={() => handleRowClick(shipment.id)}
                 className="grid grid-cols-6 gap-4 p-4 bg-indigo-800/70 backdrop-blur-sm rounded-lg shadow-md hover:bg-indigo-700/90 hover:shadow-xl hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out cursor-pointer"
               >
-                <div className="text-sm text-gray-200">
+                <div className="text-sm text-gray-200 self-center">
                   {shipment.id}
-                </div>
-                <div className="text-sm">
+                </div>{" "}
+                {/* Added self-center for vertical alignment */}
+                <div className="text-sm self-center">
+                  {" "}
+                  {/* Added self-center */}
                   <span
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                      shipment.status === "In Transit"
-                        ? "bg-blue-500 text-blue-100"
-                        : shipment.status === "Delivered"
-                          ? "bg-green-500 text-green-100"
-                          : shipment.status === "Pending"
-                            ? "bg-yellow-500 text-yellow-100"
-                            : shipment.status === "Failed"
-                              ? "bg-red-500 text-red-100"
-                              : "bg-gray-500 text-gray-100"
-                    }`}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColorClass(shipment.status)}`}
                   >
                     {shipment.status}
                   </span>
                 </div>
-                <div className="text-sm text-gray-300">
+                <div className="text-sm text-gray-300 self-center">
                   {shipment.destination || "-"}
-                </div>
-                <div className="text-sm text-gray-300">
+                </div>{" "}
+                {/* Added self-center */}
+                <div className="text-sm text-gray-300 self-center">
                   {shipment.assignedTo || "-"}
-                </div>
-                <div className="text-sm text-gray-300">
+                </div>{" "}
+                {/* Added self-center */}
+                <div className="text-sm text-gray-300 self-center">
                   {shipment.expectedDelivery || "-"}
-                </div>
-                <div className="text-sm text-gray-300">
+                </div>{" "}
+                {/* Added self-center */}
+                <div className="text-sm text-gray-300 self-center">
                   {shipment.weight || "-"}
-                </div>
+                </div>{" "}
+                {/* Added self-center */}
               </div>
             ))
           )}
