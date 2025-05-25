@@ -254,7 +254,7 @@ const NewShipment = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-500 text-indigo-950 font-semibold py-3 px-4 rounded-md transition-colors duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-50 text-lg !mt-8"
+            className="w-full flex items-center justify-center bg-yellow-400 hover:bg-yellow-600 disabled:bg-gray-500 text-indigo-950 font-semibold py-3 px-4 rounded-md transition-colors duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-50 text-lg !mt-8"
           >
             {isLoading ? (
               <Loader2 size={24} className="animate-spin mr-2" />
