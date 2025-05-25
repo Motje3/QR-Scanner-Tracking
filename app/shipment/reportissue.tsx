@@ -70,7 +70,6 @@ export default function ReportIssue() {
   }, []);
 
   useEffect(() => {
-    // Initial screen fade-in animation
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -100,25 +99,22 @@ export default function ReportIssue() {
         throw new Error(errorData || "Failed to submit issue report");
       }
 
-      // Show success overlay instead of Alert
       setShowSuccess(true);
       Animated.timing(successOpacityAnim, {
         toValue: 1,
-        duration: 100, // Duration from appsettings.tsx
+        duration: 100,
         useNativeDriver: true,
       }).start();
 
-      // After 1s, fade out and navigate back
       setTimeout(() => {
         Animated.timing(successOpacityAnim, {
           toValue: 0,
-          duration: 100, // Duration from appsettings.tsx
+          duration: 100,
           useNativeDriver: true,
         }).start(() => {
-          // Navigate back to shipment details, similar to handleBack's navigation
           router.navigate(`/shipment/shipmentdetails?qrData=${shipmentId}`);
         });
-      }, 1000); // Delay from appsettings.tsx
+      }, 1000);
     } catch (error) {
       console.error("❌ Indienen mislukt:", error);
       Alert.alert(
