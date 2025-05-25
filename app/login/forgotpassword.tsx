@@ -106,16 +106,16 @@ export default function ForgotPassword() {
 
   if (showRequestSent) {
     return (
-      <LinearGradient 
-        colors={["#3E1F92", "#230F52"]} 
+      <LinearGradient
+        colors={["#3E1F92", "#230F52"]}
         locations={[0.3, 1]}
-        style={styles.bg} 
+        style={styles.bg}
       >
         <SafeAreaView style={styles.successOverlaySafeArea}>
           <View style={styles.successOverlayContainer}>
             <View style={styles.successCard}>
               {/* --- ADD THE ICON HERE --- */}
-              <Ionicons 
+              <Ionicons
                 name="checkmark-circle-outline" // Or "checkmark-circle" for a filled one
                 size={wp(18)} // Adjust size as needed (e.g., wp(15) or wp(20))
                 color="#4CAF50" // A nice green color
@@ -124,14 +124,17 @@ export default function ForgotPassword() {
               {/* ------------------------- */}
               <Text style={styles.successTitle}>Verzoek Verzonden!</Text>
               <Text style={styles.successMessage}>
-                Je wachtwoordresetverzoek is naar de administrator gestuurd. 
-                Zij zullen het zo spoedig mogelijk verwerken.
+                Je wachtwoordresetverzoek is naar de administrator gestuurd. Zij
+                zullen het zo spoedig mogelijk verwerken.
               </Text>
               <TouchableOpacity
-                style={[styles.successButton, { backgroundColor: accentColor || "#6200EE" }]}
+                style={[
+                  styles.successButton,
+                  { backgroundColor: accentColor || "#6200EE" },
+                ]}
                 onPress={() => {
-                  setShowRequestSent(false); 
-                  router.replace("/login/loginpage"); 
+                  setShowRequestSent(false);
+                  router.replace("/login/loginpage");
                 }}
               >
                 <Text style={styles.successButtonText}>OK</Text>
