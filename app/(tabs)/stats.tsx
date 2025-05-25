@@ -35,8 +35,12 @@ const Stats = () => {
   const [error, setError] = useState<string | null>(null);
 
   const theme = {
-    background: darkMode ? ["#3D0F6E", "#030014"] as const : ["#ffffff", "#f2f2f2"] as const,
-    cardBackground: darkMode ? ["#17144F", "#090723"] as const : ["#f0f0f0", "#e4e4e4"] as const,
+    background: darkMode
+      ? (["#3D0F6E", "#030014"] as const)
+      : (["#ffffff", "#f2f2f2"] as const),
+    cardBackground: darkMode
+      ? (["#17144F", "#090723"] as const)
+      : (["#f0f0f0", "#e4e4e4"] as const),
     text: darkMode ? "#ffffff" : "#0f0D23",
     secondaryText: darkMode ? "#9CA3AF" : "#6B7280",
     borderColor: darkMode ? "#2D2D2D" : "#E5E7EB",
@@ -49,7 +53,7 @@ const Stats = () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/shipments/me`, {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
         });
@@ -89,7 +93,10 @@ const Stats = () => {
         colors={theme.background}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
-        style={[styles.container, { justifyContent: "center", alignItems: "center" }]}
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
       >
         <ActivityIndicator size="large" color={accentColor} />
       </LinearGradient>
@@ -102,7 +109,10 @@ const Stats = () => {
         colors={theme.background}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
-        style={[styles.container, { justifyContent: "center", alignItems: "center", padding: wp(6) }]}
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center", padding: wp(6) },
+        ]}
       >
         <Text style={{ color: theme.text, fontSize: wp(4) }}>{error}</Text>
       </LinearGradient>
@@ -119,9 +129,9 @@ const Stats = () => {
       {/* Header */}
       <View style={styles.header}>
         {/* Fixed Image component */}
-        <Image 
-          source={icons.stats as ImageSourcePropType} 
-          style={[styles.headerIcon, { tintColor: accentColor }]} 
+        <Image
+          source={icons.stats as ImageSourcePropType}
+          style={[styles.headerIcon, { tintColor: accentColor }]}
         />
       </View>
 
@@ -132,19 +142,29 @@ const Stats = () => {
         end={{ x: 1, y: 1 }}
         style={styles.overviewBox}
       >
-        <Text style={[styles.overviewTitle, { color: theme.text }]}>Jouw zendingen</Text>
+        <Text style={[styles.overviewTitle, { color: theme.text }]}>
+          Jouw zendingen
+        </Text>
         <View style={styles.overviewStats}>
           <View style={styles.statBox}>
-            <Text style={[styles.statValue, { color: accentColor }]}>{total}</Text>
-            <Text style={[styles.statLabel, { color: theme.secondaryText }]}>Totaal</Text>
+            <Text style={[styles.statValue, { color: accentColor }]}>
+              {total}
+            </Text>
+            <Text style={[styles.statLabel, { color: theme.secondaryText }]}>
+              Totaal
+            </Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statValueCompleted}>{completed}</Text>
-            <Text style={[styles.statLabel, { color: theme.secondaryText }]}>Voltooid</Text>
+            <Text style={[styles.statLabel, { color: theme.secondaryText }]}>
+              Voltooid
+            </Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statValuePending}>{pending}</Text>
-            <Text style={[styles.statLabel, { color: theme.secondaryText }]}>In behandeling</Text>
+            <Text style={[styles.statLabel, { color: theme.secondaryText }]}>
+              In behandeling
+            </Text>
           </View>
         </View>
       </LinearGradient>
@@ -156,14 +176,25 @@ const Stats = () => {
         end={{ x: 1, y: 1 }}
         style={styles.activityBox}
       >
-        <Text style={[styles.activityTitle, { color: theme.text }]}>Recente activiteit</Text>
+        <Text style={[styles.activityTitle, { color: theme.text }]}>
+          Recente activiteit
+        </Text>
         <View style={styles.scrollableList}>
           <FlatList
             data={filteredShipments}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={[styles.listItem, { borderBottomColor: theme.listItemBorder }]}>
-                <Text style={[styles.listItemId, { color: theme.secondaryText }]}>{item.id}</Text>
+              <View
+                style={[
+                  styles.listItem,
+                  { borderBottomColor: theme.listItemBorder },
+                ]}
+              >
+                <Text
+                  style={[styles.listItemId, { color: theme.secondaryText }]}
+                >
+                  {item.id}
+                </Text>
                 <Text
                   style={[
                     styles.listItemStatus,
@@ -172,14 +203,18 @@ const Stats = () => {
                         item.status === "Geleverd"
                           ? "#22C55E"
                           : item.status === "Vertraagd"
-                          ? "#F59E0B"
-                          : "#FACC15",
+                            ? "#F59E0B"
+                            : "#FACC15",
                     },
                   ]}
                 >
                   {item.status}
                 </Text>
-                <Text style={[styles.listItemDate, { color: theme.secondaryText }]}>{item.date}</Text>
+                <Text
+                  style={[styles.listItemDate, { color: theme.secondaryText }]}
+                >
+                  {item.date}
+                </Text>
               </View>
             )}
             showsVerticalScrollIndicator={false}
@@ -190,14 +225,27 @@ const Stats = () => {
       {/* Filters Button */}
       <TouchableOpacity
         onPress={() => setIsModalVisible(true)}
-        style={[styles.filterButton, { backgroundColor: theme.filterButtonBackground }]}
+        style={[
+          styles.filterButton,
+          { backgroundColor: theme.filterButtonBackground },
+        ]}
       >
         <View style={styles.filterButtonContent}>
-          <Image 
-            source={icons.filter as ImageSourcePropType} 
-            style={[styles.filterIcon, { tintColor: darkMode ? "#FFF" : "#0f0D23" }]} 
+          <Image
+            source={icons.filter as ImageSourcePropType}
+            style={[
+              styles.filterIcon,
+              { tintColor: darkMode ? "#FFF" : "#0f0D23" },
+            ]}
           />
-          <Text style={[styles.filterText, { color: darkMode ? "#FFF" : "#0f0D23" }]}>Filter</Text>
+          <Text
+            style={[
+              styles.filterText,
+              { color: darkMode ? "#FFF" : "#0f0D23" },
+            ]}
+          >
+            Filter
+          </Text>
         </View>
       </TouchableOpacity>
 
@@ -215,13 +263,22 @@ const Stats = () => {
             end={{ x: 1, y: 1 }}
             style={styles.filterBox}
           >
-            <Text style={[styles.filterTitle, { color: theme.text }]}>Filters</Text>
+            <Text style={[styles.filterTitle, { color: theme.text }]}>
+              Filters
+            </Text>
             <View style={styles.filterItem}>
-              <LocationFilter label="Locatie" value={location} onChange={setLocation} />
+              <LocationFilter
+                label="Locatie"
+                value={location}
+                onChange={setLocation}
+              />
             </View>
             <View>
               <DatePickerFilter label="Datum" value={date} onChange={setDate} />
-              <TouchableOpacity onPress={() => setDate("")} style={styles.resetButton}>
+              <TouchableOpacity
+                onPress={() => setDate("")}
+                style={styles.resetButton}
+              >
                 <Text style={styles.resetButtonText}>Reset datum</Text>
               </TouchableOpacity>
             </View>
@@ -242,32 +299,95 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { alignItems: "center", marginBottom: 20 },
   headerIcon: { width: 40, height: 40, marginTop: 40 },
-  filterButton: { marginTop: 10, alignSelf: "flex-start", marginLeft: 20, paddingVertical: 10, paddingLeft: 20, paddingRight: 25, borderRadius: 25, shadowColor: "#000", shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
+  filterButton: {
+    marginTop: 10,
+    alignSelf: "flex-start",
+    marginLeft: 20,
+    paddingVertical: 10,
+    paddingLeft: 20,
+    paddingRight: 25,
+    borderRadius: 25,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
   filterButtonContent: { flexDirection: "row", alignItems: "center" },
   filterIcon: { width: 20, height: 20, marginRight: 15 },
   filterText: { fontSize: 16, fontWeight: "bold" },
-  overviewBox: { padding: 20, borderRadius: 20, alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8, marginBottom: 15, width: width * 0.9, alignSelf: "center" },
+  overviewBox: {
+    padding: 20,
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+    marginBottom: 15,
+    width: width * 0.9,
+    alignSelf: "center",
+  },
   overviewTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  overviewStats: { flexDirection: "row", justifyContent: "space-between", width: "100%", paddingHorizontal: 10 },
+  overviewStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 10,
+  },
   statBox: { alignItems: "center" },
   statValue: { fontSize: 24, fontWeight: "bold" },
   statValueCompleted: { color: "#22C55E", fontSize: 24, fontWeight: "bold" },
   statValuePending: { color: "#FACC15", fontSize: 24, fontWeight: "bold" },
   statLabel: { fontSize: 14 },
-  activityBox: { padding: 20, borderRadius: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8, marginBottom: 15, width: width * 0.9, alignSelf: "center" },
+  activityBox: {
+    padding: 20,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+    marginBottom: 15,
+    width: width * 0.9,
+    alignSelf: "center",
+  },
   activityTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
   scrollableList: { maxHeight: 200 },
-  listItem: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 10, borderBottomWidth: 1 },
+  listItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
   listItemId: { fontSize: 14 },
   listItemStatus: { fontSize: 16, fontWeight: "bold" },
   listItemDate: { fontSize: 14 },
-  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.7)" },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
   filterBox: { padding: 20, borderRadius: 20, width: width * 0.9 },
   filterTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
   filterItem: { marginBottom: 10 },
-  resetButton: { marginTop: 10, backgroundColor: "#FF4D4D", padding: 10, borderRadius: 8, alignItems: "center" },
+  resetButton: {
+    marginTop: 10,
+    backgroundColor: "#FF4D4D",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
   resetButtonText: { color: "#FFF", fontWeight: "bold" },
-  closeButton: { marginTop: 20, backgroundColor: "#1E90FF", padding: 10, borderRadius: 8, alignItems: "center" },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: "#1E90FF",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
   closeButtonText: { color: "#FFF", fontWeight: "bold" },
 });
 
