@@ -1,6 +1,14 @@
 // Accounts.tsx
 import React, { useState, useEffect } from "react";
-import { Search, Edit, Trash, User, Plus, AlertCircle } from "lucide-react";
+import {
+  Search,
+  Edit,
+  Trash,
+  User,
+  Plus,
+  AlertCircle,
+  ChevronDown,
+} from "lucide-react";
 import { Input } from "@nextui-org/react";
 import axios from "axios";
 
@@ -42,6 +50,11 @@ const Accounts = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const [selectedRole, setSelectedRole] = useState("");
+  const [openRoleDropdown, setOpenRoleDropdown] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [openStatusDropdown, setOpenStatusDropdown] = useState(false);
 
   // State for the Create New Account modal fields
   const [newUsername, setNewUsername] = useState("");
@@ -341,6 +354,7 @@ const Accounts = () => {
 
       {/* Search and filters bar */}
       <div className="bg-indigo-900/70 backdrop-blur-md rounded-xl shadow-lg p-4 flex flex-col md:flex-row items-center gap-4">
+        {/* Search Input */}
         <div className="relative flex-grow w-full md:w-auto">
           <Input
             isClearable
@@ -365,46 +379,72 @@ const Accounts = () => {
             }
           />
         </div>
-        <select className="w-full md:w-auto bg-indigo-800/80 border border-indigo-700/50 text-white px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm h-11 transition-all duration-200 ease-in-out hover:bg-indigo-700/90 hover:border-indigo-600/60 cursor-pointer appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkw4IDEwTDEyIDYiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==')] bg-no-repeat bg-right-3 bg-center pr-10">
-          <option
-            value="all"
-            className="bg-indigo-800 text-white hover:bg-indigo-700"
+
+        {/* Custom Dropdown for Roles */}
+        <div className="relative w-full md:w-48 z-50">
+          <button
+            onClick={() => setOpenRoleDropdown((prev) => !prev)}
+            className="flex items-center justify-between w-full bg-indigo-800/80 border border-indigo-700/50 text-white px-4 py-2.5 rounded-lg text-sm h-11 hover:bg-indigo-700/90 hover:border-indigo-600/60 transition-colors"
           >
-            Alle Rollen
-          </option>
-          <option
-            value="Admin"
-            className="bg-indigo-800 text-white hover:bg-indigo-700"
+            <span>{selectedRole || "Alle Rollen"}</span>
+            <ChevronDown
+              size={18}
+              className={`ml-2 transition-transform duration-200 ${
+                openRoleDropdown ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {openRoleDropdown && (
+            <ul className="absolute z-50 mt-2 w-full bg-indigo-800/90 backdrop-blur-md rounded-lg shadow-md border border-indigo-700/50">
+              {["Alle Rollen", "Admin", "Manager"].map((role) => (
+                <li
+                  key={role}
+                  className="px-4 py-2 text-sm text-white hover:bg-indigo-700/70 cursor-pointer"
+                  onClick={() => {
+                    setSelectedRole(role === "Alle Rollen" ? "" : role);
+                    setOpenRoleDropdown(false);
+                  }}
+                >
+                  {role}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Custom Dropdown for Status */}
+        <div className="relative w-full md:w-48">
+          <button
+            onClick={() => setOpenStatusDropdown((prev) => !prev)}
+            className="flex items-center justify-between w-full bg-indigo-800/80 border border-indigo-700/50 text-white px-4 py-2.5 rounded-lg text-sm h-11 hover:bg-indigo-700/90 hover:border-indigo-600/60 transition-colors"
           >
-            Admin
-          </option>
-          <option
-            value="Manager"
-            className="bg-indigo-800 text-white hover:bg-indigo-700"
-          >
-            Manager
-          </option>
-        </select>
-        <select className="w-full md:w-auto bg-indigo-800/80 border border-indigo-700/50 text-white px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm h-11 transition-all duration-200 ease-in-out hover:bg-indigo-700/90 hover:border-indigo-600/60 cursor-pointer appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkw4IDEwTDEyIDYiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==')] bg-no-repeat bg-right-3 bg-center pr-10">
-          <option
-            value="all"
-            className="bg-indigo-800 text-white hover:bg-indigo-700"
-          >
-            Alle Statussen
-          </option>
-          <option
-            value="active"
-            className="bg-indigo-800 text-white hover:bg-indigo-700"
-          >
-            Actief
-          </option>
-          <option
-            value="inactive"
-            className="bg-indigo-800 text-white hover:bg-indigo-700"
-          >
-            Inactief
-          </option>
-        </select>
+            <span>{selectedStatus || "Alle Statussen"}</span>
+            <ChevronDown
+              size={18}
+              className={`ml-2 transition-transform duration-200 ${
+                openStatusDropdown ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {openStatusDropdown && (
+            <ul className="absolute z-50 mt-2 w-full bg-indigo-800/90 backdrop-blur-md rounded-lg shadow-md border border-indigo-700/50">
+              {["Alle Statussen", "Actief", "Inactief"].map((status) => (
+                <li
+                  key={status}
+                  className="px-4 py-2 text-sm text-white hover:bg-indigo-700/70 cursor-pointer"
+                  onClick={() => {
+                    setSelectedStatus(
+                      status === "Alle Statussen" ? "" : status
+                    );
+                    setOpenStatusDropdown(false);
+                  }}
+                >
+                  {status}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       {/* Accounts table container */}
