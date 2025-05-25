@@ -125,7 +125,6 @@ export default function ReportIssue() {
       );
     } finally {
       if (!showSuccess) {
-        // Only set submitting to false if not already showing success (and about to navigate)
         setSubmitting(false);
       }
     }
@@ -153,12 +152,11 @@ export default function ReportIssue() {
     if (!result.canceled) setImageUri(result.assets[0].uri);
   };
 
-  // Success overlay (conditionally rendered)
   if (showSuccess) {
     return (
       <Animated.View
         style={[
-          styles.successContainer, // Defined in StyleSheet below
+          styles.successContainer,
           { backgroundColor: theme.background, opacity: successOpacityAnim },
         ]}
       >
