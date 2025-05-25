@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   BackHandler,
-  Animated, // Added Animated
+  Animated,
   StyleSheet,
   ImageSourcePropType,
 } from "react-native";
@@ -22,7 +22,7 @@ import { icons } from "@/constants/icons";
 import { wp, hp } from "../utils/responsive";
 import { useApp } from "../context/AppContext";
 import { API_BASE_URL } from "../config/env";
-import { Ionicons } from "@expo/vector-icons"; // Added Ionicons
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ReportIssue() {
   const router = useRouter();
