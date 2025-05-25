@@ -101,7 +101,7 @@ namespace backend_api.Services
             _context.Profiles.Add(newProfile);
             await _context.SaveChangesAsync();
 
-            return newProfile; // newProfile will have its Id populated by the database
+            return newProfile;
         }
     }
 }
