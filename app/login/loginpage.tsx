@@ -13,7 +13,7 @@ import {
   BackHandler,
   StyleSheet,
   ScrollView,
-  ImageSourcePropType
+  ImageSourcePropType,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
@@ -72,16 +72,23 @@ const Login = () => {
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView
               ref={scrollRef}
-              contentContainerStyle={[styles.container, { minHeight: hp(150)}]}
+              contentContainerStyle={[styles.container, { minHeight: hp(150) }]}
               keyboardShouldPersistTaps="handled"
             >
-              <Image source={images.logo as ImageSourcePropType} style={styles.logo} />
+              <Image
+                source={images.logo as ImageSourcePropType}
+                style={styles.logo}
+              />
               <Text style={styles.title}>Welkom bij E.Lafeber</Text>
               <Text style={styles.subtitle}>Industriële verhuizing</Text>
 
               <View style={styles.form}>
                 <View style={styles.inputRow}>
-                  <Ionicons name="person-outline" size={wp(5)} color="#A8A8A8" />
+                  <Ionicons
+                    name="person-outline"
+                    size={wp(5)}
+                    color="#A8A8A8"
+                  />
                   <TextInput
                     placeholder="Gebruikersnaam"
                     placeholderTextColor="#A8A8A8"
@@ -93,7 +100,11 @@ const Login = () => {
                   />
                 </View>
                 <View style={styles.inputRow}>
-                  <Ionicons name="lock-closed-outline" size={wp(5)} color="#A8A8A8" />
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={wp(5)}
+                    color="#A8A8A8"
+                  />
                   <TextInput
                     placeholder="Wachtwoord"
                     placeholderTextColor="#A8A8A8"
@@ -104,7 +115,9 @@ const Login = () => {
                     onBlur={() => scrollTo(0)}
                     style={styles.input}
                   />
-                  <TouchableOpacity onPress={() => setShowPassword(prev => !prev)}>
+                  <TouchableOpacity
+                    onPress={() => setShowPassword((prev) => !prev)}
+                  >
                     <Ionicons
                       name={showPassword ? "eye-outline" : "eye-off-outline"}
                       size={wp(5)}
@@ -113,11 +126,16 @@ const Login = () => {
                   </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <TouchableOpacity
+                  style={styles.loginButton}
+                  onPress={handleLogin}
+                >
                   <Text style={styles.loginText}>INLOGGEN</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => router.push('/login/forgotpassword')}>
+                <TouchableOpacity
+                  onPress={() => router.push("/login/forgotpassword")}
+                >
                   <Text style={styles.forgot}>Wachtwoord vergeten?</Text>
                 </TouchableOpacity>
               </View>
