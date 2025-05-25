@@ -38,6 +38,12 @@ const Scan = () => {
     }
   }, [isFocused]);
 
+  useEffect(() => {
+    if (isFocused) {
+      qrLock.current = false; // <-- reset lock when you return to Scan screen
+    }
+  }, [isFocused]);
+
   // Refresh permission when app returns from background
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
