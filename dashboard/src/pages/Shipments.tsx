@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Input,
-  Button,
-} from "@nextui-org/react";
-import { ClipboardList } from "lucide-react";
+import { Input, Button } from "@nextui-org/react";
+import { ClipboardList, Search } from "lucide-react";
 
 interface Shipment {
   id: number;
@@ -155,47 +152,30 @@ const Shipments = () => {
 
       {/* Filter bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 p-4 bg-indigo-900/60 backdrop-blur-sm rounded-xl shadow-lg relative z-30">
-        {" "}
-        {/* z-30 for dropdown context */}
-        <Input
-          placeholder="Zoek op ID, status, bestemming..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="max-w-md"
-          // startContent prop from NextUI for adding elements like icons easily
+        {/* Custom Search Input with Clear Button */}
+        <div className="relative max-w-md w-full">
+          <div className="flex items-center h-12 bg-indigo-900/70 border border-indigo-700/50 rounded-xl shadow-lg px-3 pr-10 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/50 transition-all duration-200">
+            <Search size={18} className="text-gray-400 mr-2" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Zoek op ID, status, bestemming..."
+              className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 placeholder:text-base outline-none"
+            />
+          </div>
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white text-2xl font-bold"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
 
-          classNames={{
-            // Using classNames for precise styling of NextUI Input parts
-            inputWrapper: [
-              "bg-[#1E1B33]",
-              "border",
-              "border-[#3A365A]",
-              "rounded-md",
-              "shadow-sm",
-              "h-12", // Explicit height
-              // "px-3", // Let startContent and input's own padding handle internal spacing
-              "group-data-[focus=true]:border-purple-500",
-              "group-data-[focus=true]:ring-2",
-              "group-data-[focus=true]:ring-purple-500/50",
-              "hover:border-[#4A4663]",
-              "transition-all",
-              "duration-200",
-              "flex",
-              "items-center",
-            ],
-            input: [
-              "text-sm",
-              "text-white",
-              "placeholder:text-gray-400",
-              "bg-transparent",
-              "outline-none",
-              "border-none",
-              "flex-1",
-              "h-full",
-              "p-0 pl-1", 
-            ],
-          }}
-        />
+        {/* Status Filter and Reset Button (unchanged) */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <CustomDropdown
             options={uniqueStatuses}
@@ -204,9 +184,9 @@ const Shipments = () => {
             placeholder="Filter op status"
           />
           <Button
-            className={`${inputWrapperBaseStyle} text-sm h-12 px-4 hover:bg-[#2A2745] min-w-[150px]`} // Matched height
+            className={`${inputWrapperBaseStyle} text-sm h-12 px-4 hover:bg-[#2A2745] min-w-[150px]`}
             variant="flat"
-            onClick={() => {
+            onPress={() => {
               setQuery("");
               setSelectedStatus(null);
             }}
