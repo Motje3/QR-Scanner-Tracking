@@ -32,7 +32,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [accentColorState, setAccentColorState] = useState(defaultAccent);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [darkModeState, setDarkModeState] = useState<boolean>(true);
-  const [notificationsEnabledState, setNotificationsEnabledState] = useState<boolean>(true);
+  const [notificationsEnabledState, setNotificationsEnabledState] =
+    useState<boolean>(true);
   const [isReady, setIsReady] = useState(false);
 
   // Fetch preferences from backend (only when logged in)
@@ -69,7 +70,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // While logged in but prefs still loading, show a splash
   if (user && !isReady) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#0f0D23" }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#0f0D23",
+        }}
+      >
         <Text style={{ color: "#fff", fontSize: 16 }}>Voorkeuren laden…</Text>
       </View>
     );

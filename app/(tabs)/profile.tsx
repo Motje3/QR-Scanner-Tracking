@@ -1,13 +1,20 @@
 // Profile.tsx
-import { View, Text, Image, TouchableOpacity, ScrollView, ImageSourcePropType } from 'react-native';
-import React from 'react';
-import { icons } from '@/constants/icons';
-import { useRouter } from 'expo-router';
-import { useApp } from '../context/AppContext';
-import { useAuth } from '../context/AuthContext';
-import { wp, hp } from '../utils/responsive';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  ImageSourcePropType,
+} from "react-native";
+import React from "react";
+import { icons } from "@/constants/icons";
+import { useRouter } from "expo-router";
+import { useApp } from "../context/AppContext";
+import { useAuth } from "../context/AuthContext";
+import { wp, hp } from "../utils/responsive";
 
-const fallbackImage = require('../../assets/images/default-profile.png');
+const fallbackImage = require("../../assets/images/default-profile.png");
 
 const Profile = () => {
   const router = useRouter();
@@ -15,33 +22,42 @@ const Profile = () => {
   const { logout } = useAuth();
 
   const theme = {
-    background: darkMode ? '#0f0D23' : '#ffffff',
-    text: darkMode ? '#ffffff' : '#0f0D23',
-    secondaryText: darkMode ? '#9CA3AF' : '#6B7280',
-    borderColor: darkMode ? '#2D2D2D' : '#E5E7EB',
+    background: darkMode ? "#0f0D23" : "#ffffff",
+    text: darkMode ? "#ffffff" : "#0f0D23",
+    secondaryText: darkMode ? "#9CA3AF" : "#6B7280",
+    borderColor: darkMode ? "#2D2D2D" : "#E5E7EB",
   };
 
   const handleEditProfile = () => {
-    router.push('/profile/editprofile');
+    router.push("/profile/editprofile");
   };
 
   const handleChangePassword = () => {
-    router.push('/profile/changepassword');
+    router.push("/profile/changepassword");
   };
 
   const handleSettings = () => {
-    router.push('/profile/appsettings');
+    router.push("/profile/appsettings");
   };
 
   const handleLogout = async () => {
-    await logout(); // clears session + in-memory user, then redirects to login
+    await logout();
   };
 
   const options = [
-    { title: 'Profiel bewerken', icon: icons.edit, action: handleEditProfile },
-    { title: 'Wachtwoord aanpassen', icon: icons.lock, action: handleChangePassword },
-    { title: 'App instellingen', icon: icons.setting, action: handleSettings },
-    { title: 'Uitloggen', icon: icons.logout, color: '#EF4444', action: handleLogout },
+    { title: "Profiel bewerken", icon: icons.edit, action: handleEditProfile },
+    {
+      title: "Wachtwoord aanpassen",
+      icon: icons.lock,
+      action: handleChangePassword,
+    },
+    { title: "App instellingen", icon: icons.setting, action: handleSettings },
+    {
+      title: "Uitloggen",
+      icon: icons.logout,
+      color: "#EF4444",
+      action: handleLogout,
+    },
   ];
 
   return (
@@ -53,26 +69,42 @@ const Profile = () => {
           height: hp(9),
           borderBottomLeftRadius: wp(8),
           borderBottomRightRadius: wp(8),
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
           paddingTop: hp(2),
         }}
       >
-        <Text style={{ color: '#fff', fontSize: wp(5), fontWeight: 'bold', marginTop: hp(2) }}>
+        <Text
+          style={{
+            color: "#fff",
+            fontSize: wp(5),
+            fontWeight: "bold",
+            marginTop: hp(2),
+          }}
+        >
           Profiel
         </Text>
       </View>
 
       {/* Profile Info */}
-      <View style={{ alignItems: 'center', marginTop: hp(5) }}>
+      <View style={{ alignItems: "center", marginTop: hp(5) }}>
         <Image
           source={profileImage?.trim() ? { uri: profileImage } : fallbackImage}
           style={{ width: wp(24), height: wp(24), borderRadius: wp(12) }}
         />
-        <Text style={{ color: theme.text, fontSize: wp(4.5), fontWeight: 'bold', marginTop: hp(1) }}>
+        <Text
+          style={{
+            color: theme.text,
+            fontSize: wp(4.5),
+            fontWeight: "bold",
+            marginTop: hp(1),
+          }}
+        >
           {username}
         </Text>
-        <Text style={{ color: theme.secondaryText, fontSize: wp(3.5) }}>{email}</Text>
+        <Text style={{ color: theme.secondaryText, fontSize: wp(3.5) }}>
+          {email}
+        </Text>
       </View>
 
       {/* Options */}
@@ -82,8 +114,8 @@ const Profile = () => {
             key={idx}
             onPress={item.action}
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
+              flexDirection: "row",
+              alignItems: "center",
               paddingVertical: hp(2),
               borderBottomWidth: 1,
               borderBottomColor: theme.borderColor,

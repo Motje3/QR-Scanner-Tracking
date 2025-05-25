@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,18 +10,18 @@ import {
   BackHandler,
   Keyboard,
   Animated,
-  StyleSheet
-} from 'react-native';
-import { wp, hp } from '../utils/responsive';
-import { useRouter } from 'expo-router';
-import { useApp } from '../context/AppContext';
-import { useAuth } from '../context/AuthContext';
-import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
-import { Ionicons } from '@expo/vector-icons';
+  StyleSheet,
+} from "react-native";
+import { wp, hp } from "../utils/responsive";
+import { useRouter } from "expo-router";
+import { useApp } from "../context/AppContext";
+import { useAuth } from "../context/AuthContext";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import { Ionicons } from "@expo/vector-icons";
 import { API_BASE_URL } from "../config/env";
 
-const fallbackImage = require('../../assets/images/default-profile.png');
+const fallbackImage = require("../../assets/images/default-profile.png");
 
 const EditProfile = () => {
   const router = useRouter();
@@ -38,10 +38,10 @@ const EditProfile = () => {
   } = useApp();
 
   const theme = {
-    background: darkMode ? '#0f0D23' : '#ffffff',
-    text: darkMode ? '#ffffff' : '#0f0D23',
-    secondaryText: darkMode ? '#9CA3AF' : '#6B7280',
-    card: darkMode ? '#1F2937' : '#f3f4f6',
+    background: darkMode ? "#0f0D23" : "#ffffff",
+    text: darkMode ? "#ffffff" : "#0f0D23",
+    secondaryText: darkMode ? "#9CA3AF" : "#6B7280",
+    card: darkMode ? "#1F2937" : "#f3f4f6",
   };
 
   const [newName, setNewName] = useState(username);
@@ -49,16 +49,18 @@ const EditProfile = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-
   // Navigate back to profile tab
-    const handleBack = () => {
-      router.navigate('/(tabs)/profile');
-      return true;
-    };
-    useEffect(() => {
-      const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBack);
-      return () => backHandler.remove();
-    }, [router]);
+  const handleBack = () => {
+    router.navigate("/(tabs)/profile");
+    return true;
+  };
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBack
+    );
+    return () => backHandler.remove();
+  }, [router]);
 
   const handleSave = async () => {
     Keyboard.dismiss();
@@ -68,7 +70,7 @@ const EditProfile = () => {
         {
           fullName: newName,
           email: newEmail,
-          imageUrl: profileImage || '',
+          imageUrl: profileImage || "",
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -81,16 +83,24 @@ const EditProfile = () => {
 
       // Show success overlay
       setShowSuccess(true);
-      Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
 
-      // After 3s, hide and navigate back
+      // After 3s,  hide and navigate back
       setTimeout(() => {
-        Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
           router.navigate("/(tabs)/profile");
         });
       }, 3000);
     } catch (error) {
-      console.error('❌ Fout bij opslaan profiel:', error);
+      console.error("❌ Fout bij opslaan profiel:", error);
     }
   };
 
@@ -109,30 +119,43 @@ const EditProfile = () => {
   // Success overlay
   if (showSuccess) {
     return (
-      <Animated.View style={[styles.successContainer, { backgroundColor: theme.background, opacity: fadeAnim }]}>        
+      <Animated.View
+        style={[
+          styles.successContainer,
+          { backgroundColor: theme.background, opacity: fadeAnim },
+        ]}
+      >
         <Ionicons name="checkmark-circle" size={wp(20)} color="#10B981" />
-        <Text style={[styles.successText, { color: '#10B981' }]}>Je profiel is bijgewerkt!</Text>
+        <Text style={[styles.successText, { color: "#10B981" }]}>
+          Je profiel is bijgewerkt!
+        </Text>
       </Animated.View>
     );
   }
 
-  const Container = Platform.OS === 'ios' ? KeyboardAvoidingView : View;
-  const containerProps = Platform.OS === 'ios'
-    ? { behavior: 'padding' as 'padding', style: [styles.container, { backgroundColor: theme.background }] }
-    : { style: [styles.container, { backgroundColor: theme.background }] };
+  const Container = Platform.OS === "ios" ? KeyboardAvoidingView : View;
+  const containerProps =
+    Platform.OS === "ios"
+      ? {
+          behavior: "padding" as "padding",
+          style: [styles.container, { backgroundColor: theme.background }],
+        }
+      : { style: [styles.container, { backgroundColor: theme.background }] };
 
   return (
     <Container {...containerProps} keyboardVerticalOffset={hp(4)}>
-
-
-      <Text style={[styles.title, { color: theme.text }]}>Profiel Bewerken</Text>
+      <Text style={[styles.title, { color: theme.text }]}>
+        Profiel Bewerken
+      </Text>
 
       <TouchableOpacity onPress={handlePickImage} style={styles.imagePicker}>
         <Image
-          source={ profileImage?.trim() ? { uri: profileImage } : fallbackImage }
+          source={profileImage?.trim() ? { uri: profileImage } : fallbackImage}
           style={styles.profileImage}
         />
-        <Text style={[styles.changeText, { color: accentColor }]}>Wijzig profielfoto</Text>
+        <Text style={[styles.changeText, { color: accentColor }]}>
+          Wijzig profielfoto
+        </Text>
       </TouchableOpacity>
 
       <Text style={[styles.label, { color: theme.secondaryText }]}>Naam</Text>
@@ -141,7 +164,10 @@ const EditProfile = () => {
         onChangeText={setNewName}
         placeholder="Naam"
         placeholderTextColor={theme.secondaryText}
-        style={[styles.input, { backgroundColor: theme.card, color: theme.text }]}
+        style={[
+          styles.input,
+          { backgroundColor: theme.card, color: theme.text },
+        ]}
       />
 
       <Text style={[styles.label, { color: theme.secondaryText }]}>E-mail</Text>
@@ -151,34 +177,41 @@ const EditProfile = () => {
         placeholder="E-mail"
         placeholderTextColor={theme.secondaryText}
         keyboardType="email-address"
-        style={[styles.input, { backgroundColor: theme.card, color: theme.text }]}
+        style={[
+          styles.input,
+          { backgroundColor: theme.card, color: theme.text },
+        ]}
       />
 
-      <TouchableOpacity onPress={handleSave} style={[styles.saveButton, { backgroundColor: accentColor }]}>        
+      <TouchableOpacity
+        onPress={handleSave}
+        style={[styles.saveButton, { backgroundColor: accentColor }]}
+      >
         <Text style={styles.saveText}>Opslaan</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={handleBack}
         style={{
-          alignSelf: 'flex-end',
-          marginTop: hp(2),               // space below Opslaan
-          paddingVertical: hp(1),         // ~1/3 of the Opslaan’s paddingVertical
-          paddingHorizontal: wp(5),       // adjust for width
+          alignSelf: "flex-end",
+          marginTop: hp(2), // space below Opslaan
+          paddingVertical: hp(1), // ~1/3 of the Opslaan’s paddingVertical
+          paddingHorizontal: wp(5), // adjust for width
           borderWidth: 2,
-          borderColor: accentColor,       // or '#7C3AED'
-          borderRadius: wp(4),           // pill shape
+          borderColor: accentColor, // or '#7C3AED'
+          borderRadius: wp(4), // pill shape
         }}
       >
-        <Text style={{
-          color: accentColor,
-          fontSize: wp(3.5),
-          fontWeight: '600',
-        }}>
+        <Text
+          style={{
+            color: accentColor,
+            fontSize: wp(3.5),
+            fontWeight: "600",
+          }}
+        >
           Terug
         </Text>
       </TouchableOpacity>
-
     </Container>
   );
 };
@@ -191,12 +224,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: wp(5.5),
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: hp(3),
   },
   imagePicker: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: hp(3),
   },
   profileImage: {
@@ -222,23 +255,23 @@ const styles = StyleSheet.create({
   saveButton: {
     paddingVertical: hp(2),
     borderRadius: wp(3),
-    alignItems: 'center',
+    alignItems: "center",
   },
   saveText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: wp(4.5),
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   successContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   successText: {
     fontSize: wp(6),
     marginTop: hp(2),
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 

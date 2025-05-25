@@ -9,7 +9,11 @@ interface DatePickerFilterProps {
   onChange: (date: string) => void;
 }
 
-const DatePickerFilter: React.FC<DatePickerFilterProps> = ({ label, value, onChange }) => {
+const DatePickerFilter: React.FC<DatePickerFilterProps> = ({
+  label,
+  value,
+  onChange,
+}) => {
   const { darkMode } = useApp();
   const [isPickerVisible, setIsPickerVisible] = useState(false);
 
@@ -22,7 +26,9 @@ const DatePickerFilter: React.FC<DatePickerFilterProps> = ({ label, value, onCha
 
   return (
     <View style={{ marginBottom: 16 }}>
-      <Text style={{ color: darkMode ? "#FFF" : "#0f0D23", marginBottom: 8 }}>{label}</Text>
+      <Text style={{ color: darkMode ? "#FFF" : "#0f0D23", marginBottom: 8 }}>
+        {label}
+      </Text>
       <TouchableOpacity
         style={{
           backgroundColor: darkMode ? "#1E1E1E" : "#F0F0F0",

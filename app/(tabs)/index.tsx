@@ -135,7 +135,11 @@ const Home = () => {
             width: "100%",
             marginBottom: hp(2),
           }}
-          // onPress={() => { /* Add navigation if this button becomes active */ }}
+          onPress={() => {
+            setTimeout(() => {
+              router.push("/(tabs)/scan");
+            }, 50);
+          }}
         >
           <LinearGradient
             colors={["#1A5BC4", "#111A47"]}
@@ -173,17 +177,16 @@ const Home = () => {
           }}
         >
           <LinearGradient
-            colors={["#4a964d", "#19331a"]} 
+            colors={["#4a964d", "#19331a"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
-              padding: wp(6), 
-              borderRadius: wp(3), 
+              padding: wp(6),
+              borderRadius: wp(3),
               justifyContent: "center",
               alignItems: "center",
             }}
           >
-            
             <Ionicons
               name="chatbubble-ellipses-outline"
               size={wp(10)}
@@ -194,8 +197,6 @@ const Home = () => {
             </Text>
           </LinearGradient>
         </TouchableOpacity>
-
-        
       </View>
     </View>
   );

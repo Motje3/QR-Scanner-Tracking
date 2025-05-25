@@ -1,12 +1,12 @@
 using backend_api.Services;
-using backend_api.DTOs;   
-using backend_api.Models; 
+using backend_api.DTOs;
+using backend_api.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace backend_api.Controllers 
+namespace backend_api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] 
+    [Route("api/[controller]")]
     public class AppFeedbackController : ControllerBase
     {
         private readonly IAppFeedbackService _feedbackService;
@@ -26,19 +26,19 @@ namespace backend_api.Controllers
                 var newFeedback = new AppFeedback
                 {
                     OverallRating = feedbackDto.OverallRating,
-                    BestFeature = feedbackDto.BestFeature?.Trim(), 
+                    BestFeature = feedbackDto.BestFeature?.Trim(),
                     MissingFeature = feedbackDto.MissingFeature?.Trim(),
                     Suggestions = feedbackDto.Suggestions?.Trim(),
                     WouldRecommend = feedbackDto.WouldRecommend,
-                    SubmittedAt = DateTime.UtcNow 
-                  
+                    SubmittedAt = DateTime.UtcNow
+
                 };
 
                 var createdFeedback = await _feedbackService.CreateFeedbackAsync(newFeedback);
 
-                
+
                 return Ok(createdFeedback);
-                
+
             }
             catch (ArgumentNullException ex) // Catch specific exceptions if needed
             {
@@ -49,7 +49,7 @@ namespace backend_api.Controllers
             {
                 // Log the exception ex here
                 Console.WriteLine($"Error submitting feedback: {ex.Message}"); // Basic console logging
-                return StatusCode(500, new ProblemDetails { Title = "An unexpected error occurred.", Detail = "We're working on fixing it. Please try again later."});
+                return StatusCode(500, new ProblemDetails { Title = "An unexpected error occurred.", Detail = "We're working on fixing it. Please try again later." });
             }
         }
 
@@ -71,6 +71,6 @@ namespace backend_api.Controllers
             }
         }
 
-        
+
     }
 }

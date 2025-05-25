@@ -1,7 +1,7 @@
-import React from 'react';
-import { Search, Moon, Settings, Download, Menu } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { tokens } from '../theme';
+import React from "react";
+import { Search, Moon, Settings, Download, Menu } from "lucide-react";
+import { Link } from "react-router-dom";
+import { tokens } from "../theme";
 
 interface TopbarProps {
   toggleSidebar: () => void;
@@ -13,22 +13,22 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
   const bgColor = tokens.custom.background;
 
   return (
-    <div 
+    <div
       className={`h-16 flex items-center justify-between px-6 fixed top-0 right-0 z-10 transition-all duration-300 ease-in-out ${
-        isSidebarOpen ? 'left-64' : 'left-0'
+        isSidebarOpen ? "left-64" : "left-0"
       }`}
       style={{ backgroundColor: bgColor }}
     >
       <div className="flex items-center">
         {/* Hamburger menu button to toggle sidebar */}
-        <button 
+        <button
           onClick={toggleSidebar}
           className="text-gray-300 hover:text-white mr-4"
           aria-label="Toggle sidebar"
         >
           <Menu size={24} />
         </button>
-        
+
         <div className="relative">
           <input
             type="text"
@@ -38,7 +38,7 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
           <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
         </div>
       </div>
-      
+
       <div className="flex items-center space-x-4">
         <button className="text-gray-300 hover:text-white">
           <Moon size={20} />
