@@ -89,9 +89,7 @@ export default function ForgotPassword() {
         body: JSON.stringify({ email, newPassword: newPass }),
       });
       if (!res.ok) {
-        // You might want to parse the error response from the server if available
-        // const errorData = await res.json();
-        // throw new Error(errorData.message || "Server error");
+        
         throw new Error("Server error during password reset");
       }
       Alert.alert(
@@ -118,11 +116,11 @@ export default function ForgotPassword() {
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardAvoidingContainer}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : hp(2)} // Adjust offset if needed
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : hp(2)} 
         >
           <ScrollView
             contentContainerStyle={styles.scrollContentContainer}
-            keyboardShouldPersistTaps="handled" // Ensures taps work correctly inside ScrollView
+            keyboardShouldPersistTaps="handled" 
             showsVerticalScrollIndicator={false}
           >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -139,7 +137,7 @@ export default function ForgotPassword() {
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
-                      if (emailError) setEmailError(""); // Clear error on change
+                      if (emailError) setEmailError("");
                     }}
                     onBlur={() => {
                       // Optional: validate on blur
@@ -164,7 +162,7 @@ export default function ForgotPassword() {
                     value={newPass}
                     onChangeText={(text) => {
                       setNewPass(text);
-                      if (newPassError) setNewPassError(""); // Clear error on change
+                      if (newPassError) setNewPassError("");
                     }}
                   />
                   {!!newPassError && (
@@ -181,7 +179,7 @@ export default function ForgotPassword() {
                     value={confirm}
                     onChangeText={(text) => {
                       setConfirm(text);
-                      if (confirmError) setConfirmError(""); // Clear error on change
+                      if (confirmError) setConfirmError(""); 
                     }}
                   />
                   {!!confirmError && (
@@ -222,66 +220,64 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContentContainer: {
-    flexGrow: 1, // Important for ScrollView to allow content to grow and center
-    justifyContent: "center", // Centers content vertically
-    paddingHorizontal: wp(6), // Horizontal padding for the content
+    flexGrow: 1, 
+    justifyContent: "center",
+    paddingHorizontal: wp(6), 
   },
   innerFormContainer: {
-    paddingVertical: hp(5), // Adds some vertical padding inside the scrollable area
-    width: "100%", // Ensure the inner container takes full width for alignment
+    paddingVertical: hp(5), 
+    width: "100%", 
   },
   title: {
-    fontSize: wp(7), // Slightly larger title
+    fontSize: wp(7), 
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-    marginBottom: hp(5), // Increased margin
+    marginBottom: hp(5), 
   },
   inputGroup: {
-    // Wrapper for input and its error message
-    marginBottom: hp(1.5), // Space between input groups
+    marginBottom: hp(1.5), 
   },
   input: {
     backgroundColor: "#1E1B33",
     color: "#fff",
-    paddingHorizontal: wp(4.5), // Slightly more padding
-    paddingVertical: hp(1.8), // Slightly more padding
-    borderRadius: wp(2.5), // Slightly larger radius
-    fontSize: wp(4.2), // Slightly larger font
-    borderWidth: 1, // Base borderWidth
-    borderColor: "#1E1B33", // Default border color (same as background)
+    paddingHorizontal: wp(4.5), 
+    paddingVertical: hp(1.8), 
+    borderRadius: wp(2.5), 
+    fontSize: wp(4.2), 
+    borderWidth: 1, 
+    borderColor: "#1E1B33",
   },
   inputError: {
-    borderColor: "#FF6B6B", // A clear red color for error indication
-    borderWidth: 1.5, // Make error border slightly thicker
+    borderColor: "#FF6B6B",
+    borderWidth: 1.5, 
   },
   errorText: {
-    color: "#FF6B6B", // Matching red for error text
+    color: "#FF6B6B", 
     fontSize: wp(3.5),
     marginTop: hp(0.5),
-    // textAlign: 'left', // Default, or 'center' if preferred
   },
   button: {
-    paddingVertical: hp(2), // Increased padding
+    paddingVertical: hp(2),
     borderRadius: wp(2.5),
     alignItems: "center",
-    marginTop: hp(2), // Increased margin
+    marginTop: hp(2), 
   },
   buttonText: {
     color: "#fff",
-    fontSize: wp(4.8), // Slightly larger
+    fontSize: wp(4.8), 
     fontWeight: "600",
   },
   backLink: {
-    marginTop: hp(3), // Increased margin
+    marginTop: hp(3), 
     alignSelf: "center",
-    borderWidth: 1.5, // Slightly thicker border
+    borderWidth: 1.5, 
     borderRadius: wp(2.5),
     paddingVertical: hp(1.2),
     paddingHorizontal: wp(5),
   },
   backText: {
-    fontSize: wp(4), // Slightly larger
+    fontSize: wp(4), 
     fontWeight: "500",
   },
 });
