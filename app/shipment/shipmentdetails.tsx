@@ -228,12 +228,23 @@ const ShipmentDetails = () => {
             borderRadius: wp(3),
             marginBottom: hp(2),
             alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: wp(2), // use spacing between icon and text
           }}
         >
+          <Image
+            source={icons.qrcode as ImageSourcePropType}
+            style={{
+              width: wp(6),
+              height: wp(6),
+              tintColor: "#fff",
+            }}
+          />
           <Text
             style={{ color: "#fff", fontSize: wp(4.8), fontWeight: "bold" }}
           >
-            🔄 Opnieuw scannen
+            Opnieuw scannen
           </Text>
         </TouchableOpacity>
 
