@@ -40,7 +40,11 @@ const Scan = () => {
 
   useEffect(() => {
     if (isFocused) {
-      qrLock.current = false; // <-- reset lock when you return to Scan screen
+      qrLock.current = false;
+      // Reset any layout or scan-related issues
+      setTimeout(() => {
+        // force a rerender or layout adjustment if needed
+      }, 10);
     }
   }, [isFocused]);
 

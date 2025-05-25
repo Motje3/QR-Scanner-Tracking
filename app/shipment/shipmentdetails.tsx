@@ -252,7 +252,7 @@ const ShipmentDetails = () => {
           onPress={() => router.push("/shipment/reportissue")}
           style={{
             width: "100%",
-            backgroundColor: "#EF4444",
+            backgroundColor: "#8c0009",
             paddingVertical: hp(2.2),
             borderRadius: wp(3),
             alignItems: "center",
@@ -266,7 +266,6 @@ const ShipmentDetails = () => {
             style={{
               width: wp(6),
               height: wp(6),
-              tintColor: "#fff",
             }}
           />
           <Text
