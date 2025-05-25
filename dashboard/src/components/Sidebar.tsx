@@ -24,16 +24,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         h-screen fixed left-0 top-0 text-white 
         flex flex-col z-20 
         transition-all duration-300 ease-in-out 
-        ${isOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full pointer-events-none'}
+        ${isOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full pointer-events-none"}
       `}
       style={{ backgroundColor: sidebarBgColor }}
     >
       {/* Inner container for content that fades */}
-      <div 
+      <div
         className={`
           flex flex-col h-full 
           transition-opacity duration-200 ease-in-out
-          ${isOpen ? 'opacity-100 delay-150' : 'opacity-0'} 
+          ${isOpen ? "opacity-100 delay-150" : "opacity-0"} 
         `}
       >
         <div className="p-6 border-b border-indigo-900">
