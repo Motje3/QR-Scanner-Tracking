@@ -133,28 +133,36 @@ const Shipments = () => {
           className="max-w-md"
           classNames={{
             inputWrapper: [
-              inputWrapperBaseStyle,
+              "bg-[#1E1B33]",
+              "border",
+              "border-[#3A365A]",
+              "rounded-md",
+              "transition-colors",
+              "duration-200",
               "group-data-[focus=true]:bg-[#2A2745]",
               "group-data-[focus=true]:ring-2",
               "group-data-[focus=true]:ring-purple-500",
               "group-data-[focus=true]:border-purple-500",
               "shadow-sm",
-              "overflow-hidden", // Prevent text overflow
+              "h-10", // Fixed height
+              "px-3", // Proper padding
             ],
             input: [
               "text-sm",
-              "placeholder-gray-500",
               "text-white",
+              "placeholder:text-gray-500",
               "bg-transparent",
-              "border-0",
-              "focus:ring-0",
-              "outline-none",
-              "w-full", // Ensure input takes full width
-              "truncate", // Truncate long text with ellipsis
             ],
-            clearButton: "text-gray-400 hover:text-white text-xl",
+            clearButton: [
+              "text-gray-400",
+              "hover:text-white",
+              "text-lg",
+              "mr-1"
+            ],
           }}
-          startContent={<span className="text-gray-400 text-sm mr-2">🔍</span>}
+          startContent={
+            <span className="text-gray-400 text-base mr-2 flex-shrink-0">🔍</span>
+          }
         />
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
