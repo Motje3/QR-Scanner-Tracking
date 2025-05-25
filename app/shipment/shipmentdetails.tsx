@@ -143,8 +143,50 @@ const ShipmentDetails = () => {
         end={{ x: 1, y: 1 }}
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
-        <Text style={{ color: theme.text }}>Zending niet gevonden</Text>
-        {/* Top Buttons */}
+        <Text
+          style={{
+            color: "#fff",
+            fontSize: wp(5),
+            marginBottom: hp(2),
+            textAlign: "center",
+          }}
+        >
+          ❌ Zending bestaat niet. Probeer opnieuw te scannen of meld een
+          probleem.
+        </Text>
+
+        <View style={{ flexDirection: "row", gap: wp(4) }}>
+          <TouchableOpacity
+            onPress={() => router.replace("/(tabs)/scan")}
+            style={{
+              backgroundColor: "#6C5CE7",
+              paddingVertical: hp(1.5),
+              paddingHorizontal: wp(4),
+              borderRadius: wp(3),
+              marginBottom: hp(2),
+            }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "bold" }}>
+              🔄 Opnieuw scannen
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push("/shipment/reportissue")}
+            style={{
+              backgroundColor: "#EF4444",
+              paddingVertical: hp(1.5),
+              paddingHorizontal: wp(4),
+              borderRadius: wp(3),
+              marginBottom: hp(2),
+            }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "bold" }}>
+              ⚠️ Probleem melden
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={wp(8)} color="#fff" />
@@ -296,7 +338,7 @@ const ShipmentDetails = () => {
                 toValue: 0,
                 duration: 150,
                 useNativeDriver: true,
-              }).start(() => router.navigate("/(tabs)/scan"));
+              }).start(() => router.replace("/(tabs)/scan"));
             }}
             style={{
               flex: 1,
