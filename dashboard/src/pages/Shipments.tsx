@@ -134,34 +134,35 @@ const Shipments = () => {
           classNames={{
             inputWrapper: [
               "bg-[#1E1B33]",
-              "border",
               "border-[#3A365A]",
               "rounded-md",
-              "transition-colors",
-              "duration-200",
-              "group-data-[focus=true]:bg-[#2A2745]",
-              "group-data-[focus=true]:ring-2",
-              "group-data-[focus=true]:ring-purple-500",
-              "group-data-[focus=true]:border-purple-500",
               "shadow-sm",
-              "h-10", // Fixed height
-              "px-3", // Proper padding
+              "h-12",
+              "px-4",
+              "group-data-[focus=true]:border-purple-500",
+              "group-data-[focus=true]:ring-2",
+              "group-data-[focus=true]:ring-purple-500/50",
+              "hover:border-[#4A4663]",
+              "transition-all",
+              "duration-200",
             ],
             input: [
               "text-sm",
               "text-white",
-              "placeholder:text-gray-500",
+              "placeholder:text-gray-400",
               "bg-transparent",
+              "outline-none",
+              "border-none",
             ],
             clearButton: [
               "text-gray-400",
               "hover:text-white",
               "text-lg",
-              "mr-1"
+              "transition-colors",
             ],
           }}
           startContent={
-            <span className="text-gray-400 text-base mr-2 flex-shrink-0">🔍</span>
+            <span className="text-gray-400 text-lg mr-3 flex-shrink-0">🔍</span>
           }
         />
 
