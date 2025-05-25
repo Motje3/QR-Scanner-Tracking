@@ -109,7 +109,7 @@ namespace backend_api.Services
             // Or use a DTO that omits sensitive information
             return await _context.Profiles
                 .Select(p => new Profile
-                { // Projecting to avoid sending password
+                {
                     Id = p.Id,
                     Username = p.Username,
                     FullName = p.FullName,
