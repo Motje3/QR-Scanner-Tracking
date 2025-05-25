@@ -263,7 +263,7 @@ export default function ReportIssue() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={handleBack} // This handleBack still works for manual back navigation
+              onPress={handleBack}
               style={[styles.backButton, { borderColor: accentColor }]}
             >
               <Image
@@ -282,7 +282,7 @@ export default function ReportIssue() {
             style={styles.modal}
             animationIn="fadeIn"
             animationOut="fadeOut"
-            useNativeDriver // It's good practice to useNativeDriver where possible
+            useNativeDriver 
           >
             <View
               style={[styles.modalContent, { backgroundColor: theme.cardBg }]}
