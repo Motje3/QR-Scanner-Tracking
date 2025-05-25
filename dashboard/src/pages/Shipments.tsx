@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom"; // Import useNavigate and useLocation
 import {
   Table,
   TableHeader,
@@ -7,8 +8,8 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Input,
-  Button,
+  Input, // Assuming this is NextUI's Input component
+  Button, // Assuming this is NextUI's Button component
 } from "@nextui-org/react";
 
 interface Shipment {
@@ -19,8 +20,8 @@ interface Shipment {
   expectedDelivery: string;
   weight: string;
   createdAt: string;
-  lastUpdatedBy: string;
-  lastUpdatedAt: string;
+  lastUpdatedBy: string | null;
+  lastUpdatedAt: string | null;
 }
 
 const CustomDropdown = ({
@@ -77,10 +78,22 @@ const Shipments = () => {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   const uniqueStatuses = [...new Set(shipments.map((s) => s.status))];
+  const navigate = useNavigate(); // Initialize navigate hook
+  const location = useLocation(); // Initialize useLocation hook
+
+  // Handle initial filter from query parameter (e.g., coming from Issues dashboard)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const shipmentIdFromUrl = params.get('id');
+    if (shipmentIdFromUrl) {
+      setQuery(shipmentIdFromUrl); // Set query to the ID to filter the list
+      // You might also want to scroll to the item or highlight it if it's found
+    }
+  }, [location.search]); // Re-run if URL query changes
 
   useEffect(() => {
     axios
-      .get("http://localhost:5070/api/Shipments")
+      .get("http://172.20.10.2:5070/api/Shipments") // Ensure this URL is correct
       .then((res) => {
         setShipments(res.data);
         setFiltered(res.data);
@@ -89,12 +102,14 @@ const Shipments = () => {
   }, []);
 
   useEffect(() => {
-    const lower = query.toLowerCase();
+    const lowerQuery = query.toLowerCase();
     const filteredList = shipments.filter(
       (s) =>
-        (s.destination?.toLowerCase().includes(lower) ||
-          s.status?.toLowerCase().includes(lower) ||
-          s.assignedTo?.toLowerCase().includes(lower)) &&
+        (s.destination?.toLowerCase().includes(lowerQuery) ||
+         s.status?.toLowerCase().includes(lowerQuery) ||
+         s.assignedTo?.toLowerCase().includes(lowerQuery) ||
+         s.id.toString().includes(lowerQuery) // Include ID in search
+        ) &&
         (selectedStatus ? s.status === selectedStatus : true)
     );
     setFiltered(filteredList);
@@ -102,13 +117,17 @@ const Shipments = () => {
 
   const inputButtonStyle = "bg-[#1E1B33] text-white rounded";
 
+  const handleRowClick = (shipmentId: number) => {
+    navigate(`/shipments/${shipmentId}`); // Navigate to detailed view
+  };
+
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-3xl font-bold text-white">Zendingen</h1>
 
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <Input
-          placeholder="Zoek op status, bestemming of toegewezen persoon"
+          placeholder="Zoek op ID, status, bestemming of toegewezen persoon"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className={`max-w-md ${inputButtonStyle}`}
@@ -146,7 +165,11 @@ const Shipments = () => {
         </TableHeader>
         <TableBody emptyContent={"Geen zendingen gevonden."}>
           {filtered.map((shipment) => (
-            <TableRow key={shipment.id}>
+            <TableRow
+              key={shipment.id}
+              onClick={() => handleRowClick(shipment.id)} // Make row clickable
+              className="cursor-pointer hover:bg-[#2A2745] transition-colors duration-200" // Add hover effect
+            >
               <TableCell>{shipment.id}</TableCell>
               <TableCell>{shipment.status}</TableCell>
               <TableCell>{shipment.destination}</TableCell>

@@ -1,3 +1,5 @@
+// In backend_api/Services/IssueReportService.cs
+
 using backend_api.Data;
 using backend_api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,15 @@ namespace backend_api.Services
         {
             return await _context.IssueReports
                 .Include(r => r.Shipment)
+                .OrderBy(i => i.CreatedAt)
+                .ToListAsync();
+        }
+
+        // NEW IMPLEMENTATION: Get Issues by ShipmentId
+        public async Task<IEnumerable<IssueReport>> GetByShipmentIdAsync(int shipmentId)
+        {
+            return await _context.IssueReports
+                .Where(r => r.ShipmentId == shipmentId)
                 .OrderBy(i => i.CreatedAt)
                 .ToListAsync();
         }
