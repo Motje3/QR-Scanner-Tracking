@@ -6,7 +6,7 @@ namespace backend_api.DTOs
     {
         public required string Title { get; set; }
 
-        public string? Description { get; set; } // ✅ Verwijderd: `required`
+        public string? Description { get; set; }
 
         public string? ImageUrl { get; set; }
 

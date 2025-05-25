@@ -1,4 +1,3 @@
-// In backend_api/Controllers/IssueReportController.cs
 
 using backend_api.Models;
 using backend_api.Services;

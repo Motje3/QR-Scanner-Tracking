@@ -12,9 +12,9 @@ namespace backend_api.Models
 
         public string? Description { get; set; }
 
-        public string? ImageUrl { get; set; } // Optional image path or URL
+        public string? ImageUrl { get; set; }
 
-        public int? ShipmentId { get; set; }  // Optional link to scanned shipment
+        public int? ShipmentId { get; set; }
         public Shipment? Shipment { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

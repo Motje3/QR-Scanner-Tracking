@@ -1,6 +1,8 @@
 using backend_api.DTOs;
 using backend_api.Services;
 using Microsoft.AspNetCore.Mvc;
+using backend_api.Models;
+
 
 namespace backend_api.Controllers
 {
@@ -42,6 +44,22 @@ namespace backend_api.Controllers
             });
         }
 
+        [HttpPost("create")]
+        public async Task<ActionResult<Profile>> CreateUserProfile([FromBody] RegisterUserDto dto)
+        {
+
+            try
+            {
+                var createdProfile = await _profileService.CreateProfileAsync(dto);
+
+                return CreatedAtAction(nameof(GetProfile), new { id = createdProfile.Id }, createdProfile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
 
 
         [HttpGet("{id}")]
@@ -52,6 +70,13 @@ namespace backend_api.Controllers
                 return NotFound("Profiel niet gevonden");
 
             return Ok(profile);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Profile>>> GetAllProfiles()
+        {
+            var profiles = await _profileService.GetAllProfilesAsync();
+            return Ok(profiles);
         }
 
         [HttpPut("{id}")]
@@ -68,7 +93,6 @@ namespace backend_api.Controllers
             }
         }
 
-        // 👇 Wachtwoord wijzigen
         [HttpPost("{id}/change-password")]
         public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordDto dto)
         {

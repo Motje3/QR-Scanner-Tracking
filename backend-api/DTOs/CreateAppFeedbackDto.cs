@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend_api.DTOs // Ensure this namespace matches your project structure
+namespace backend_api.DTOs
 {
     public class CreateAppFeedbackDto
     {
