@@ -164,15 +164,10 @@ const Shipments = () => {
             clearButton: [
               "text-gray-400",
               "hover:text-white",
-              "text-xl",
+              "text-lg",
               "transition-colors",
-              "relative",
-              "right-2",
-              "w-6",
+              "min-w-[24px]",
               "h-6",
-              "flex",
-              "items-center",
-              "justify-center",
             ],
           }}
         />
