@@ -58,7 +58,6 @@ const Issues = () => {
         setLoading(false);
       }
     };
-
     fetchIssueReports();
   }, []);
 

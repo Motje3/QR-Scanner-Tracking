@@ -11,6 +11,7 @@ import {
   Input, // Assuming this is NextUI's Input component
   Button, // Assuming this is NextUI's Button component
 } from "@nextui-org/react";
+import { ClipboardList, Search } from "lucide-react";
 
 interface Shipment {
   id: number;
@@ -41,18 +42,20 @@ const CustomDropdown = ({
     <div className="relative inline-block min-w-[200px]">
       <button
         onClick={() => setOpen(!open)}
-        className="bg-[#1E1B33] text-white w-full px-4 py-2 rounded flex justify-between items-center"
+        className="bg-[#1E1B33] text-white w-full px-4 py-2 rounded-md flex justify-between items-center shadow-sm hover:bg-[#2A2745] transition-colors duration-200"
       >
         {selected || placeholder}
         <span
-          className="ml-2 transform transition-transform"
+          className="ml-2 transform transition-transform duration-200"
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
         >
           ▼
         </span>
       </button>
       {open && (
-        <ul className="absolute z-10 bg-[#1E1B33] w-full mt-1 rounded shadow-lg border border-[#333]">
+        <ul className="absolute z-50 bg-[#1E1B33] w-full mt-1 rounded-md shadow-lg border border-[#3A365A] max-h-60 overflow-y-auto">
+          {" "}
+          {/* z-50 from previous fix */}
           {options.map((option) => (
             <li
               key={option}
@@ -60,7 +63,7 @@ const CustomDropdown = ({
                 setSelected(option);
                 setOpen(false);
               }}
-              className="px-4 py-2 hover:bg-[#2A2745] cursor-pointer"
+              className="px-4 py-2 hover:bg-[#2A2745] cursor-pointer text-sm"
             >
               {option}
             </li>
@@ -98,8 +101,8 @@ const Shipments = () => {
         setShipments(res.data);
         setFiltered(res.data);
       })
-      .catch((err) => console.error(err));
-  }, []);
+      .catch((err) => console.error("Failed to fetch shipments:", err));
+  }, [API_BASE_URL]);
 
   useEffect(() => {
     const lowerQuery = query.toLowerCase();
@@ -115,7 +118,38 @@ const Shipments = () => {
     setFiltered(filteredList);
   }, [query, shipments, selectedStatus]);
 
-  const inputButtonStyle = "bg-[#1E1B33] text-white rounded";
+  const inputWrapperBaseStyle = // Used by the Reset Filters button
+    "bg-[#1E1B33] border border-[#3A365A] text-white rounded-md transition-colors duration-200";
+
+  const handleRowClick = (shipmentId: number) => {
+    console.log(`Shipment row clicked: ${shipmentId}`);
+    alert(`Zending ID ${shipmentId} geklikt! Functionaliteit volgt nog.`);
+  };
+
+  // Helper function to get status color
+  const getStatusColorClass = (status: string) => {
+    switch (
+      status?.toLowerCase() // Added optional chaining and toLowerCase for robustness
+    ) {
+      case "geleverd":
+        return "text-green-400";
+      case "onderweg":
+        return "text-orange-400";
+      case "in afwachting":
+        return "text-yellow-400";
+      // You can add more Dutch status cases here
+      case "in transit": // Example if some data might still have English
+        return "text-blue-400"; // Or map to a Dutch equivalent's color
+      case "delivered":
+        return "text-green-400";
+      case "pending":
+        return "text-yellow-400";
+      case "failed":
+        return "text-red-400";
+      default:
+        return "text-gray-400"; // Default color for unknown or other statuses
+    }
+  };
 
   const handleRowClick = (shipmentId: number) => {
     navigate(`/shipments/${shipmentId}`); // Navigate to detailed view
@@ -140,16 +174,15 @@ const Shipments = () => {
             setSelected={setSelectedStatus}
             placeholder="Filter op status"
           />
-
           <Button
-            className={`min-w-[200px] ${inputButtonStyle}`}
-            variant="light"
-            onClick={() => {
+            className={`${inputWrapperBaseStyle} text-sm h-12 px-4 hover:bg-[#2A2745] min-w-[150px]`}
+            variant="flat"
+            onPress={() => {
               setQuery("");
               setSelectedStatus(null);
             }}
           >
-            Reset filters
+            Reset Filters
           </Button>
         </div>
       </div>
