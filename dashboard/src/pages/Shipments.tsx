@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Input, // Only Input and Button are used from NextUI in this version
+  Input,
   Button,
 } from "@nextui-org/react";
 import { ClipboardList } from "lucide-react";
@@ -75,7 +75,7 @@ const Shipments = () => {
 
   const uniqueStatuses = [
     "Alle Statussen",
-    ...new Set(shipments.map((s) => s.status).filter(Boolean)), // Ensure to filter out null/undefined statuses if any
+    ...new Set(shipments.map((s) => s.status).filter(Boolean)),
   ];
 
   const API_BASE_URL =
@@ -181,7 +181,7 @@ const Shipments = () => {
               "transition-all",
               "duration-200",
               "flex",
-              "items-center", // Ensure vertical alignment
+              "items-center",
             ],
             input: [
               "text-sm",
@@ -189,10 +189,10 @@ const Shipments = () => {
               "placeholder:text-gray-400",
               "bg-transparent",
               "outline-none",
-              "border-none", // Crucial: input itself is borderless and transparent
+              "border-none",
               "flex-1",
               "h-full",
-              "p-0 pl-1", // Adjust pl-1 if needed for space after icon
+              "p-0 pl-1", 
             ],
           }}
         />
