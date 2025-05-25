@@ -11,9 +11,8 @@ import {
   XCircle,
   Loader2,
   Download,
-} from "lucide-react"; // Added Download icon
-import { QRCodeSVG } from "qrcode.react"; // Using the correct named import
-
+} from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 interface CreatedShipment {
   id: number;
   status: string;
@@ -44,7 +43,7 @@ const NewShipment = () => {
   const [createdShipment, setCreatedShipment] =
     useState<CreatedShipment | null>(null);
 
-  const qrCodeRef = useRef<HTMLDivElement>(null); // Ref for the div wrapping QRCodeSVG
+  const qrCodeRef = useRef<HTMLDivElement>(null);
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:5070";
@@ -53,7 +52,6 @@ const NewShipment = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    // Keep createdShipment null until success, so previous QR doesn't flash
 
     if (!status) {
       setError("Status is een verplicht veld.");
@@ -109,7 +107,7 @@ const NewShipment = () => {
     "w-full bg-indigo-800 border border-indigo-700 text-white pl-12 pr-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600 placeholder-gray-500 transition-all duration-300 ease-in-out shadow-sm hover:border-indigo-600";
   const labelClass = "block text-sm font-medium text-gray-300 mb-1 ml-1";
 
-  const iconSize = 20; // Increased icon size
+  const iconSize = 20;
 
   const handleDownloadQR = () => {
     if (qrCodeRef.current && createdShipment) {
@@ -117,8 +115,6 @@ const NewShipment = () => {
       if (svgElement) {
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(svgElement);
-
-        // Note: For direct data URL, this might not be strictly necessary but can be good for file opening in some editors.
 
         const dataUrl =
           "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
