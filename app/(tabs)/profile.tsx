@@ -34,7 +34,7 @@ const Profile = () => {
   };
 
   const handleLogout = async () => {
-    await logout(); // clears session + in-memory user, then redirects to login
+    await logout();
   };
 
   const options = [
