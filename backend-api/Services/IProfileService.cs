@@ -11,6 +11,8 @@ namespace backend_api.Services
         Task<Profile> UpdateSettingsAsync(int id, UpdateSettingsDto dto);
         Task<Profile?> LoginAsync(string username, string password);
         Task<Profile> CreateProfileAsync(RegisterUserDto dto);
+        Task<IEnumerable<Profile>> GetAllProfilesAsync();
+
 
 
 
