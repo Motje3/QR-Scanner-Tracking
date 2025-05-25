@@ -83,7 +83,7 @@ const EditProfile = () => {
       setShowSuccess(true);
       Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
 
-      // After 3s, hide and navigate back
+      // After 3s,  hide and navigate back
       setTimeout(() => {
         Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start(() => {
           router.navigate("/(tabs)/profile");
