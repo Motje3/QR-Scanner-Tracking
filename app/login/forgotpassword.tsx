@@ -33,6 +33,8 @@ export default function ForgotPassword() {
   const [newPassError, setNewPassError] = useState("");
   const [confirmError, setConfirmError] = useState("");
 
+  const [showRequestSent, setShowRequestSent] = useState(false);
+
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
       router.replace("/login/loginpage");
@@ -89,7 +91,6 @@ export default function ForgotPassword() {
         body: JSON.stringify({ email, newPassword: newPass }),
       });
       if (!res.ok) {
-        
         throw new Error("Server error during password reset");
       }
       Alert.alert(
@@ -116,11 +117,11 @@ export default function ForgotPassword() {
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardAvoidingContainer}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : hp(2)} 
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : hp(2)}
         >
           <ScrollView
             contentContainerStyle={styles.scrollContentContainer}
-            keyboardShouldPersistTaps="handled" 
+            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -179,7 +180,7 @@ export default function ForgotPassword() {
                     value={confirm}
                     onChangeText={(text) => {
                       setConfirm(text);
-                      if (confirmError) setConfirmError(""); 
+                      if (confirmError) setConfirmError("");
                     }}
                   />
                   {!!confirmError && (
@@ -220,40 +221,40 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContentContainer: {
-    flexGrow: 1, 
+    flexGrow: 1,
     justifyContent: "center",
-    paddingHorizontal: wp(6), 
+    paddingHorizontal: wp(6),
   },
   innerFormContainer: {
-    paddingVertical: hp(5), 
-    width: "100%", 
+    paddingVertical: hp(5),
+    width: "100%",
   },
   title: {
-    fontSize: wp(7), 
+    fontSize: wp(7),
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-    marginBottom: hp(5), 
+    marginBottom: hp(5),
   },
   inputGroup: {
-    marginBottom: hp(1.5), 
+    marginBottom: hp(1.5),
   },
   input: {
     backgroundColor: "#1E1B33",
     color: "#fff",
-    paddingHorizontal: wp(4.5), 
-    paddingVertical: hp(1.8), 
-    borderRadius: wp(2.5), 
-    fontSize: wp(4.2), 
-    borderWidth: 1, 
+    paddingHorizontal: wp(4.5),
+    paddingVertical: hp(1.8),
+    borderRadius: wp(2.5),
+    fontSize: wp(4.2),
+    borderWidth: 1,
     borderColor: "#1E1B33",
   },
   inputError: {
     borderColor: "#FF6B6B",
-    borderWidth: 1.5, 
+    borderWidth: 1.5,
   },
   errorText: {
-    color: "#FF6B6B", 
+    color: "#FF6B6B",
     fontSize: wp(3.5),
     marginTop: hp(0.5),
   },
@@ -261,23 +262,23 @@ const styles = StyleSheet.create({
     paddingVertical: hp(2),
     borderRadius: wp(2.5),
     alignItems: "center",
-    marginTop: hp(2), 
+    marginTop: hp(2),
   },
   buttonText: {
     color: "#fff",
-    fontSize: wp(4.8), 
+    fontSize: wp(4.8),
     fontWeight: "600",
   },
   backLink: {
-    marginTop: hp(3), 
+    marginTop: hp(3),
     alignSelf: "center",
-    borderWidth: 1.5, 
+    borderWidth: 1.5,
     borderRadius: wp(2.5),
     paddingVertical: hp(1.2),
     paddingHorizontal: wp(5),
   },
   backText: {
-    fontSize: wp(4), 
+    fontSize: wp(4),
     fontWeight: "500",
   },
 });
