@@ -59,7 +59,8 @@ export default function ForgotPassword() {
     if (!newPass) {
       setNewPassError("Nieuw wachtwoord is vereist.");
       isValid = false;
-    } else if (newPass.length < 6) { // Example: Minimum password length
+    } else if (newPass.length < 6) {
+      // Example: Minimum password length
       setNewPassError("Wachtwoord moet minimaal 6 tekens lang zijn.");
       isValid = false;
     }
@@ -99,7 +100,10 @@ export default function ForgotPassword() {
       );
       router.replace("/login/loginpage");
     } catch (error) {
-      Alert.alert("Fout", "Kon verzoek niet versturen. Probeer het later opnieuw.");
+      Alert.alert(
+        "Fout",
+        "Kon verzoek niet versturen. Probeer het later opnieuw."
+      );
       console.error("Password reset error:", error);
     }
   };
@@ -137,7 +141,8 @@ export default function ForgotPassword() {
                       setEmail(text);
                       if (emailError) setEmailError(""); // Clear error on change
                     }}
-                    onBlur={() => { // Optional: validate on blur
+                    onBlur={() => {
+                      // Optional: validate on blur
                       if (email.trim() && !/\S+@\S+\.\S+/.test(email)) {
                         setEmailError("Voer een geldig e-mailadres in.");
                       } else if (email.trim()) {
@@ -145,7 +150,9 @@ export default function ForgotPassword() {
                       }
                     }}
                   />
-                  {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
+                  {!!emailError && (
+                    <Text style={styles.errorText}>{emailError}</Text>
+                  )}
                 </View>
 
                 <View style={styles.inputGroup}>
@@ -160,7 +167,9 @@ export default function ForgotPassword() {
                       if (newPassError) setNewPassError(""); // Clear error on change
                     }}
                   />
-                  {!!newPassError && <Text style={styles.errorText}>{newPassError}</Text>}
+                  {!!newPassError && (
+                    <Text style={styles.errorText}>{newPassError}</Text>
+                  )}
                 </View>
 
                 <View style={styles.inputGroup}>
@@ -175,7 +184,9 @@ export default function ForgotPassword() {
                       if (confirmError) setConfirmError(""); // Clear error on change
                     }}
                   />
-                  {!!confirmError && <Text style={styles.errorText}>{confirmError}</Text>}
+                  {!!confirmError && (
+                    <Text style={styles.errorText}>{confirmError}</Text>
+                  )}
                 </View>
 
                 <TouchableOpacity
@@ -217,7 +228,7 @@ const styles = StyleSheet.create({
   },
   innerFormContainer: {
     paddingVertical: hp(5), // Adds some vertical padding inside the scrollable area
-    width: '100%', // Ensure the inner container takes full width for alignment
+    width: "100%", // Ensure the inner container takes full width for alignment
   },
   title: {
     fontSize: wp(7), // Slightly larger title
@@ -226,7 +237,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: hp(5), // Increased margin
   },
-  inputGroup: { // Wrapper for input and its error message
+  inputGroup: {
+    // Wrapper for input and its error message
     marginBottom: hp(1.5), // Space between input groups
   },
   input: {
