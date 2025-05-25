@@ -353,7 +353,7 @@ const Accounts = () => {
       </div>
 
       {/* Search and filters bar */}
-      <div className="bg-indigo-900/70 backdrop-blur-md rounded-xl shadow-lg p-4 flex flex-col md:flex-row items-center gap-4">
+      <div className="bg-indigo-900/70 backdrop-blur-md rounded-xl shadow-lg p-4 flex flex-col md:flex-row items-center gap-4 relative z-20">
         {/* Search Input */}
         <div className="relative flex-grow w-full md:w-auto">
           <Input
@@ -381,7 +381,7 @@ const Accounts = () => {
         </div>
 
         {/* Custom Dropdown for Roles */}
-        <div className="relative w-full md:w-48 z-50">
+        <div className="relative w-full md:w-48 z-[999]">
           <button
             onClick={() => setOpenRoleDropdown((prev) => !prev)}
             className="flex items-center justify-between w-full bg-indigo-800/80 border border-indigo-700/50 text-white px-4 py-2.5 rounded-lg text-sm h-11 hover:bg-indigo-700/90 hover:border-indigo-600/60 transition-colors"
@@ -395,7 +395,7 @@ const Accounts = () => {
             />
           </button>
           {openRoleDropdown && (
-            <ul className="absolute z-50 mt-2 w-full bg-indigo-800/90 backdrop-blur-md rounded-lg shadow-md border border-indigo-700/50">
+            <ul className="absolute z-[999] mt-2 w-full bg-indigo-800/90 backdrop-blur-md rounded-lg shadow-md border border-indigo-700/50">
               {["Alle Rollen", "Admin", "Manager"].map((role) => (
                 <li
                   key={role}
@@ -413,7 +413,7 @@ const Accounts = () => {
         </div>
 
         {/* Custom Dropdown for Status */}
-        <div className="relative w-full md:w-48">
+        <div className="relative w-full md:w-48 z-[999]">
           <button
             onClick={() => setOpenStatusDropdown((prev) => !prev)}
             className="flex items-center justify-between w-full bg-indigo-800/80 border border-indigo-700/50 text-white px-4 py-2.5 rounded-lg text-sm h-11 hover:bg-indigo-700/90 hover:border-indigo-600/60 transition-colors"
@@ -453,8 +453,8 @@ const Accounts = () => {
       )}
       {error && <div className="text-center py-4 text-red-400">{error}</div>}
       {!isLoading && !error && (
-        <div className="bg-indigo-900/70 backdrop-blur-md shadow-2xl rounded-xl p-4 md:p-6">
-          <div className="overflow-x-auto">
+        <div className="bg-indigo-900/70 backdrop-blur-md shadow-2xl rounded-xl p-4 md:p-6 relative">
+          <div className="overflow-x-auto overflow-y-visible">
             <table className="w-full text-left min-w-[700px]">
               <thead>
                 <tr className="text-gray-400 border-b border-indigo-800/50 text-xs uppercase">
