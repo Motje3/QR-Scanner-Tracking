@@ -34,7 +34,7 @@ export default function ReportIssue() {
 
   // Success overlay animation
   const [showSuccess, setShowSuccess] = useState(false);
-  const successOpacityAnim = useRef(new Animated.Value(0)).current; // New animated value for success overlay
+  const successOpacityAnim = useRef(new Animated.Value(0)).current;
 
   const theme = {
     background: darkMode ? "#090723" : "#ffffff",
