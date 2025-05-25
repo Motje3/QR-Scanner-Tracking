@@ -628,27 +628,34 @@ const Accounts = () => {
               <div>
                 <label className="block text-sm text-gray-300 mb-1">Rol</label>
                 <div className="relative">
-                  <select
-                    className="w-full bg-indigo-800 border border-indigo-700 rounded-md p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-200 ease-in-out cursor-pointer appearance-none pr-10"
-                    defaultValue={selectedAccount.role}
+                  <button
+                    onClick={() => setOpenEditRoleDropdown((prev) => !prev)}
+                    className="flex items-center justify-between w-full bg-indigo-800 border border-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm h-11 hover:bg-indigo-700/90 hover:border-indigo-600/60 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500"
                   >
-                    <option value="Admin" className="bg-indigo-800 text-white">
-                      Admin
-                    </option>
-                    <option
-                      value="Manager"
-                      className="bg-indigo-800 text-white"
-                    >
-                      Manager
-                    </option>
-                    <option value="User" className="bg-indigo-800 text-white">
-                      User
-                    </option>
-                  </select>
-                  <ChevronDown
-                    size={18}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-                  />
+                    <span>{editRole}</span>
+                    <ChevronDown
+                      size={18}
+                      className={`ml-2 transition-transform duration-200 ${
+                        openEditRoleDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {openEditRoleDropdown && (
+                    <ul className="absolute z-[999] mt-2 w-full bg-indigo-800/90 backdrop-blur-md rounded-lg shadow-md border border-indigo-700/50">
+                      {["Admin", "Manager", "User"].map((role) => (
+                        <li
+                          key={role}
+                          className="px-4 py-2 text-sm text-white hover:bg-indigo-700/70 cursor-pointer"
+                          onClick={() => {
+                            setEditRole(role);
+                            setOpenEditRoleDropdown(false);
+                          }}
+                        >
+                          {role}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>
