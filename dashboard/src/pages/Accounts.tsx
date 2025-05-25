@@ -149,7 +149,7 @@ const Accounts = () => {
 
   // JSX Structure
   return (
-    <div className="space-y-6 p-4 md:p-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 min-h-screen text-white">
+    <div className="space-y-6 p-4 md:p-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 min-h-[92vh] text-white">
       <div className="mb-6 flex justify-between items-center"> {/* Increased mb */}
         <div>
           {/* Matched title style from other pages */}
