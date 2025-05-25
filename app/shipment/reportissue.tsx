@@ -52,7 +52,6 @@ export default function ReportIssue() {
 
   const handleBack = () => {
     Animated.timing(fadeAnim, {
-      // This uses the screen's fadeAnim
       toValue: 0,
       duration: 200,
       useNativeDriver: true,
