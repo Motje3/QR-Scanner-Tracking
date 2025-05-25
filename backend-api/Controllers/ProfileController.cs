@@ -86,7 +86,6 @@ namespace backend_api.Controllers
             }
         }
 
-        // 👇 Wachtwoord wijzigen
         [HttpPost("{id}/change-password")]
         public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordDto dto)
         {
