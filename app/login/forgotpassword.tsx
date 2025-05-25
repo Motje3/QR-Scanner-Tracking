@@ -4,14 +4,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Alert, // Keep Alert for API error/success messages if needed, but not for field validation
+  Alert,
   StyleSheet,
   BackHandler,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  ScrollView, // Import ScrollView
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
