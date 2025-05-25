@@ -1,6 +1,8 @@
 using backend_api.DTOs;
 using backend_api.Services;
 using Microsoft.AspNetCore.Mvc;
+using backend_api.Models; // Required for Profile model return type
+
 
 namespace backend_api.Controllers
 {
@@ -40,6 +42,29 @@ namespace backend_api.Controllers
                     user.NotificationsEnabled
                 }
             });
+        }
+
+        // New POST endpoint for admin to create users
+        [HttpPost("create")] // Or just [HttpPost] if you want it at /api/Profile
+        // [Authorize(Roles = "Admin")] // IMPORTANT: Protect this endpoint for Admin use only!
+        public async Task<ActionResult<Profile>> CreateUserProfile([FromBody] RegisterUserDto dto)
+        {
+            // ModelState validation is automatically handled by [ApiController]
+            // for DTOs with validation attributes like [Required].
+
+            try
+            {
+                var createdProfile = await _profileService.CreateProfileAsync(dto);
+                // Return a 201 Created response with the created profile.
+                // The GetProfile action takes an int id.
+                return CreatedAtAction(nameof(GetProfile), new { id = createdProfile.Id }, createdProfile);
+            }
+            catch (Exception ex)
+            {
+                // If username/email already exists, service throws an Exception.
+                // Or handle specific custom exceptions if you define them.
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
 
