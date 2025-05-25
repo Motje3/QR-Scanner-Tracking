@@ -165,20 +165,19 @@ const styles = StyleSheet.create({
   },
   // filter voor camera scan pagina
   scanArea: {
-  width: boxSize,
-  height: boxSize,
-  borderWidth: 4,
-  borderColor: "#5D3FD3",       
-  borderRadius: 0,              
-  backgroundColor: "rgba(0, 0, 0, 0.05)", 
-  shadowColor: "transparent",    
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0,
-  shadowRadius: 0,
-  elevation: 0,                  
-  overflow: "visible",           
-},
-
+    width: boxSize,
+    height: boxSize,
+    borderWidth: 4,
+    borderColor: "#5D3FD3",
+    borderRadius: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    shadowColor: "transparent",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+    overflow: "visible",
+  },
 
   bottomOverlay: {
     flex: 1,
