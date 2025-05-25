@@ -15,7 +15,6 @@ namespace backend_api.DTOs
         [StringLength(100, ErrorMessage = "AssignedTo cannot be longer than 100 characters.")]
         public string? AssignedTo { get; set; }
 
-        // Consider if ExpectedDelivery should be a DateTime? for better validation and parsing
         [StringLength(50, ErrorMessage = "ExpectedDelivery cannot be longer than 50 characters.")]
         public string? ExpectedDelivery { get; set; }
 
