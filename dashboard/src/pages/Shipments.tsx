@@ -126,8 +126,7 @@ const Shipments = () => {
       {/* Filter bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 p-4 bg-indigo-900/60 backdrop-blur-sm rounded-xl shadow-lg relative z-30">
         <Input
-          isClearable
-          placeholder="Zoek op ID, status..."
+          placeholder="Zoek op ID, status, bestemming..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="max-w-md"
@@ -160,16 +159,6 @@ const Shipments = () => {
               "flex-1",
               "h-full",
               "py-0",
-            ],
-            clearButton: [
-              "text-gray-400",
-              "hover:text-white",
-              "text-xl",
-              "transition-colors",
-              "mr-2",
-              "mt-1",
-              "w-6",
-              "h-6",
             ],
           }}
         />
