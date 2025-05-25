@@ -137,7 +137,7 @@ const Home = () => {
           }}
           onPress={() => {
             setTimeout(() => {
-              router.push("/homescreen/todaysshipments");
+              router.push("/(tabs)/scan");
             }, 50);
           }}
         >
