@@ -19,6 +19,7 @@ import { useRouter } from "expo-router";
 import { wp, hp } from "../utils/responsive";
 import { useApp } from "../context/AppContext";
 import { API_BASE_URL } from "../config/env";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ForgotPassword() {
   const router = useRouter();
