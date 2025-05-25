@@ -396,7 +396,7 @@ const Accounts = () => {
           </button>
           {openRoleDropdown && (
             <ul className="absolute z-[999] mt-2 w-full bg-indigo-800/90 backdrop-blur-md rounded-lg shadow-md border border-indigo-700/50">
-              {["Alle Rollen", "Admin", "Manager"].map((role) => (
+              {["Alle Rollen", "Admin", "Manager", "User"].map((role) => (
                 <li
                   key={role}
                   className="px-4 py-2 text-sm text-white hover:bg-indigo-700/70 cursor-pointer"
