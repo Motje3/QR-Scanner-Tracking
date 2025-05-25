@@ -93,7 +93,7 @@ export default function ForgotPassword() {
       if (!res.ok) {
         throw new Error("Server error during password reset");
       }
-            setShowRequestSent(true);
+      setShowRequestSent(true);
     } catch (error) {
       Alert.alert(
         "Fout",
@@ -117,11 +117,14 @@ export default function ForgotPassword() {
               {/* <Ionicons name="mail-send-outline" size={wp(15)} color={accentColor || "#fff"} style={{ marginBottom: hp(2) }} /> */}
               <Text style={styles.successTitle}>Verzoek Verzonden!</Text>
               <Text style={styles.successMessage}>
-                Je wachtwoordresetverzoek is naar de administrator gestuurd. 
-                Zij zullen het zo spoedig mogelijk verwerken.
+                Je wachtwoordresetverzoek is naar de administrator gestuurd. Zij
+                zullen het zo spoedig mogelijk verwerken.
               </Text>
               <TouchableOpacity
-                style={[styles.successButton, { backgroundColor: accentColor || "#6200EE" }]} // Use accentColor or a fallback
+                style={[
+                  styles.successButton,
+                  { backgroundColor: accentColor || "#6200EE" },
+                ]} // Use accentColor or a fallback
                 onPress={() => {
                   setShowRequestSent(false); // Hide this UI
                   router.replace("/login/loginpage"); // Navigate to login
@@ -313,13 +316,13 @@ const styles = StyleSheet.create({
   // --- ADD THESE NEW STYLES ---
   successOverlaySafeArea: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   successOverlayContainer: {
-    width: '100%',
+    width: "100%",
     paddingHorizontal: wp(6), // Consistent with form padding
-    alignItems: 'center',
+    alignItems: "center",
   },
   successCard: {
     backgroundColor: "rgba(30, 27, 51, 0.9)", // Slightly darker or distinct card color, play with opacity
@@ -330,7 +333,7 @@ const styles = StyleSheet.create({
     width: "100%", // Card takes full width within padding
     maxWidth: wp(90), // Max width for larger screens
     borderWidth: 1,
-    borderColor:  "#A970FF", // Use accent color for border
+    borderColor: "#A970FF", // Use accent color for border
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
