@@ -8,12 +8,18 @@ interface LocationFilterProps {
   onChange: (location: string) => void;
 }
 
-const LocationFilter: React.FC<LocationFilterProps> = ({ label, value, onChange }) => {
+const LocationFilter: React.FC<LocationFilterProps> = ({
+  label,
+  value,
+  onChange,
+}) => {
   const { darkMode } = useApp(); // 👈 hier darkMode gebruiken
 
   return (
     <View style={{ marginBottom: 16 }}>
-      <Text style={{ color: darkMode ? "#FFF" : "#0f0D23", marginBottom: 8 }}>{label}</Text>
+      <Text style={{ color: darkMode ? "#FFF" : "#0f0D23", marginBottom: 8 }}>
+        {label}
+      </Text>
       <TextInput
         style={{
           backgroundColor: darkMode ? "#1E1E1E" : "#F0F0F0",
