@@ -63,6 +63,9 @@ const Accounts = () => {
   const [newRole, setNewRole] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
+  const [editRole, setEditRole] = useState("");
+  const [openEditRoleDropdown, setOpenEditRoleDropdown] = useState(false);
+
   // Validation states
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {}
@@ -623,20 +626,29 @@ const Accounts = () => {
               </div>
               <div>
                 <label className="block text-sm text-gray-300 mb-1">Rol</label>
-                <select
-                  className="w-full bg-indigo-800 border border-indigo-700 rounded-md p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-200 ease-in-out cursor-pointer appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkw4IDEwTDEyIDYiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==')] bg-no-repeat bg-right-3 bg-center pr-10"
-                  defaultValue={selectedAccount.role}
-                >
-                  <option value="Admin" className="bg-indigo-800 text-white">
-                    Admin
-                  </option>
-                  <option value="Manager" className="bg-indigo-800 text-white">
-                    Manager
-                  </option>
-                  <option value="User" className="bg-indigo-800 text-white">
-                    User
-                  </option>
-                </select>
+                <div className="relative">
+                  <select
+                    className="w-full bg-indigo-800 border border-indigo-700 rounded-md p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-200 ease-in-out cursor-pointer appearance-none pr-10"
+                    defaultValue={selectedAccount.role}
+                  >
+                    <option value="Admin" className="bg-indigo-800 text-white">
+                      Admin
+                    </option>
+                    <option
+                      value="Manager"
+                      className="bg-indigo-800 text-white"
+                    >
+                      Manager
+                    </option>
+                    <option value="User" className="bg-indigo-800 text-white">
+                      User
+                    </option>
+                  </select>
+                  <ChevronDown
+                    size={18}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  />
+                </div>
               </div>
             </div>
             <div className="flex justify-end space-x-3">
