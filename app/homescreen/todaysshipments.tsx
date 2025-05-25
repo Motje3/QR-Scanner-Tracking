@@ -110,15 +110,27 @@ const TodaysShipment: React.FC = () => {
       style={{ flex: 1 }}
     >
       <ExpoStatusBar style="light" translucent backgroundColor="transparent" />
-      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
 
       <View style={{ flex: 1, paddingHorizontal: wp(6), paddingTop: hp(6) }}>
         {/* Back button + title */}
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: hp(2) }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: hp(2),
+          }}
+        >
           <TouchableOpacity onPress={handleBack} style={{ marginRight: wp(2) }}>
             <Ionicons name="arrow-back" size={30} color={theme.backIcon} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>Ritten van Vandaag</Text>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>
+            Ritten van Vandaag
+          </Text>
         </View>
 
         {/* Truck icon */}
@@ -148,28 +160,43 @@ const TodaysShipment: React.FC = () => {
               }
             >
               <LinearGradient
-                colors={darkMode ? ["#17144F", "#090723"] : ["#ffffff", "#ffffff"]}
+                colors={
+                  darkMode ? ["#17144F", "#090723"] : ["#ffffff", "#ffffff"]
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.card}
               >
                 <View style={styles.cardContent}>
-                  <Ionicons name="cube-outline" size={wp(8)} color={accentColor} />
+                  <Ionicons
+                    name="cube-outline"
+                    size={wp(8)}
+                    color={accentColor}
+                  />
                   <View style={{ marginLeft: wp(4), flex: 1 }}>
-                    <Text style={[styles.cardTitle, { color: theme.text }]}>#{item.id}</Text>
-                    <Text style={[styles.cardText, { color: theme.secondaryText }]}>
+                    <Text style={[styles.cardTitle, { color: theme.text }]}>
+                      #{item.id}
+                    </Text>
+                    <Text
+                      style={[styles.cardText, { color: theme.secondaryText }]}
+                    >
                       Bestemming: {item.destination}
                     </Text>
-                    <Text style={[styles.cardText, { color: theme.secondaryText }]}>
+                    <Text
+                      style={[styles.cardText, { color: theme.secondaryText }]}
+                    >
                       Status: {item.status}
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={wp(6)} color={theme.text} />
+                  <Ionicons
+                    name="chevron-forward"
+                    size={wp(6)}
+                    color={theme.text}
+                  />
                 </View>
               </LinearGradient>
             </TouchableOpacity>
           )}
-          
           showsVerticalScrollIndicator={false}
         />
       </View>

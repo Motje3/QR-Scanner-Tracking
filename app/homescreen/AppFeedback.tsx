@@ -19,7 +19,7 @@ import {
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { wp, hp } from "../utils/responsive"; 
+import { wp, hp } from "../utils/responsive";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
@@ -27,7 +27,7 @@ import { API_BASE_URL } from "../config/env";
 
 const AppFeedback: React.FC = () => {
   const { darkMode, accentColor } = useApp();
-  const { token } = useAuth(); 
+  const { token } = useAuth();
   const router = useRouter();
 
   const [overallRating, setOverallRating] = useState(0);
@@ -67,11 +67,21 @@ const AppFeedback: React.FC = () => {
     return () => backHandler.remove();
   }, [router, showFeedbackSuccess, submitting]);
 
-  const StarRating = ({ rating, onRate }: { rating: number; onRate: (rate: number) => void }) => {
+  const StarRating = ({
+    rating,
+    onRate,
+  }: {
+    rating: number;
+    onRate: (rate: number) => void;
+  }) => {
     return (
       <View style={styles.starContainer}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity key={star} onPress={() => onRate(star)} disabled={submitting}>
+          <TouchableOpacity
+            key={star}
+            onPress={() => onRate(star)}
+            disabled={submitting}
+          >
             <MaterialIcons
               name={star <= rating ? "star" : "star-border"}
               size={wp(8)}
@@ -88,7 +98,10 @@ const AppFeedback: React.FC = () => {
     Keyboard.dismiss();
 
     if (overallRating === 0) {
-      Alert.alert("Beoordeling vereist", "Geef alstublieft een algemene beoordeling.");
+      Alert.alert(
+        "Beoordeling vereist",
+        "Geef alstublieft een algemene beoordeling."
+      );
       return;
     }
 
@@ -104,9 +117,9 @@ const AppFeedback: React.FC = () => {
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/AppFeedback`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           // ...(token && { 'Authorization': `Bearer ${token}` }),
         },
         body: JSON.stringify(feedbackPayload),
@@ -115,13 +128,15 @@ const AppFeedback: React.FC = () => {
       if (!response.ok) {
         let errorData;
         try {
-            errorData = await response.json();
-        } catch (e) {
-        }
+          errorData = await response.json();
+        } catch (e) {}
         console.error("API Error Response:", errorData);
-        throw new Error(errorData?.detail || errorData?.title || `Serverfout: ${response.status}`);
+        throw new Error(
+          errorData?.detail ||
+            errorData?.title ||
+            `Serverfout: ${response.status}`
+        );
       }
-
 
       // Show success overlay
       setShowFeedbackSuccess(true);
@@ -141,12 +156,12 @@ const AppFeedback: React.FC = () => {
           router.replace("/(tabs)");
         });
       }, 2500);
-
     } catch (error: any) {
       console.error("Failed to submit feedback:", error);
       Alert.alert(
         "Versturen Mislukt",
-        error.message || "Kon feedback niet versturen. Probeer het later opnieuw."
+        error.message ||
+          "Kon feedback niet versturen. Probeer het later opnieuw."
       );
     } finally {
       setSubmitting(false);
@@ -161,7 +176,11 @@ const AppFeedback: React.FC = () => {
           { backgroundColor: theme.background, opacity: fadeAnim },
         ]}
       >
-        <Ionicons name="checkmark-circle" size={wp(20)} color={theme.successText} />
+        <Ionicons
+          name="checkmark-circle"
+          size={wp(20)}
+          color={theme.successText}
+        />
         <Text style={[styles.successOverlayText, { color: theme.successText }]}>
           Bedankt voor je feedback!
         </Text>
@@ -171,13 +190,25 @@ const AppFeedback: React.FC = () => {
 
   return (
     <LinearGradient
-      colors={darkMode ? [`${accentColor}99`, theme.background] : [accentColor, theme.background]}
+      colors={
+        darkMode
+          ? [`${accentColor}99`, theme.background]
+          : [accentColor, theme.background]
+      }
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 0.4 }}
       style={{ flex: 1 }}
     >
-      <ExpoStatusBar style={darkMode ? "light" : "dark"} translucent backgroundColor="transparent" />
-      <StatusBar translucent backgroundColor="transparent" barStyle={darkMode ? "light-content" : "dark-content"} />
+      <ExpoStatusBar
+        style={darkMode ? "light" : "dark"}
+        translucent
+        backgroundColor="transparent"
+      />
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={darkMode ? "light-content" : "dark-content"}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -189,10 +220,16 @@ const AppFeedback: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={handleBack} style={styles.backButton} disabled={submitting}>
+            <TouchableOpacity
+              onPress={handleBack}
+              style={styles.backButton}
+              disabled={submitting}
+            >
               <Ionicons name="arrow-back" size={wp(7)} color={theme.backIcon} />
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Geef uw Feedback</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>
+              Geef uw Feedback
+            </Text>
           </View>
 
           <View style={styles.formContainer}>
@@ -201,7 +238,9 @@ const AppFeedback: React.FC = () => {
             </Text>
             <StarRating rating={overallRating} onRate={setOverallRating} />
 
-            <Text style={[styles.label, { color: theme.text, marginTop: hp(3) }]}>
+            <Text
+              style={[styles.label, { color: theme.text, marginTop: hp(3) }]}
+            >
               Wat vindt u het beste aan de app?
             </Text>
             <TextInput
@@ -221,7 +260,9 @@ const AppFeedback: React.FC = () => {
               editable={!submitting}
             />
 
-            <Text style={[styles.label, { color: theme.text, marginTop: hp(2) }]}>
+            <Text
+              style={[styles.label, { color: theme.text, marginTop: hp(2) }]}
+            >
               Zijn er functies die u mist of graag toegevoegd zou willen zien?
             </Text>
             <TextInput
@@ -241,7 +282,9 @@ const AppFeedback: React.FC = () => {
               editable={!submitting}
             />
 
-            <Text style={[styles.label, { color: theme.text, marginTop: hp(2) }]}>
+            <Text
+              style={[styles.label, { color: theme.text, marginTop: hp(2) }]}
+            >
               Heeft u suggesties om de app te verbeteren?
             </Text>
             <TextInput
@@ -261,37 +304,60 @@ const AppFeedback: React.FC = () => {
               editable={!submitting}
             />
 
-            <Text style={[styles.label, { color: theme.text, marginTop: hp(2) }]}>
+            <Text
+              style={[styles.label, { color: theme.text, marginTop: hp(2) }]}
+            >
               Zou u deze app aanbevelen aan anderen?
             </Text>
             <View style={styles.recommendContainer}>
               <TouchableOpacity
                 style={[
                   styles.recommendButton,
-                  { backgroundColor: recommend === true ? accentColor : theme.inputBackground,
-                    borderColor: recommend === true ? accentColor : theme.inputBorder,
+                  {
+                    backgroundColor:
+                      recommend === true ? accentColor : theme.inputBackground,
+                    borderColor:
+                      recommend === true ? accentColor : theme.inputBorder,
                     opacity: submitting ? 0.5 : 1,
                   },
                 ]}
                 onPress={() => setRecommend(true)}
                 disabled={submitting}
               >
-                <Text style={[styles.recommendButtonText, { color: recommend === true ? theme.buttonText : theme.text }]}>
+                <Text
+                  style={[
+                    styles.recommendButtonText,
+                    {
+                      color: recommend === true ? theme.buttonText : theme.text,
+                    },
+                  ]}
+                >
                   Ja
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.recommendButton,
-                  { backgroundColor: recommend === false ? accentColor : theme.inputBackground,
-                    borderColor: recommend === false ? accentColor : theme.inputBorder,
+                  {
+                    backgroundColor:
+                      recommend === false ? accentColor : theme.inputBackground,
+                    borderColor:
+                      recommend === false ? accentColor : theme.inputBorder,
                     opacity: submitting ? 0.5 : 1,
                   },
                 ]}
                 onPress={() => setRecommend(false)}
                 disabled={submitting}
               >
-                <Text style={[styles.recommendButtonText, { color: recommend === false ? theme.buttonText : theme.text }]}>
+                <Text
+                  style={[
+                    styles.recommendButtonText,
+                    {
+                      color:
+                        recommend === false ? theme.buttonText : theme.text,
+                    },
+                  ]}
+                >
                   Nee
                 </Text>
               </TouchableOpacity>
@@ -301,14 +367,18 @@ const AppFeedback: React.FC = () => {
               onPress={handleSubmit}
               style={[
                 styles.submitButton,
-                { backgroundColor: accentColor, opacity: submitting ? 0.6 : 1 }
+                { backgroundColor: accentColor, opacity: submitting ? 0.6 : 1 },
               ]}
               disabled={submitting}
             >
               {submitting ? (
                 <ActivityIndicator size="small" color={theme.buttonText} />
               ) : (
-                <Text style={[styles.submitButtonText, { color: theme.buttonText }]}>Verstuur Feedback</Text>
+                <Text
+                  style={[styles.submitButtonText, { color: theme.buttonText }]}
+                >
+                  Verstuur Feedback
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -341,7 +411,7 @@ const styles = StyleSheet.create({
   formContainer: {
     padding: wp(4),
     borderRadius: wp(3),
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: "rgba(255,255,255,0.1)",
   },
   label: {
     fontSize: wp(4),
@@ -355,7 +425,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1.5),
     fontSize: wp(4),
     minHeight: hp(6),
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
     marginBottom: hp(1.5),
   },
   starContainer: {
@@ -379,7 +449,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flex: 1,
     marginHorizontal: wp(1),
-    alignItems: 'center',
+    alignItems: "center",
   },
   recommendButtonText: {
     fontSize: wp(4),
@@ -397,7 +467,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     minHeight: hp(6.5), // Ensure button height is consistent with ActivityIndicator
-    justifyContent: 'center', // Center ActivityIndicator or Text
+    justifyContent: "center", // Center ActivityIndicator or Text
   },
   submitButtonText: {
     fontSize: wp(4.5),
@@ -405,14 +475,14 @@ const styles = StyleSheet.create({
   },
   successOverlayContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   successOverlayText: {
     fontSize: wp(6),
     marginTop: hp(2),
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 
