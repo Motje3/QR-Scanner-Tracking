@@ -51,7 +51,7 @@ namespace backend_api.Controllers
             try
             {
                 var createdProfile = await _profileService.CreateProfileAsync(dto);
-                
+
                 return CreatedAtAction(nameof(GetProfile), new { id = createdProfile.Id }, createdProfile);
             }
             catch (Exception ex)
@@ -70,6 +70,15 @@ namespace backend_api.Controllers
                 return NotFound("Profiel niet gevonden");
 
             return Ok(profile);
+        }
+
+        // New GET endpoint to fetch all profiles (for Admins)
+        [HttpGet]
+        // [Authorize(Roles = "Admin")] // IMPORTANT: Protect this for Admin use only!
+        public async Task<ActionResult<IEnumerable<Profile>>> GetAllProfiles()
+        {
+            var profiles = await _profileService.GetAllProfilesAsync();
+            return Ok(profiles);
         }
 
         [HttpPut("{id}")]
