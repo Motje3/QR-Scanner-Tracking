@@ -4,7 +4,7 @@ import {
   Input, // Only Input and Button are used from NextUI in this version
   Button,
 } from "@nextui-org/react";
-// Removed Table, TableHeader, etc. as they are not used in your current file structure for the table
+import { ClipboardList } from "lucide-react";
 
 interface Shipment {
   id: number;
@@ -141,9 +141,17 @@ const Shipments = () => {
 
   return (
     <div className="p-6 space-y-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 min-h-[92vh]">
-      <h1 className="text-4xl font-bold text-white mb-8">
-        Zendingen Overzicht
-      </h1>
+      <div className="flex items-center space-x-4 mb-8">
+        <ClipboardList size={48} className="text-yellow-300" /> {/* Icon */}
+        <div>
+          <h1 className="text-4xl font-bold text-white">Zendingen Overzicht</h1>{" "}
+          {/* Big title */}
+          <p className="text-indigo-300 text-sm">
+            Bekijk en beheer alle geregistreerde zendingen.
+          </p>{" "}
+          {/* Small descriptive text */}
+        </div>
+      </div>
 
       {/* Filter bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 p-4 bg-indigo-900/60 backdrop-blur-sm rounded-xl shadow-lg relative z-30">
@@ -155,7 +163,7 @@ const Shipments = () => {
           onChange={(e) => setQuery(e.target.value)}
           className="max-w-md"
           // startContent prop from NextUI for adding elements like icons easily
-          
+
           classNames={{
             // Using classNames for precise styling of NextUI Input parts
             inputWrapper: [
