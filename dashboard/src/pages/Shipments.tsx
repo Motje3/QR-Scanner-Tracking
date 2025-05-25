@@ -1,7 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Input, Button } from "@nextui-org/react";
-import { ClipboardList, Search } from "lucide-react";
+import { ClipboardList, Search, AlertCircle } from "lucide-react"; // Import AlertCircle for issue indicator
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// --- NEW: Define IssueReport interface ---
+interface IssueReport {
+  id: number;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  shipmentId?: number; // Optional, as some issues might not be tied to a shipment
+  createdAt: string;
+}
 
 interface Shipment {
   id: number;
@@ -13,6 +25,9 @@ interface Shipment {
   createdAt: string;
   lastUpdatedBy: string;
   lastUpdatedAt: string;
+  // No 'problems' property needed here, we'll fetch them separately
+  // --- NEW: Add a flag to indicate if issues exist for this shipment (for immediate overview) ---
+  hasIssues?: boolean;
 }
 
 const CustomDropdown = ({
@@ -64,6 +79,143 @@ const CustomDropdown = ({
   );
 };
 
+// --- UPDATED: Shipment Detail Modal Component ---
+interface ShipmentDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  shipment: Shipment | null;
+  issues: IssueReport[]; // Pass issues as a prop
+  isLoading: boolean;
+  error: string | null;
+}
+
+const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, error }: ShipmentDetailModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    // 1. MODAL BACKGROUND TINT
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#1E1B33] text-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-bold"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <h2 className="text-3xl font-bold text-yellow-300 mb-6 border-b-2 border-indigo-700 pb-2">
+          Zending Details #{shipment?.id}
+        </h2>
+
+        {isLoading && (
+          <div className="text-center py-8 text-indigo-300">
+            Laden van zendingdetails en problemen...
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center py-8 text-red-400">
+            Fout: {error}
+          </div>
+        )}
+
+        {!isLoading && !error && shipment && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-indigo-300 text-sm">ID:</p>
+                <p className="text-lg font-semibold">{shipment.id}</p>
+              </div>
+              <div>
+                <p className="text-indigo-300 text-sm">Status:</p>
+                <p className="text-lg font-semibold">{shipment.status}</p>
+              </div>
+              <div>
+                <p className="text-indigo-300 text-sm">Bestemming:</p>
+                <p className="text-lg font-semibold">{shipment.destination || '-'}</p>
+              </div>
+              {/* 3. SHOW 'Toegewezen aan' AND 'Gewicht' ONLY IN DETAIL VIEW */}
+              <div>
+                <p className="text-indigo-300 text-sm">Toegewezen Aan:</p>
+                <p className="text-lg font-semibold">{shipment.assignedTo || '-'}</p>
+              </div>
+              <div>
+                <p className="text-indigo-300 text-sm">Verwachte Levering:</p>
+                <p className="text-lg font-semibold">{shipment.expectedDelivery || '-'}</p>
+              </div>
+              <div>
+                <p className="text-indigo-300 text-sm">Gewicht:</p>
+                <p className="text-lg font-semibold">{shipment.weight || '-'}</p>
+              </div>
+              <div>
+                <p className="text-indigo-300 text-sm">Aangemaakt Op:</p>
+                <p className="text-lg font-semibold">{new Date(shipment.createdAt).toLocaleString()}</p>
+              </div>
+              {shipment.lastUpdatedBy && (
+                <div>
+                  <p className="text-indigo-300 text-sm">Laatst Bijgewerkt Door:</p>
+                  <p className="text-lg font-semibold">{shipment.lastUpdatedBy}</p>
+                </div>
+              )}
+              {shipment.lastUpdatedAt && (
+                <div>
+                  <p className="text-indigo-300 text-sm">Laatst Bijgewerkt Op:</p>
+                  <p className="text-lg font-semibold">{new Date(shipment.lastUpdatedAt).toLocaleString()}</p>
+                </div>
+              )}
+            </div>
+
+            {/* --- UPDATED: Display Issues from IssueReportController --- */}
+            {issues.length > 0 ? (
+              <div className="mt-6 p-4 bg-red-900/40 border border-red-700 rounded-md">
+                <h3 className="text-xl font-bold text-red-300 mb-3 flex items-center">
+                  <span className="mr-2">🚨</span> Gerapporteerde Problemen:
+                </h3>
+                <ul className="list-disc list-inside space-y-2">
+                  {issues.map((issue) => (
+                    <li key={issue.id} className="text-red-200 text-sm">
+                      <span className="font-semibold">{issue.title}</span>
+                      {issue.description && (
+                        <p className="text-xs text-red-100 italic ml-4 mt-1">
+                          {issue.description}
+                        </p>
+                      )}
+                      {issue.imageUrl && (
+                        <p className="text-xs text-red-100 ml-4 mt-1">
+                          <a href={issue.imageUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-red-50">
+                            Bekijk afbeelding
+                          </a>
+                        </p>
+                      )}
+                      <p className="text-xs text-red-100 ml-4">
+                        Gerapporteerd op: {new Date(issue.createdAt).toLocaleString()}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="mt-6 p-4 bg-green-900/40 border border-green-700 rounded-md text-green-300">
+                <p className="text-center font-semibold">Geen gerapporteerde problemen voor deze zending.</p>
+              </div>
+            )}
+            {/* --- END UPDATED --- */}
+
+            <div className="flex justify-end mt-6">
+              <Button
+                className="bg-indigo-700 text-white hover:bg-indigo-600 px-6 py-3 rounded-md transition-colors duration-200"
+                onPress={onClose}
+              >
+                Sluiten
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const Shipments = () => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [filtered, setFiltered] = useState<Shipment[]>([]);
@@ -75,18 +227,37 @@ const Shipments = () => {
     ...new Set(shipments.map((s) => s.status).filter(Boolean)),
   ];
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:5070";
+  // State for the modal
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
+  const [shipmentIssues, setShipmentIssues] = useState<IssueReport[]>([]); // NEW: State for issues
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
 
   useEffect(() => {
+    // Fetch all shipments initially
     axios
-      .get(`${API_BASE_URL}/api/Shipments`)
-      .then((res) => {
-        setShipments(res.data);
-        setFiltered(res.data);
+      .get<Shipment[]>(`${API_BASE_URL}/api/Shipments`)
+      .then(async (res) => {
+        const fetchedShipments = res.data;
+        // 2. CHECK FOR ISSUES AND UPDATE SHIPMENTS FOR OVERVIEW
+        const shipmentsWithIssueStatus = await Promise.all(
+          fetchedShipments.map(async (shipment) => {
+            try {
+              const issuesRes = await axios.get<IssueReport[]>(`${API_BASE_URL}/api/IssueReport/shipment/${shipment.id}`);
+              return { ...shipment, hasIssues: issuesRes.data.length > 0 };
+            } catch (err) {
+              console.warn(`Could not fetch issues for shipment ${shipment.id}:`, err);
+              return { ...shipment, hasIssues: false }; // Assume no issues if API call fails
+            }
+          })
+        );
+        setShipments(shipmentsWithIssueStatus);
+        setFiltered(shipmentsWithIssueStatus);
       })
       .catch((err) => console.error("Failed to fetch shipments:", err));
-  }, [API_BASE_URL]);
+  }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     const lowerQuery = query.toLowerCase();
@@ -103,15 +274,39 @@ const Shipments = () => {
     setFiltered(filteredList);
   }, [query, shipments, selectedStatus]);
 
-  const inputWrapperBaseStyle = // Used by the Reset Filters button
+  const inputWrapperBaseStyle =
     "bg-[#1E1B33] border border-[#3A365A] text-white rounded-md transition-colors duration-200";
 
-  const handleRowClick = (shipmentId: number) => {
-    console.log(`Shipment row clicked: ${shipmentId}`);
-    alert(`Zending ID ${shipmentId} geklikt! Functionaliteit volgt nog.`);
+  const handleRowClick = async (shipmentId: number) => {
+    setIsLoadingDetails(true);
+    setDetailError(null); // Clear previous errors
+    setSelectedShipment(null); // Clear previous shipment details
+    setShipmentIssues([]); // Clear previous issues
+
+    try {
+      // Fetch shipment details
+      const shipmentResponse = await axios.get<Shipment>(`${API_BASE_URL}/api/Shipments/${shipmentId}`);
+      setSelectedShipment(shipmentResponse.data);
+
+      // Fetch related issues
+      const issuesResponse = await axios.get<IssueReport[]>(`${API_BASE_URL}/api/IssueReport/shipment/${shipmentId}`);
+      setShipmentIssues(issuesResponse.data);
+
+      setIsModalOpen(true); // Open the modal once all data is fetched
+    } catch (err) {
+      console.error(`Failed to fetch details or issues for shipment ${shipmentId}:`, err);
+      if (axios.isAxiosError(err) && err.response) {
+        // More specific error for Axios HTTP errors
+        setDetailError(`Fout bij het laden: ${err.response.status} - ${err.response.statusText}`);
+      } else {
+        setDetailError("Kon zendingdetails of problemen niet laden."); // Generic error
+      }
+    } finally {
+      setIsLoadingDetails(false);
+    }
   };
 
-  // Helper function to get status color
+  // Helper function to get status color (unchanged)
   const getStatusColorClass = (status: string) => {
     switch (
       status?.toLowerCase() // Added optional chaining and toLowerCase for robustness
@@ -122,9 +317,8 @@ const Shipments = () => {
         return "text-orange-400";
       case "in afwachting":
         return "text-yellow-400";
-      // You can add more Dutch status cases here
-      case "in transit": // Example if some data might still have English
-        return "text-blue-400"; // Or map to a Dutch equivalent's color
+      case "in transit":
+        return "text-blue-400";
       case "delivered":
         return "text-green-400";
       case "pending":
@@ -132,7 +326,7 @@ const Shipments = () => {
       case "failed":
         return "text-red-400";
       default:
-        return "text-gray-400"; // Default color for unknown or other statuses
+        return "text-gray-400";
     }
   };
 
@@ -199,6 +393,7 @@ const Shipments = () => {
       {/* Custom table with proper spacing */}
       <div className="space-y-4">
         {/* Table Header */}
+        {/* 2. ADJUSTED GRID COLUMNS FOR ISSUE INDICATOR */}
         <div className="grid grid-cols-6 gap-4 bg-indigo-900/80 backdrop-blur-sm rounded-lg p-4">
           <div className="text-left text-xs uppercase tracking-wider font-semibold text-indigo-300">
             ID
@@ -210,26 +405,26 @@ const Shipments = () => {
             Bestemming
           </div>
           <div className="text-left text-xs uppercase tracking-wider font-semibold text-indigo-300">
-            Toegewezen Aan
-          </div>
-          <div className="text-left text-xs uppercase tracking-wider font-semibold text-indigo-300">
             Verwachte Levering
           </div>
+          {/* OMITTED: Toegewezen Aan and Gewicht from overview */}
           <div className="text-left text-xs uppercase tracking-wider font-semibold text-indigo-300">
-            Gewicht
+            Issues
+          </div>
+          <div className="text-left text-xs uppercase tracking-wider font-semibold text-indigo-300">
+            Actie
           </div>
         </div>
 
         {/* Table Body with proper spacing */}
         <div className="space-y-3">
-          {" "}
-          {/* This controls the space between shipment rows */}
           {filtered.length === 0 ? (
             <div className="text-center text-gray-400 py-8 bg-indigo-800/70 backdrop-blur-sm rounded-lg">
               Geen zendingen gevonden die voldoen aan uw criteria.
             </div>
           ) : (
             filtered.map((shipment) => (
+              // 2. ADJUSTED GRID COLUMNS AND ADDED ISSUE INDICATOR
               <div
                 key={shipment.id}
                 onClick={() => handleRowClick(shipment.id)}
@@ -238,10 +433,7 @@ const Shipments = () => {
                 <div className="text-sm text-gray-200 self-center">
                   {shipment.id}
                 </div>{" "}
-                {/* Added self-center for vertical alignment */}
                 <div className="text-sm self-center">
-                  {" "}
-                  {/* Added self-center */}
                   <span
                     className={`px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColorClass(shipment.status)}`}
                   >
@@ -251,24 +443,43 @@ const Shipments = () => {
                 <div className="text-sm text-gray-300 self-center">
                   {shipment.destination || "-"}
                 </div>{" "}
-                {/* Added self-center */}
-                <div className="text-sm text-gray-300 self-center">
-                  {shipment.assignedTo || "-"}
-                </div>{" "}
-                {/* Added self-center */}
                 <div className="text-sm text-gray-300 self-center">
                   {shipment.expectedDelivery || "-"}
                 </div>{" "}
-                {/* Added self-center */}
+                {/* OMITTED: Toegewezen Aan and Gewicht from here */}
+                <div className="text-sm self-center">
+                  {shipment.hasIssues ? (
+                    <span className="text-red-400 flex items-center">
+                      <AlertCircle size={16} className="mr-1" /> Problemen
+                    </span>
+                  ) : (
+                    <span className="text-gray-500">Geen</span>
+                  )}
+                </div>
                 <div className="text-sm text-gray-300 self-center">
-                  {shipment.weight || "-"}
-                </div>{" "}
-                {/* Added self-center */}
+                    <Button
+                        size="sm"
+                        className="bg-indigo-600 text-white hover:bg-indigo-500 px-3 py-1 rounded-md"
+                        onPress={() => handleRowClick(shipment.id)}
+                    >
+                        Bekijk
+                    </Button>
+                </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      {/* Shipment Detail Modal Integration */}
+      <ShipmentDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        shipment={selectedShipment}
+        issues={shipmentIssues} // Pass the fetched issues
+        isLoading={isLoadingDetails}
+        error={detailError}
+      />
     </div>
   );
 };
