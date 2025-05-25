@@ -1,10 +1,9 @@
 // Accounts.tsx
-import React, { useState, useEffect } from 'react'; // Added useEffect
-import { Search, Edit, Trash, User, Plus } from 'lucide-react'; // Mail, Phone, Shield not directly used in table
-import { Input } from "@nextui-org/react"; // Import Input from NextUI
-import axios from 'axios'; // Import axios
+import React, { useState, useEffect } from 'react';
+import { Search, Edit, Trash, User, Plus } from 'lucide-react';
+import { Input } from "@nextui-org/react";
+import axios from 'axios';
 
-// Interface for Profile data coming from backend (matches what GetAllProfilesAsync returns)
 interface Profile {
   id: number;
   username: string; // Added username
@@ -12,22 +11,14 @@ interface Profile {
   email: string;
   role: string;
   imageUrl: string;
-  // Assuming these are not directly in the main table view from your sample, but good to have if API returns them
-  // accentColor: string;
-  // darkMode: boolean;
-  // notificationsEnabled: boolean;
-  createdAt: string; // For Last Login, we'll need to decide if this is the right field or if backend provides 'lastLogin'
-  // The initialAccounts had 'active' and 'lastLogin'. The Profile model doesn't.
-  // We'll use 'createdAt' for now as a placeholder for a date field.
-  // You might need to adjust your backend Profile model and GetAllProfilesAsync if 'active' and 'lastLogin' are needed.
-  active?: boolean; // Make these optional if not always present from backend
+  createdAt: string;
+  active?: boolean;
   lastLogin?: string;
 }
 
-// DTO for creating a user, matching your backend RegisterUserDto
 interface RegisterUserDto {
   username: string;
-  password?: string; // Password is required by DTO, but might be optional in some UI flows before final submit
+  password?: string;
   fullName: string;
   email?: string;
   role: string;
@@ -35,12 +26,12 @@ interface RegisterUserDto {
 
 
 const Accounts = () => {
-  const [accounts, setAccounts] = useState<Profile[]>([]); // Use Profile interface, initially empty
-  const [isLoading, setIsLoading] = useState(true); // For loading state
-  const [error, setError] = useState<string | null>(null); // For error state
+  const [accounts, setAccounts] = useState<Profile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedAccount, setSelectedAccount] = useState<Profile | null>(null); // Store the whole account for edit
+  const [selectedAccount, setSelectedAccount] = useState<Profile | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -49,20 +40,16 @@ const Accounts = () => {
   const [newUsername, setNewUsername] = useState('');
   const [newFullName, setNewFullName] = useState('');
   const [newEmail, setNewEmail] = useState('');
-  const [newRole, setNewRole] = useState(''); // Default to a common role or empty
+  const [newRole, setNewRole] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5070"; // Ensure this is correct
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5070";
 
   const fetchAccounts = async () => {
     setIsLoading(true);
     try {
-      // Assuming your token is stored in localStorage after login
-      // const token = localStorage.getItem('authToken');
       const response = await axios.get<Profile[]>(`${API_BASE_URL}/api/Profile`, {
-        // headers: {
-        //   Authorization: `Bearer ${token}` // Add if endpoint is protected
-        // }
+        
       });
       setAccounts(response.data);
       setError(null);
@@ -76,22 +63,21 @@ const Accounts = () => {
 
   useEffect(() => {
     fetchAccounts();
-  }, [API_BASE_URL]); // API_BASE_URL might not change, but good to include dependencies
+  }, [API_BASE_URL]);
 
   const filteredAccounts = accounts.filter(account =>
     account.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    account.email?.toLowerCase().includes(searchTerm.toLowerCase()) || // Email can be optional
+    account.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     account.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleEdit = (account: Profile) => { // Pass the whole account
+  const handleEdit = (account: Profile) => { 
     setSelectedAccount(account);
-    // Populate edit form fields here if you have separate state for them
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (account: Profile) => { // Pass the whole account
+  const handleDelete = (account: Profile) => {
     setSelectedAccount(account);
     setIsDeleteModalOpen(true);
   };
@@ -100,14 +86,13 @@ const Accounts = () => {
     if (selectedAccount) {
       // TODO: Implement API call to delete account
       console.log("Deleting account:", selectedAccount.id);
-      // For now, filter locally. Replace with API call & re-fetch.
       setAccounts(accounts.filter(account => account.id !== selectedAccount.id));
       setIsDeleteModalOpen(false);
       setSelectedAccount(null);
     }
   };
 
-  const formatDate = (dateString?: string) => { // Make dateString optional
+  const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('nl-NL', {
@@ -132,15 +117,10 @@ const Accounts = () => {
     };
 
     try {
-      // const token = localStorage.getItem('authToken');
       const response = await axios.post(`${API_BASE_URL}/api/Profile/create`, newUserDto, {
-        // headers: {
-        //   Authorization: `Bearer ${token}` // Add if endpoint is protected
-        // }
+        
       });
-      // Add the new user to the state or re-fetch all accounts
-      // setAccounts([...accounts, response.data]); // Simpler for now
-      fetchAccounts(); // Re-fetch to get the latest list including the new user with DB ID
+      fetchAccounts(); 
       setIsCreateModalOpen(false);
       // Clear form fields
       setNewUsername('');
@@ -148,17 +128,16 @@ const Accounts = () => {
       setNewEmail('');
       setNewRole('');
       setNewPassword('');
-      alert("Account succesvol aangemaakt!"); // Or a more subtle notification
+      alert("Account succesvol aangemaakt!"); 
     } catch (err: any) {
       console.error("Failed to create account:", err);
       const errorMessage = err.response?.data?.message || err.response?.data?.error || "Aanmaken van account mislukt.";
       alert(`Fout: ${errorMessage}`);
     } finally {
-      setIsLoading(false); // Reset general loading or modal-specific loading
+      setIsLoading(false); 
     }
   };
   
-  // Simplified Edit Modal Save Handler (placeholder)
   const handleSaveChanges = () => {
       // TODO: Implement API call to update account details
       console.log("Saving changes for account:", selectedAccount);
