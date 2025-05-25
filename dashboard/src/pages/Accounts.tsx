@@ -211,6 +211,7 @@ const Accounts = () => {
 
   const handleEdit = (account: Profile) => {
     setSelectedAccount(account);
+    setEditRole(account.role);
     setIsEditModalOpen(true);
   };
 
