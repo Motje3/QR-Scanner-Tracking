@@ -277,7 +277,8 @@ const ShipmentDetails = () => {
 
         {/* Optional Back Button */}
         <View style={{ position: "absolute", top: hp(4), left: wp(5) }}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.replace("/(tabs)/scan")}>
+
             <Ionicons name="arrow-back" size={wp(8)} color="#fff" />
           </TouchableOpacity>
         </View>
