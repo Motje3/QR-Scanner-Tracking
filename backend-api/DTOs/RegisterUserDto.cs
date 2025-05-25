@@ -1,4 +1,3 @@
-// In DTOs/RegisterUserDto.cs
 using System.ComponentModel.DataAnnotations;
 
 namespace backend_api.DTOs
