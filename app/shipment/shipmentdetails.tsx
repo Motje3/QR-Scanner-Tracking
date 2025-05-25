@@ -256,12 +256,23 @@ const ShipmentDetails = () => {
             paddingVertical: hp(2.2),
             borderRadius: wp(3),
             alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: wp(2),
           }}
         >
+          <Image
+            source={icons.issue as ImageSourcePropType}
+            style={{
+              width: wp(6),
+              height: wp(6),
+              tintColor: "#fff",
+            }}
+          />
           <Text
             style={{ color: "#fff", fontSize: wp(4.8), fontWeight: "bold" }}
           >
-            ⚠️ Probleem melden
+            Probleem melden
           </Text>
         </TouchableOpacity>
 
