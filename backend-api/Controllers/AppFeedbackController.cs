@@ -2,9 +2,6 @@ using backend_api.Services; // Namespace for IAppFeedbackService
 using backend_api.DTOs;   // Namespace for CreateAppFeedbackDto
 using backend_api.Models; // Namespace for AppFeedback model
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace backend_api.Controllers 
 {
