@@ -93,11 +93,7 @@ export default function ForgotPassword() {
       if (!res.ok) {
         throw new Error("Server error during password reset");
       }
-      Alert.alert(
-        "Verzoek ingediend",
-        "De administrator zal je wachtwoord aanpassen."
-      );
-      router.replace("/login/loginpage");
+            setShowRequestSent(true);
     } catch (error) {
       Alert.alert(
         "Fout",
@@ -106,6 +102,39 @@ export default function ForgotPassword() {
       console.error("Password reset error:", error);
     }
   };
+
+  if (showRequestSent) {
+    return (
+      <LinearGradient // Optional: Keep a similar background
+        colors={["#3E1F92", "#230F52"]} // Same as your main screen
+        locations={[0.3, 1]}
+        style={styles.bg} // Use existing 'bg' style or a new one for the overlay container
+      >
+        <SafeAreaView style={styles.successOverlaySafeArea}>
+          <View style={styles.successOverlayContainer}>
+            <View style={styles.successCard}>
+              {/* You can add an icon here if you like, e.g., from @expo/vector-icons */}
+              {/* <Ionicons name="mail-send-outline" size={wp(15)} color={accentColor || "#fff"} style={{ marginBottom: hp(2) }} /> */}
+              <Text style={styles.successTitle}>Verzoek Verzonden!</Text>
+              <Text style={styles.successMessage}>
+                Je wachtwoordresetverzoek is naar de administrator gestuurd. 
+                Zij zullen het zo spoedig mogelijk verwerken.
+              </Text>
+              <TouchableOpacity
+                style={[styles.successButton, { backgroundColor: accentColor || "#6200EE" }]} // Use accentColor or a fallback
+                onPress={() => {
+                  setShowRequestSent(false); // Hide this UI
+                  router.replace("/login/loginpage"); // Navigate to login
+                }}
+              >
+                <Text style={styles.successButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -280,5 +309,61 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: wp(4),
     fontWeight: "500",
+  },
+  // --- ADD THESE NEW STYLES ---
+  successOverlaySafeArea: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  successOverlayContainer: {
+    width: '100%',
+    paddingHorizontal: wp(6), // Consistent with form padding
+    alignItems: 'center',
+  },
+  successCard: {
+    backgroundColor: "rgba(30, 27, 51, 0.9)", // Slightly darker or distinct card color, play with opacity
+    paddingVertical: hp(4),
+    paddingHorizontal: wp(6),
+    borderRadius: wp(4),
+    alignItems: "center",
+    width: "100%", // Card takes full width within padding
+    maxWidth: wp(90), // Max width for larger screens
+    borderWidth: 1,
+    borderColor:  "#A970FF", // Use accent color for border
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  successTitle: {
+    fontSize: wp(6),
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: hp(2),
+  },
+  successMessage: {
+    fontSize: wp(4.2),
+    color: "#E0E0E0", // Light grey for readability
+    textAlign: "center",
+    marginBottom: hp(4),
+    lineHeight: hp(3),
+  },
+  successButton: {
+    paddingVertical: hp(1.8),
+    paddingHorizontal: wp(12),
+    borderRadius: wp(2.5),
+    alignItems: "center",
+    minWidth: wp(40), // Ensure button has a decent width
+  },
+  successButtonText: {
+    color: "#fff",
+    fontSize: wp(4.5),
+    fontWeight: "600",
   },
 });
