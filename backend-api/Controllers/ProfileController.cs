@@ -72,9 +72,7 @@ namespace backend_api.Controllers
             return Ok(profile);
         }
 
-        // New GET endpoint to fetch all profiles (for Admins)
         [HttpGet]
-        // [Authorize(Roles = "Admin")] // IMPORTANT: Protect this for Admin use only!
         public async Task<ActionResult<IEnumerable<Profile>>> GetAllProfiles()
         {
             var profiles = await _profileService.GetAllProfilesAsync();
