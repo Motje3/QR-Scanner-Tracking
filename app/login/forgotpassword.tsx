@@ -106,29 +106,32 @@ export default function ForgotPassword() {
 
   if (showRequestSent) {
     return (
-      <LinearGradient // Optional: Keep a similar background
-        colors={["#3E1F92", "#230F52"]} // Same as your main screen
+      <LinearGradient 
+        colors={["#3E1F92", "#230F52"]} 
         locations={[0.3, 1]}
-        style={styles.bg} // Use existing 'bg' style or a new one for the overlay container
+        style={styles.bg} 
       >
         <SafeAreaView style={styles.successOverlaySafeArea}>
           <View style={styles.successOverlayContainer}>
             <View style={styles.successCard}>
-              {/* You can add an icon here if you like, e.g., from @expo/vector-icons */}
-              {/* <Ionicons name="mail-send-outline" size={wp(15)} color={accentColor || "#fff"} style={{ marginBottom: hp(2) }} /> */}
+              {/* --- ADD THE ICON HERE --- */}
+              <Ionicons 
+                name="checkmark-circle-outline" // Or "checkmark-circle" for a filled one
+                size={wp(18)} // Adjust size as needed (e.g., wp(15) or wp(20))
+                color="#4CAF50" // A nice green color
+                style={{ marginBottom: hp(2.5) }} // Space below the icon
+              />
+              {/* ------------------------- */}
               <Text style={styles.successTitle}>Verzoek Verzonden!</Text>
               <Text style={styles.successMessage}>
-                Je wachtwoordresetverzoek is naar de administrator gestuurd. Zij
-                zullen het zo spoedig mogelijk verwerken.
+                Je wachtwoordresetverzoek is naar de administrator gestuurd. 
+                Zij zullen het zo spoedig mogelijk verwerken.
               </Text>
               <TouchableOpacity
-                style={[
-                  styles.successButton,
-                  { backgroundColor: accentColor || "#6200EE" },
-                ]} // Use accentColor or a fallback
+                style={[styles.successButton, { backgroundColor: accentColor || "#6200EE" }]}
                 onPress={() => {
-                  setShowRequestSent(false); // Hide this UI
-                  router.replace("/login/loginpage"); // Navigate to login
+                  setShowRequestSent(false); 
+                  router.replace("/login/loginpage"); 
                 }}
               >
                 <Text style={styles.successButtonText}>OK</Text>
