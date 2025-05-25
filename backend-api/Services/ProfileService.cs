@@ -103,5 +103,26 @@ namespace backend_api.Services
 
             return newProfile;
         }
+
+        public async Task<IEnumerable<Profile>> GetAllProfilesAsync()
+        {
+            // Or use a DTO that omits sensitive information
+            return await _context.Profiles
+                .Select(p => new Profile
+                { // Projecting to avoid sending password
+                    Id = p.Id,
+                    Username = p.Username,
+                    FullName = p.FullName,
+                    Email = p.Email,
+                    Role = p.Role,
+                    ImageUrl = p.ImageUrl,
+                    AccentColor = p.AccentColor,
+                    DarkMode = p.DarkMode,
+                    NotificationsEnabled = p.NotificationsEnabled,
+                    CreatedAt = p.CreatedAt
+                    // DO NOT INCLUDE p.Password here
+                })
+                .ToListAsync();
+        }
     }
 }
