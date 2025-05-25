@@ -1,3 +1,5 @@
+// In backend_api/Controllers/IssueReportController.cs
+
 using backend_api.Models;
 using backend_api.Services;
 using backend_api.DTOs;
@@ -20,15 +22,20 @@ namespace backend_api.Controllers
         public async Task<ActionResult<IEnumerable<IssueReport>>> GetAll()
         {
             var reports = await _service.GetAllAsync();
+            return Ok(reports ?? new List<IssueReport>());
+        }
 
-            // ✅ Altijd een lege lijst teruggeven in plaats van NoContent()
+        // NEW ENDPOINT: Get Issues by ShipmentId
+        [HttpGet("shipment/{shipmentId}")]
+        public async Task<ActionResult<IEnumerable<IssueReport>>> GetByShipmentId(int shipmentId)
+        {
+            var reports = await _service.GetByShipmentIdAsync(shipmentId);
             return Ok(reports ?? new List<IssueReport>());
         }
 
         [HttpPost]
         public async Task<ActionResult<IssueReport>> Create([FromBody] CreateIssueReportDto dto)
         {
-            // ✅ Validatie op lege string
             if (string.IsNullOrWhiteSpace(dto.Title))
             {
                 var error = new ValidationProblemDetails(new Dictionary<string, string[]>
@@ -38,7 +45,6 @@ namespace backend_api.Controllers
                 return BadRequest(error);
             }
 
-            // ✅ Validatie op maximale lengte
             if (dto.Title.Length > 255)
             {
                 var error = new ValidationProblemDetails(new Dictionary<string, string[]>
@@ -48,7 +54,6 @@ namespace backend_api.Controllers
                 return BadRequest(error);
             }
 
-            // ✅ Validatie op negatieve ShipmentId
             if (dto.ShipmentId.HasValue && dto.ShipmentId < 0)
             {
                 var error = new ValidationProblemDetails(new Dictionary<string, string[]>
