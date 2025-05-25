@@ -1,23 +1,23 @@
 import { Stack } from "expo-router";
 import { AuthProvider } from "./context/AuthContext";
 import { AppProvider } from "./context/AppContext";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#030014' }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#030014" }}>
       <AuthProvider>
         <AppProvider>
           <Stack
             screenOptions={{
               headerShown: false,
               // Use a consistent dark background everywhere
-              contentStyle: { backgroundColor: '#030014' },
+              contentStyle: { backgroundColor: "#030014" },
 
               // Apply fade animation to all transitions by default
-              animation: 'fade',
+              animation: "fade",
               animationDuration: 300,
-              presentation: 'card',
+              presentation: "card",
               gestureEnabled: false,
               freezeOnBlur: true,
             }}
