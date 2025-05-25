@@ -282,7 +282,7 @@ export default function ReportIssue() {
             style={styles.modal}
             animationIn="fadeIn"
             animationOut="fadeOut"
-            useNativeDriver 
+            useNativeDriver
           >
             <View
               style={[styles.modalContent, { backgroundColor: theme.cardBg }]}
