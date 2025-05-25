@@ -132,8 +132,10 @@ const Shipments = () => {
           onChange={(e) => setQuery(e.target.value)}
           className="max-w-md"
           classNames={{
+            base: "h-12",
             inputWrapper: [
               "bg-[#1E1B33]",
+              "border",
               "border-[#3A365A]",
               "rounded-md",
               "shadow-sm",
@@ -145,6 +147,8 @@ const Shipments = () => {
               "hover:border-[#4A4663]",
               "transition-all",
               "duration-200",
+              "flex",
+              "items-center",
             ],
             input: [
               "text-sm",
@@ -153,17 +157,24 @@ const Shipments = () => {
               "bg-transparent",
               "outline-none",
               "border-none",
+              "flex-1",
+              "h-full",
+              "py-0",
             ],
             clearButton: [
               "text-gray-400",
               "hover:text-white",
-              "text-lg",
+              "text-xl",
               "transition-colors",
+              "relative",
+              "right-2",
+              "w-6",
+              "h-6",
+              "flex",
+              "items-center",
+              "justify-center",
             ],
           }}
-          startContent={
-            <span className="text-gray-400 text-lg mr-3 flex-shrink-0">🔍</span>
-          }
         />
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
