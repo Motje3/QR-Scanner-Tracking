@@ -1,5 +1,5 @@
 // src/pages/NewShipment.tsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   PackagePlus,
   MapPin,
@@ -44,6 +44,8 @@ const NewShipment = () => {
   const [createdShipment, setCreatedShipment] =
     useState<CreatedShipment | null>(null);
 
+  const qrCodeRef = useRef<HTMLDivElement>(null); // Ref for the div wrapping QRCodeSVG
+
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:5070";
 
@@ -52,7 +54,6 @@ const NewShipment = () => {
     setIsLoading(true);
     setError(null);
     // Keep createdShipment null until success, so previous QR doesn't flash
-    // setCreatedShipment(null);
 
     if (!status) {
       setError("Status is een verplicht veld.");
@@ -78,11 +79,9 @@ const NewShipment = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({
-            message: "Onbekende fout bij het aanmaken van de zending.",
-          }));
+        const errorData = await response.json().catch(() => ({
+          message: "Onbekende fout bij het aanmaken van de zending.",
+        }));
         throw new Error(
           errorData.title ||
             errorData.detail ||
@@ -109,12 +108,33 @@ const NewShipment = () => {
   const inputClass =
     "w-full bg-indigo-800 border border-indigo-700 text-white pl-12 pr-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600 placeholder-gray-500 transition-all duration-300 ease-in-out shadow-sm hover:border-indigo-600";
   const labelClass = "block text-sm font-medium text-gray-300 mb-1 ml-1";
-  
+
   const iconSize = 20; // Increased icon size
 
   const handleDownloadQR = () => {
-    // Placeholder for actual QR download logic
-    alert("Downloadfunctionaliteit nog niet geïmplementeerd.");
+    if (qrCodeRef.current && createdShipment) {
+      const svgElement = qrCodeRef.current.querySelector("svg");
+      if (svgElement) {
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svgElement);
+
+        // Note: For direct data URL, this might not be strictly necessary but can be good for file opening in some editors.
+
+        const dataUrl =
+          "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `zending-qr-${createdShipment.id}.svg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert("QR code SVG element niet gevonden.");
+      }
+    } else {
+      alert("Geen zending gevonden om QR code voor te downloaden.");
+    }
   };
 
   return (
@@ -134,16 +154,12 @@ const NewShipment = () => {
           onSubmit={handleSubmit}
           className="bg-indigo-900/70 backdrop-blur-md shadow-2xl rounded-xl p-6 md:p-10 space-y-7 max-w-2xl mx-auto"
         >
-          {" "}
-          {/* Increased space-y slightly for field groups */}
           {/* Status Input Group */}
           <div>
             <label htmlFor="status" className={labelClass}>
               Status <span className="text-red-400">*</span>
             </label>
             <div className="relative mt-1">
-              {" "}
-              {/* Added mt-1 for spacing after label, parent for icon & input */}
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <CheckCircle size={iconSize} className="text-gray-400" />
               </div>
@@ -158,6 +174,7 @@ const NewShipment = () => {
               />
             </div>
           </div>
+
           {/* Destination Input Group */}
           <div>
             <label htmlFor="destination" className={labelClass}>
@@ -177,6 +194,7 @@ const NewShipment = () => {
               />
             </div>
           </div>
+
           {/* Assigned To Input Group */}
           <div>
             <label htmlFor="assignedTo" className={labelClass}>
@@ -196,6 +214,7 @@ const NewShipment = () => {
               />
             </div>
           </div>
+
           {/* Expected Delivery Input Group */}
           <div>
             <label htmlFor="expectedDelivery" className={labelClass}>
@@ -215,6 +234,7 @@ const NewShipment = () => {
               />
             </div>
           </div>
+
           {/* Weight Input Group */}
           <div>
             <label htmlFor="weight" className={labelClass}>
@@ -234,13 +254,12 @@ const NewShipment = () => {
               />
             </div>
           </div>
+
           <button
             type="submit"
             disabled={isLoading}
             className="w-full flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-500 text-indigo-950 font-semibold py-3 px-4 rounded-md transition-colors duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-50 text-lg !mt-8"
           >
-            {" "}
-            {/* Added !mt-8 for more space above button */}
             {isLoading ? (
               <Loader2 size={24} className="animate-spin mr-2" />
             ) : (
@@ -248,6 +267,7 @@ const NewShipment = () => {
             )}
             {isLoading ? "Zending Wordt Aangemaakt..." : "Zending Aanmaken"}
           </button>
+
           {error && (
             <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-md flex items-center">
               <XCircle size={20} className="mr-2" />
@@ -269,7 +289,11 @@ const NewShipment = () => {
             </span>
           </p>
 
-          <div className="p-4 bg-white inline-block rounded-lg shadow-inner mt-2">
+          {/* Added ref to this div */}
+          <div
+            ref={qrCodeRef}
+            className="p-4 bg-white inline-block rounded-lg shadow-inner mt-2"
+          >
             <QRCodeSVG
               value={String(createdShipment.id)}
               size={180}
@@ -278,7 +302,6 @@ const NewShipment = () => {
               level="H"
             />
           </div>
-          
 
           <button
             onClick={handleDownloadQR}
