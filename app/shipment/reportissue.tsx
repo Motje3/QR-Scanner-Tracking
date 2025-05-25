@@ -124,8 +124,6 @@ export default function ReportIssue() {
           : "Een onbekende fout is opgetreden."
       );
     } finally {
-      // setSubmitting will be effectively handled by navigation or if an error occurs before navigation
-      // If successful, the component unmounts. If error, we need submitting to be false.
       if (!showSuccess) {
         // Only set submitting to false if not already showing success (and about to navigate)
         setSubmitting(false);
