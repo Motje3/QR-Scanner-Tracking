@@ -42,6 +42,7 @@ const ShipmentDetails = () => {
   const [shipmentStatus, setShipmentStatus] = useState<string>("Geleverd");
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -75,6 +76,43 @@ const ShipmentDetails = () => {
     );
     return () => backHandler.remove();
   }, [router]);
+
+  useEffect(() => {
+    const fetchShipment = async () => {
+      try {
+        const id = Array.isArray(qrData) ? qrData[0] : qrData;
+        const res = await fetch(`${API_BASE_URL}/api/shipments/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        });
+
+        if (res.status === 404) {
+          setNotFound(true);
+          return;
+        }
+
+        const data = await res.json();
+
+        // You could also add an additional safety check:
+        if (!data || !data.id) {
+          setNotFound(true);
+          return;
+        }
+
+        setShipment(data);
+        setShipmentStatus(data.status);
+      } catch (err) {
+        console.error("Fout bij ophalen van zending:", err);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShipment();
+  }, [qrData, token]);
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -135,59 +173,89 @@ const ShipmentDetails = () => {
     );
   }
 
-  if (!shipment) {
+  if (notFound) {
     return (
       <LinearGradient
         colors={["#17144F", "#090723"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          paddingHorizontal: wp(10),
+        }}
       >
+        {/* Big ❌ Icon */}
         <Text
-          style={{
-            color: "#fff",
-            fontSize: wp(5),
-            marginBottom: hp(2),
-            textAlign: "center",
-          }}
+          style={{ fontSize: wp(20), color: "#EF4444", marginBottom: hp(2) }}
         >
-          ❌ Zending bestaat niet. Probeer opnieuw te scannen of meld een
-          probleem.
+          ❌
         </Text>
 
-        <View style={{ flexDirection: "row", gap: wp(4) }}>
-          <TouchableOpacity
-            onPress={() => router.replace("/(tabs)/scan")}
-            style={{
-              backgroundColor: "#6C5CE7",
-              paddingVertical: hp(1.5),
-              paddingHorizontal: wp(4),
-              borderRadius: wp(3),
-              marginBottom: hp(2),
-            }}
-          >
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>
-              🔄 Opnieuw scannen
-            </Text>
-          </TouchableOpacity>
+        {/* Main message */}
+        <Text
+          style={{
+            fontSize: wp(8),
+            color: "#fff",
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: hp(1),
+          }}
+        >
+          Zending bestaat niet
+        </Text>
 
-          <TouchableOpacity
-            onPress={() => router.push("/shipment/reportissue")}
-            style={{
-              backgroundColor: "#EF4444",
-              paddingVertical: hp(1.5),
-              paddingHorizontal: wp(4),
-              borderRadius: wp(3),
-              marginBottom: hp(2),
-            }}
-          >
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>
-              ⚠️ Probleem melden
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {/* Subtext */}
+        <Text
+          style={{
+            fontSize: wp(4.2),
+            color: "#D1D5DB",
+            textAlign: "center",
+            marginBottom: hp(4),
+          }}
+        >
+          Probeer opnieuw te scannen of meld een probleem.
+        </Text>
 
-        <View style={styles.topBar}>
+        {/* Buttons stacked vertically */}
+        <TouchableOpacity
+          onPress={() => router.replace("/(tabs)/scan")}
+          style={{
+            width: "100%",
+            backgroundColor: "#6C5CE7",
+            paddingVertical: hp(2.2),
+            borderRadius: wp(3),
+            marginBottom: hp(2),
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{ color: "#fff", fontSize: wp(4.8), fontWeight: "bold" }}
+          >
+            🔄 Opnieuw scannen
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.push("/shipment/reportissue")}
+          style={{
+            width: "100%",
+            backgroundColor: "#EF4444",
+            paddingVertical: hp(2.2),
+            borderRadius: wp(3),
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{ color: "#fff", fontSize: wp(4.8), fontWeight: "bold" }}
+          >
+            ⚠️ Probleem melden
+          </Text>
+        </TouchableOpacity>
+
+        {/* Optional Back Button */}
+        <View style={{ position: "absolute", top: hp(4), left: wp(5) }}>
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={wp(8)} color="#fff" />
           </TouchableOpacity>
@@ -472,6 +540,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 2,
     borderRadius: wp(4),
+    paddingTop: hp(1.5), // Add some top padding
+    paddingLeft: wp(2), // Add left padding
   },
   backIcon: { width: wp(6), height: wp(6), marginRight: wp(2) },
   backText: { fontSize: wp(3.5), fontWeight: "600" },
