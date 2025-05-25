@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  scroll: { padding: wp(6), alignItems: "center", paddingBottom: hp(10) }, // Added paddingBottom for scroll
+  scroll: { padding: wp(6), alignItems: "center", paddingBottom: hp(10) },
   image: {
     width: wp(36),
     height: wp(36),
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: wp(4),
   },
-  backIcon: { width: wp(6), height: wp(6), marginRight: wp(2) }, // Assuming icons.arrowleft is an image source
+  backIcon: { width: wp(6), height: wp(6), marginRight: wp(2) },
   backText: { fontSize: wp(3.5), fontWeight: "600" },
   modal: { justifyContent: "flex-end", margin: 0 },
   modalContent: {
@@ -405,18 +405,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: wp(5),
   },
   modalOption: {
-    // Added styles for modal options
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: hp(2),
     borderBottomWidth: 1,
-    borderBottomColor: "#eee", // Adjust color as needed
+    borderBottomColor: "#eee",
   },
   modalIcon: {
-    // Added style for modal icons
     marginRight: wp(4),
   },
-  // Styles copied from appsettings.tsx for the success overlay
   successContainer: {
     flex: 1,
     justifyContent: "center",
