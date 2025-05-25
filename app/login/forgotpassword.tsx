@@ -71,7 +71,7 @@ export default function ForgotPassword() {
           style={{ flex: 1 }}
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, paddingTop: hp(18) }}>
               <Text style={styles.title}>Wachtwoord vergeten</Text>
 
               <TextInput
