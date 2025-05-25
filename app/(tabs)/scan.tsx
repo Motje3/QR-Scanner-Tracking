@@ -41,14 +41,11 @@ const Scan = () => {
   useEffect(() => {
     if (isFocused) {
       qrLock.current = false;
-      // Reset any layout or scan-related issues
       setTimeout(() => {
-        // force a rerender or layout adjustment if needed
       }, 10);
     }
   }, [isFocused]);
 
-  // Refresh permission when app returns from background
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (
