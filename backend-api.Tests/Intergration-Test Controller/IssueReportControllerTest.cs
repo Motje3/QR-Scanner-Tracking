@@ -308,18 +308,25 @@ namespace backend_api.IntegrationTests
                 Description = "should be trimmed"
             };
 
-            IssueReport captured = null!;
+            IssueReport captured = new IssueReport
+            {
+                Id = 0, // A dummy ID is fine for initialization
+                Title = "Initial Title", // A valid title is required for initialization
+                CreatedAt = DateTime.UtcNow // Also good practice to initialize
+            };
 
             _mockService.Setup(service => service.CreateAsync(It.IsAny<IssueReport>()))
                 .Callback<IssueReport>(r => captured = r)
-                .ReturnsAsync(new IssueReport { Id = 100 });
+                .ReturnsAsync((IssueReport r) => new IssueReport {
+                    Id = 100,
+                    Title = r.Title,
+                    CreatedAt = DateTime.UtcNow
+                });
 
             await _client.PostAsJsonAsync("/api/IssueReport", dto);
 
             Assert.Equal("Trim me", captured.Title);
         }
-
-
 
         #endregion
     }
