@@ -20,5 +20,8 @@ namespace BackendAPI.DTOs
 
         [StringLength(50, ErrorMessage = "Weight cannot be longer than 50 characters.")]
         public string? Weight { get; set; }
+
+        [StringLength(50, ErrorMessage = "Revenue cannot be longer than 50 characters.")]
+        public decimal? Omzet { get; set; }
     }
 }

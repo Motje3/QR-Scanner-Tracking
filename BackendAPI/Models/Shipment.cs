@@ -23,5 +23,7 @@ namespace BackendAPI.Models
         public string? LastUpdatedBy { get; set; }
 
         public DateTime? LastUpdatedAt { get; set; }
+
+        public decimal? Omzet { get; set; } // Optional revenue
     }
 }
