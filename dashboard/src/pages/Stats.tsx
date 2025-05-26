@@ -86,6 +86,10 @@ const Stats = () => {
   const [selected, setSelected] = useState(statOptions[0].key);
   const selectedStat = statOptions.find(opt => opt.key === selected);
 
+  // Example formatting function
+  const formatEuro = (value: number | null) =>
+    value != null ? `€${value.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-';
+
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold text-white mb-4">Statistieken</h1>
@@ -102,7 +106,11 @@ const Stats = () => {
             style={{ cursor: 'pointer' }}
           >
             <p className="text-gray-300 mb-2">{opt.label}</p>
-            <h2 className="text-3xl font-bold text-white">{opt.value}</h2>
+            <h2 className="text-3xl font-bold text-white">
+              {opt.key === 'jaarOmzet'
+                ? formatEuro(opt.value)
+                : opt.value}
+            </h2>
           </button>
         ))}
       </div>
