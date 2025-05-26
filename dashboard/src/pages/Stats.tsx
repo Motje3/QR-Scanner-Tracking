@@ -1,19 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
+import { API_BASE_URL } from '../config/env';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const formatEuro = (value: number | null) =>
+  value != null ? `€${value.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-';
 
 const Stats = () => {
   const [stats, setStats] = useState<any>(null);
+  const [selected, setSelected] = useState('jaarOmzet');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/stats/overview`)
       .then(res => res.json())
-      .then(setStats);
+      .then(setStats)
+      .catch(err => {
+        setError('Kan statistieken niet laden');
+        console.error('Error fetching stats:', err);
+      });
   }, []);
 
+  if (error) return <div className="text-red-500">{error}</div>;
   if (!stats) return <div className="text-white">Laden...</div>;
 
   const statOptions = [
@@ -52,7 +61,11 @@ const Stats = () => {
     {
       key: 'maandZendingen',
       label: 'Maandelijkse zendingen',
-      value: stats.maandZendingen.find((m: any) => m.maand === new Date().toLocaleString('nl-NL', { month: 'short' }))?.zendingen || 0,
+      value: (() => {
+        const maand = new Date().toLocaleString('en-US', { month: 'short' });
+        const found = stats.maandZendingen.find((m: any) => m.maand === maand);
+        return found ? found.zendingen : 0;
+      })(),
       graph: (
         <ResponsiveContainer width="100%" height={500}>
           <BarChart data={stats.maandZendingen}>
@@ -68,14 +81,14 @@ const Stats = () => {
     {
       key: 'jaarOmzet',
       label: 'Jaarlijkse omzet',
-      value: `€${stats.jaarOmzet}`,
+      value: stats.jaarOmzet,
       graph: (
         <ResponsiveContainer width="100%" height={500}>
           <BarChart data={stats.omzetPerMaand}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="maand" stroke="#c7d2fe" />
-            <YAxis stroke="#c7d2fe" />
-            <Tooltip />
+            <YAxis stroke="#c7d2fe" tickFormatter={formatEuro} />
+            <Tooltip formatter={(value: number) => formatEuro(value)} />
             <Bar dataKey="omzet" fill="#f59e42" />
           </BarChart>
         </ResponsiveContainer>
@@ -83,12 +96,7 @@ const Stats = () => {
     },
   ];
 
-  const [selected, setSelected] = useState(statOptions[0].key);
   const selectedStat = statOptions.find(opt => opt.key === selected);
-
-  // Example formatting function
-  const formatEuro = (value: number | null) =>
-    value != null ? `€${value.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-';
 
   return (
     <div className="space-y-8">
