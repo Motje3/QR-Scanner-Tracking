@@ -31,7 +31,7 @@ const Stats = () => {
       label: 'Totaal zendingen dit jaar',
       value: stats.totaalZendingenJaar,
       graph: (
-        <ResponsiveContainer width="100%" height={500}>
+        <ResponsiveContainer width="100%" height={800}>
           <BarChart data={stats.maandZendingen}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="maand" stroke="#c7d2fe" />
@@ -47,7 +47,7 @@ const Stats = () => {
       label: 'Zendingen vandaag',
       value: stats.zendingenVandaag,
       graph: (
-        <ResponsiveContainer width="100%" height={500}>
+        <ResponsiveContainer width="100%" height={800}>
           <BarChart data={[{ maand: 'Vandaag', zendingen: stats.zendingenVandaag }]}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="maand" stroke="#c7d2fe" />
@@ -67,7 +67,7 @@ const Stats = () => {
         return found ? found.zendingen : 0;
       })(),
       graph: (
-        <ResponsiveContainer width="100%" height={500}>
+        <ResponsiveContainer width="100%" height={800}>
           <BarChart data={stats.maandZendingen}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="maand" stroke="#c7d2fe" />
@@ -83,7 +83,7 @@ const Stats = () => {
       label: 'Jaarlijkse omzet',
       value: stats.jaarOmzet,
       graph: (
-        <ResponsiveContainer width="100%" height={500}>
+        <ResponsiveContainer width="100%" height={800}>
           <BarChart data={stats.omzetPerMaand}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="maand" stroke="#c7d2fe" />
