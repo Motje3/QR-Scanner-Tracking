@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ArrowLeft } from "lucide-react"; // For a back button icon
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface Shipment {
   id: number;
   status: string;
@@ -40,13 +42,13 @@ const ShipmentDetail = () => {
       try {
         // Fetch shipment details
         const shipmentResponse = await axios.get<Shipment>(
-          `http://172.20.10.2:5070/api/Shipments/${id}`
+          `${API_BASE_URL}/api/Shipments/${id}`
         );
         setShipment(shipmentResponse.data);
 
         // Fetch issues for this shipment
         const issuesResponse = await axios.get<IssueReport[]>(
-          `http://172.20.10.2:5070/api/IssueReport/shipment/${id}`
+          `${API_BASE_URL}/api/IssueReport/shipment/${id}`
         );
         setIssues(issuesResponse.data);
       } catch (err: any) {

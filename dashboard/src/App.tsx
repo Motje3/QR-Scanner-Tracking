@@ -36,17 +36,12 @@ function App() {
           </DashboardLayout>
         } />
 
-        {/* Shipments List Route */}
         <Route path="/shipments" element={
           <DashboardLayout>
             <Shipments />
           </DashboardLayout>
         } />
 
-        {/* NEW Shipments Detail Route */}
-        {/* This route needs to be defined BEFORE the general /shipments route if you had a Switch,
-            but with Routes component, order generally doesn't matter for specific paths.
-            However, it's good practice to place more specific routes higher. */}
         <Route path="/shipments/:id" element={
           <DashboardLayout>
             <ShipmentDetail />

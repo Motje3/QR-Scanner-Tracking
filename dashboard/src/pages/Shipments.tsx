@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo  } from "react";
 import axios from "axios";
-import { Input, Button } from "@nextui-org/react";
-import { ClipboardList, Search, AlertCircle } from "lucide-react"; // Import AlertCircle for issue indicator
-
+import { Input, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner } from "@nextui-org/react";
+import { ClipboardList, Search, AlertCircle, AlertTriangle, CheckCircle, Star, Lightbulb } from "lucide-react";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// --- NEW: Define IssueReport interface ---
 interface IssueReport {
   id: number;
   title: string;
-  description?: string;
-  imageUrl?: string;
-  shipmentId?: number; // Optional, as some issues might not be tied to a shipment
+  description: string | null;
+  imageUrl: string | null;
+  shipmentId: number | null;
   createdAt: string;
+  isImportant: boolean;
+  isFixed: boolean;
+  resolvedAt: string | null;
 }
 
 interface Shipment {
@@ -23,10 +24,8 @@ interface Shipment {
   expectedDelivery: string;
   weight: string;
   createdAt: string;
-  lastUpdatedBy: string;
-  lastUpdatedAt: string;
-  // No 'problems' property needed here, we'll fetch them separately
-  // --- NEW: Add a flag to indicate if issues exist for this shipment (for immediate overview) ---
+  lastUpdatedBy: string | null;
+  lastUpdatedAt: string | null;
   hasIssues?: boolean;
 }
 
@@ -79,140 +78,215 @@ const CustomDropdown = ({
   );
 };
 
-// --- UPDATED: Shipment Detail Modal Component ---
 interface ShipmentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   shipment: Shipment | null;
-  issues: IssueReport[]; // Pass issues as a prop
+  issues: IssueReport[];
   isLoading: boolean;
   error: string | null;
 }
 
-const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, error }: ShipmentDetailModalProps) => {
-  if (!isOpen) return null;
+const ShipmentDetailModal = ({
+  isOpen,
+  onClose,
+  shipment,
+  issues,
+  isLoading,
+  error,
+}: ShipmentDetailModalProps) => {
+
+  const allProblemsResolved = useMemo(() => {
+    if (!issues || issues.length === 0) {
+      return false;
+    }
+    return issues.every((issue) => issue.isFixed);
+  }, [issues]);
 
   return (
-    // 1. MODAL BACKGROUND TINT
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#1E1B33] text-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-bold"
-          aria-label="Close"
-        >
-          &times;
-        </button>
-        <h2 className="text-3xl font-bold text-yellow-300 mb-6 border-b-2 border-indigo-700 pb-2">
-          Zending Details #{shipment?.id}
-        </h2>
-
-        {isLoading && (
-          <div className="text-center py-8 text-indigo-300">
-            Laden van zendingdetails en problemen...
-          </div>
-        )}
-
-        {error && (
-          <div className="text-center py-8 text-red-400">
-            Fout: {error}
-          </div>
-        )}
-
-        {!isLoading && !error && shipment && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-indigo-300 text-sm">ID:</p>
-                <p className="text-lg font-semibold">{shipment.id}</p>
-              </div>
-              <div>
-                <p className="text-indigo-300 text-sm">Status:</p>
-                <p className="text-lg font-semibold">{shipment.status}</p>
-              </div>
-              <div>
-                <p className="text-indigo-300 text-sm">Bestemming:</p>
-                <p className="text-lg font-semibold">{shipment.destination || '-'}</p>
-              </div>
-              {/* 3. SHOW 'Toegewezen aan' AND 'Gewicht' ONLY IN DETAIL VIEW */}
-              <div>
-                <p className="text-indigo-300 text-sm">Toegewezen Aan:</p>
-                <p className="text-lg font-semibold">{shipment.assignedTo || '-'}</p>
-              </div>
-              <div>
-                <p className="text-indigo-300 text-sm">Verwachte Levering:</p>
-                <p className="text-lg font-semibold">{shipment.expectedDelivery || '-'}</p>
-              </div>
-              <div>
-                <p className="text-indigo-300 text-sm">Gewicht:</p>
-                <p className="text-lg font-semibold">{shipment.weight || '-'}</p>
-              </div>
-              <div>
-                <p className="text-indigo-300 text-sm">Aangemaakt Op:</p>
-                <p className="text-lg font-semibold">{new Date(shipment.createdAt).toLocaleString()}</p>
-              </div>
-              {shipment.lastUpdatedBy && (
-                <div>
-                  <p className="text-indigo-300 text-sm">Laatst Bijgewerkt Door:</p>
-                  <p className="text-lg font-semibold">{shipment.lastUpdatedBy}</p>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="2xl"
+      scrollBehavior="inside"
+      backdrop="blur"
+      className="bg-[#1E1B33] text-white"
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1 border-b-2 border-indigo-700 pb-2">
+              <h2 className="text-3xl font-bold text-yellow-300">
+                Zending Details #{shipment?.id}
+              </h2>
+            </ModalHeader>
+            <ModalBody>
+              {isLoading && (
+                <div className="text-center py-8 text-indigo-300 flex items-center justify-center">
+                  <Spinner size="lg" color="current" />
+                  <span className="ml-3">Laden van zendingdetails en problemen...</span>
                 </div>
               )}
-              {shipment.lastUpdatedAt && (
-                <div>
-                  <p className="text-indigo-300 text-sm">Laatst Bijgewerkt Op:</p>
-                  <p className="text-lg font-semibold">{new Date(shipment.lastUpdatedAt).toLocaleString()}</p>
-                </div>
-              )}
-            </div>
 
-            {/* --- UPDATED: Display Issues from IssueReportController --- */}
-            {issues.length > 0 ? (
-              <div className="mt-6 p-4 bg-red-900/40 border border-red-700 rounded-md">
-                <h3 className="text-xl font-bold text-red-300 mb-3 flex items-center">
-                  <span className="mr-2">🚨</span> Gerapporteerde Problemen:
-                </h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {issues.map((issue) => (
-                    <li key={issue.id} className="text-red-200 text-sm">
-                      <span className="font-semibold">{issue.title}</span>
-                      {issue.description && (
-                        <p className="text-xs text-red-100 italic ml-4 mt-1">
-                          {issue.description}
-                        </p>
-                      )}
-                      {issue.imageUrl && (
-                        <p className="text-xs text-red-100 ml-4 mt-1">
-                          <a href={issue.imageUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-red-50">
-                            Bekijk afbeelding
-                          </a>
-                        </p>
-                      )}
-                      <p className="text-xs text-red-100 ml-4">
-                        Gerapporteerd op: {new Date(issue.createdAt).toLocaleString()}
+              {error && (
+                <div className="text-center py-8 text-red-400">Fout: {error}</div>
+              )}
+
+              {!isLoading && !error && shipment && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-indigo-300 text-sm">ID:</p>
+                      <p className="text-lg font-semibold">{shipment.id}</p>
+                    </div>
+                    <div>
+                      <p className="text-indigo-300 text-sm">Status:</p>
+                      <p className="text-lg font-semibold">{shipment.status}</p>
+                    </div>
+                    <div>
+                      <p className="text-indigo-300 text-sm">Bestemming:</p>
+                      <p className="text-lg font-semibold">
+                        {shipment.destination || "-"}
                       </p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <div className="mt-6 p-4 bg-green-900/40 border border-green-700 rounded-md text-green-300">
-                <p className="text-center font-semibold">Geen gerapporteerde problemen voor deze zending.</p>
-              </div>
-            )}
-            {/* --- END UPDATED --- */}
+                    </div>
+                    <div>
+                      <p className="text-indigo-300 text-sm">Toegewezen Aan:</p>
+                      <p className="text-lg font-semibold">
+                        {shipment.assignedTo || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-indigo-300 text-sm">Verwachte Levering:</p>
+                      <p className="text-lg font-semibold">
+                        {shipment.expectedDelivery || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-indigo-300 text-sm">Gewicht:</p>
+                      <p className="text-lg font-semibold">
+                        {shipment.weight || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-indigo-300 text-sm">Aangemaakt Op:</p>
+                      <p className="text-lg font-semibold">
+                        {new Date(shipment.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    {shipment.lastUpdatedBy && (
+                      <div>
+                        <p className="text-indigo-300 text-sm">
+                          Laatst Bijgewerkt Door:
+                        </p>
+                        <p className="text-lg font-semibold">
+                          {shipment.lastUpdatedBy}
+                        </p>
+                      </div>
+                    )}
+                    {shipment.lastUpdatedAt && (
+                      <div>
+                        <p className="text-indigo-300 text-sm">
+                          Laatst Bijgewerkt Op:
+                        </p>
+                        <p className="text-lg font-semibold">
+                          {new Date(shipment.lastUpdatedAt).toLocaleString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-            <div className="flex justify-end mt-6">
-              <Button
-                className="bg-indigo-700 text-white hover:bg-indigo-600 px-6 py-3 rounded-md transition-colors duration-200"
-                onPress={onClose}
-              >
+                  {allProblemsResolved && issues.length > 0 ? (
+                    <div className="mt-6 p-4 bg-green-800/60 border border-green-600 rounded-md text-green-200">
+                      <div className="flex items-center justify-center space-x-3">
+                        <CheckCircle className="text-green-400" size={28} />
+                        <p className="text-lg font-semibold text-center">
+                          Alle problemen voor deze zending zijn opgelost!
+                        </p>
+                      </div>
+                    </div>
+                  ) : issues.length > 0 ? (
+                    <div className="mt-6 p-4 bg-red-900/40 border border-red-700 rounded-md">
+                      <h3 className="text-xl font-bold text-red-300 mb-3 flex items-center">
+                        <AlertTriangle className="mr-2 text-red-400" size={24} />{" "}
+                        Gerapporteerde Problemen:
+                      </h3>
+                      <ul className="list-disc list-inside space-y-2">
+                        {issues.map((issue) => (
+                          <li
+                            key={issue.id}
+                            className={`text-sm ${
+                              issue.isFixed ? "text-green-300" : "text-red-200"
+                            }`}
+                          >
+                            <span className="font-semibold">{issue.title}</span>
+                            {issue.isFixed && (
+                              <span className="ml-2 text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
+                                Opgelost
+                              </span>
+                            )}
+                            {issue.description && (
+                              <p
+                                className={`text-xs italic ml-4 mt-1 ${
+                                  issue.isFixed
+                                    ? "text-green-200/80"
+                                    : "text-red-100"
+                                }`}
+                              >
+                                {issue.description}
+                              </p>
+                            )}
+                            {issue.imageUrl && (
+                              <p className="text-xs text-gray-400 ml-4 mt-1">
+                                <a
+                                  href={issue.imageUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="underline hover:text-indigo-300"
+                                >
+                                  Bekijk afbeelding
+                                </a>
+                              </p>
+                            )}
+                            <p
+                              className={`text-xs ml-4 ${
+                                issue.isFixed ? "text-gray-500" : "text-red-100/70"
+                              }`}
+                            >
+                              Gerapporteerd op:{" "}
+                              {new Date(issue.createdAt).toLocaleString()}
+                            </p>
+                            {issue.resolvedAt && issue.isFixed && (
+                              <p className="text-xs text-green-300/90 ml-4">
+                                Opgelost op:{" "}
+                                {new Date(issue.resolvedAt).toLocaleString()}
+                              </p>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <div className="mt-6 p-4 bg-slate-800/50 border border-slate-700 rounded-md text-slate-300">
+                      <div className="flex items-center justify-center space-x-3">
+                        <CheckCircle className="text-slate-400" size={24} />
+                        <p className="text-center font-semibold">
+                          Geen gerapporteerde problemen voor deze zending.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={onClose} className="bg-indigo-600 text-white hover:bg-indigo-500 px-3 py-1 rounded-md">
                 Sluiten
               </Button>
-            </div>
-          </div>
+            </ModalFooter>
+          </>
         )}
-      </div>
-    </div>
+      </ModalContent>
+    </Modal>
   );
 };
 
