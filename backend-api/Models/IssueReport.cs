@@ -1,3 +1,5 @@
+// In backend_api/Models/IssueReport.cs
+
 using System.ComponentModel.DataAnnotations;
 
 namespace backend_api.Models
@@ -18,5 +20,10 @@ namespace backend_api.Models
         public Shipment? Shipment { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // NEW PROPERTIES FOR PERSISTENCE
+        public bool IsImportant { get; set; } = false; // Default to false
+        public bool IsFixed { get; set; } = false;     // Default to false
+        public DateTime? ResolvedAt { get; set; }      // Nullable DateTime for when it was fixed
     }
 }

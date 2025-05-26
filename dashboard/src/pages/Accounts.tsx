@@ -201,13 +201,25 @@ const Accounts = () => {
     setValidationErrors({});
   };
 
-  const filteredAccounts = accounts.filter(
-    (account) =>
+  // --- Filter Logic Fix ---
+  const filteredAccounts = accounts.filter((account) => {
+    const matchesSearchTerm =
       account.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      account.role.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesRole =
+      selectedRole === "" || account.role.toLowerCase() === selectedRole.toLowerCase();
+
+    const matchesStatus =
+      selectedStatus === "" ||
+      (selectedStatus === "Actief" && account.active) ||
+      (selectedStatus === "Inactief" && !account.active);
+
+    return matchesSearchTerm && matchesRole && matchesStatus;
+  });
+  // --- End Filter Logic Fix ---
 
   const handleEdit = (account: Profile) => {
     setSelectedAccount(account);
@@ -496,8 +508,8 @@ const Accounts = () => {
                           account.role?.toLowerCase() === "admin"
                             ? "bg-purple-600/70 text-purple-100"
                             : account.role?.toLowerCase() === "manager"
-                              ? "bg-blue-600/70 text-blue-100"
-                              : "bg-indigo-600/70 text-indigo-100"
+                            ? "bg-blue-600/70 text-blue-100"
+                            : "bg-indigo-600/70 text-indigo-100"
                         }`}
                       >
                         {account.role}
@@ -812,9 +824,7 @@ const Accounts = () => {
                 <button
                   type="submit"
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={
-                    isSubmitting || Object.keys(validationErrors).length > 0
-                  }
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? "Aanmaken..." : "Account Aanmaken"}
                 </button>

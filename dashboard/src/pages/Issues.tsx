@@ -1,30 +1,27 @@
 import React, { useEffect, useState, useMemo } from "react";
 import {
   AlertTriangle,
-  CheckCircle,
+  CheckCircle, // Ensure CheckCircle is imported and available
   Search,
   Star,
   Lightbulb,
-} from "lucide-react"; // Icons for cards and buttons
-import axios from "axios"; // Import axios for consistent API calls
+} from "lucide-react";
+import axios from "axios";
 
-// Assuming these interfaces are consistent with your Shipments.tsx
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Define the IssueReport interface to match your C# model
 interface IssueReport {
   id: number;
   title: string;
   description: string | null;
   imageUrl: string | null;
   shipmentId: number | null;
-  // shipment: Shipment | null; // This will be fetched on demand now
-  createdAt: string; // DateTime will be a string in JS
-  isImportant: boolean; // We'll add this client-side for now
-  isFixed: boolean; // We'll add this client-side for now
+  createdAt: string;
+  isImportant: boolean;
+  isFixed: boolean;
+  resolvedAt: string | null;
 }
 
-// Re-defining Shipment interface based on your Shipments.tsx
 interface Shipment {
   id: number;
   status: string;
@@ -33,34 +30,60 @@ interface Shipment {
   expectedDelivery: string;
   weight: string;
   createdAt: string;
-  lastUpdatedBy: string;
-  lastUpdatedAt: string;
+  lastUpdatedBy: string | null; // Corrected based on ShipmentDetail.tsx
+  lastUpdatedAt: string | null; // Corrected based on ShipmentDetail.tsx
 }
-
-// --- Re-using the ShipmentDetailModal from Shipments.tsx ---
-// You should ideally put this in a shared components folder (e.g., components/ShipmentDetailModal.tsx)
-// and import it into both Shipments.tsx and Issues.tsx.
-// For now, I'll include it here for completeness, but keep that in mind for better project structure.
 
 interface ShipmentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   shipment: Shipment | null;
-  issues: IssueReport[]; // Pass issues as a prop
+  issues: IssueReport[];
   isLoading: boolean;
   error: string | null;
 }
 
-const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, error }: ShipmentDetailModalProps) => {
+const ShipmentDetailModal = ({
+  isOpen,
+  onClose,
+  shipment,
+  issues,
+  isLoading,
+  error,
+}: ShipmentDetailModalProps) => {
   if (!isOpen) return null;
 
+  // --- NEW: Determine if all problems are resolved ---
+  const allProblemsResolved = useMemo(() => {
+    // Ensure issues is not null and has items before checking 'every'
+    if (!issues || issues.length === 0) {
+      return false; // No issues to be resolved, or issues not loaded
+    }
+    return issues.every((issue) => issue.isFixed);
+  }, [issues]);
+  // --- END NEW ---
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#1E1B33] text-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative">
+    <div
+      className={`
+        fixed inset-0 bg-black flex items-center justify-center z-50 p-4
+        transition-all duration-300 ease-in-out
+        ${isOpen ? "bg-opacity-70 backdrop-blur-sm" : "bg-opacity-0 backdrop-blur-none"}
+      `}
+      // This div handles the background blur and opacity
+      onClick={onClose} // Close when clicking outside the modal content
+    >
+      <div
+        className={`
+          bg-[#1E1B33] text-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative
+          transform transition-all duration-300 ease-in-out
+          ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"}
+        `}
+        onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-bold"
-          aria-label="Close"
         >
           &times;
         </button>
@@ -75,9 +98,7 @@ const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, err
         )}
 
         {error && (
-          <div className="text-center py-8 text-red-400">
-            Fout: {error}
-          </div>
+          <div className="text-center py-8 text-red-400">Fout: {error}</div>
         )}
 
         {!isLoading && !error && shipment && (
@@ -93,76 +114,141 @@ const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, err
               </div>
               <div>
                 <p className="text-indigo-300 text-sm">Bestemming:</p>
-                <p className="text-lg font-semibold">{shipment.destination || '-'}</p>
+                <p className="text-lg font-semibold">
+                  {shipment.destination || "-"}
+                </p>
               </div>
               <div>
                 <p className="text-indigo-300 text-sm">Toegewezen Aan:</p>
-                <p className="text-lg font-semibold">{shipment.assignedTo || '-'}</p>
+                <p className="text-lg font-semibold">
+                  {shipment.assignedTo || "-"}
+                </p>
               </div>
               <div>
                 <p className="text-indigo-300 text-sm">Verwachte Levering:</p>
-                <p className="text-lg font-semibold">{shipment.expectedDelivery || '-'}</p>
+                <p className="text-lg font-semibold">
+                  {shipment.expectedDelivery || "-"}
+                </p>
               </div>
               <div>
                 <p className="text-indigo-300 text-sm">Gewicht:</p>
-                <p className="text-lg font-semibold">{shipment.weight || '-'}</p>
+                <p className="text-lg font-semibold">
+                  {shipment.weight || "-"}
+                </p>
               </div>
               <div>
                 <p className="text-indigo-300 text-sm">Aangemaakt Op:</p>
-                <p className="text-lg font-semibold">{new Date(shipment.createdAt).toLocaleString()}</p>
+                <p className="text-lg font-semibold">
+                  {new Date(shipment.createdAt).toLocaleString()}
+                </p>
               </div>
               {shipment.lastUpdatedBy && (
                 <div>
-                  <p className="text-indigo-300 text-sm">Laatst Bijgewerkt Door:</p>
-                  <p className="text-lg font-semibold">{shipment.lastUpdatedBy}</p>
+                  <p className="text-indigo-300 text-sm">
+                    Laatst Bijgewerkt Door:
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {shipment.lastUpdatedBy}
+                  </p>
                 </div>
               )}
               {shipment.lastUpdatedAt && (
                 <div>
-                  <p className="text-indigo-300 text-sm">Laatst Bijgewerkt Op:</p>
-                  <p className="text-lg font-semibold">{new Date(shipment.lastUpdatedAt).toLocaleString()}</p>
+                  <p className="text-indigo-300 text-sm">
+                    Laatst Bijgewerkt Op:
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {new Date(shipment.lastUpdatedAt).toLocaleString()}
+                  </p>
                 </div>
               )}
             </div>
 
-            {issues.length > 0 ? (
+            {allProblemsResolved && issues.length > 0 ? (
+              <div className="mt-6 p-4 bg-green-800/60 border border-green-600 rounded-md text-green-200">
+                <div className="flex items-center justify-center space-x-3">
+                  <CheckCircle className="text-green-400" size={28} />
+                  <p className="text-lg font-semibold text-center">
+                    Alle problemen voor deze zending zijn opgelost!
+                  </p>
+                </div>
+              </div>
+            ) : issues.length > 0 ? (
               <div className="mt-6 p-4 bg-red-900/40 border border-red-700 rounded-md">
                 <h3 className="text-xl font-bold text-red-300 mb-3 flex items-center">
-                  <span className="mr-2">🚨</span> Gerapporteerde Problemen:
+                  <AlertTriangle className="mr-2 text-red-400" size={24} />{" "}
+                  Gerapporteerde Problemen:
                 </h3>
                 <ul className="list-disc list-inside space-y-2">
                   {issues.map((issue) => (
-                    <li key={issue.id} className="text-red-200 text-sm">
+                    <li
+                      key={issue.id}
+                      className={`text-sm ${
+                        issue.isFixed ? "text-green-300" : "text-red-200"
+                      }`}
+                    >
                       <span className="font-semibold">{issue.title}</span>
+                      {issue.isFixed && (
+                        <span className="ml-2 text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
+                          Opgelost
+                        </span>
+                      )}
                       {issue.description && (
-                        <p className="text-xs text-red-100 italic ml-4 mt-1">
+                        <p
+                          className={`text-xs italic ml-4 mt-1 ${
+                            issue.isFixed
+                              ? "text-green-200/80"
+                              : "text-red-100"
+                          }`}
+                        >
                           {issue.description}
                         </p>
                       )}
                       {issue.imageUrl && (
-                        <p className="text-xs text-red-100 ml-4 mt-1">
-                          <a href={issue.imageUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-red-50">
+                        <p className="text-xs text-gray-400 ml-4 mt-1">
+                          <a
+                            href={issue.imageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:text-indigo-300"
+                          >
                             Bekijk afbeelding
                           </a>
                         </p>
                       )}
-                      <p className="text-xs text-red-100 ml-4">
-                        Gerapporteerd op: {new Date(issue.createdAt).toLocaleString()}
+                      <p
+                        className={`text-xs ml-4 ${
+                          issue.isFixed ? "text-gray-500" : "text-red-100/70"
+                        }`}
+                      >
+                        Gerapporteerd op:{" "}
+                        {new Date(issue.createdAt).toLocaleString()}
                       </p>
+                      {issue.resolvedAt && issue.isFixed && (
+                        <p className="text-xs text-green-300/90 ml-4">
+                          Opgelost op:{" "}
+                          {new Date(issue.resolvedAt).toLocaleString()}
+                        </p>
+                      )}
                     </li>
                   ))}
                 </ul>
               </div>
             ) : (
-              <div className="mt-6 p-4 bg-green-900/40 border border-green-700 rounded-md text-green-300">
-                <p className="text-center font-semibold">Geen gerapporteerde problemen voor deze zending.</p>
+              <div className="mt-6 p-4 bg-slate-800/50 border border-slate-700 rounded-md text-slate-300">
+                <div className="flex items-center justify-center space-x-3">
+                  <CheckCircle className="text-slate-400" size={24} />
+                  <p className="text-center font-semibold">
+                    Geen gerapporteerde problemen voor deze zending.
+                  </p>
+                </div>
               </div>
             )}
 
             <div className="flex justify-end mt-6">
               <button
-                className="bg-indigo-700 text-white hover:bg-indigo-600 px-6 py-3 rounded-md transition-colors duration-200"
-                onClick={onClose} // Use onClick instead of onPress for standard button
+                className="bg-indigo-600 text-white hover:bg-indigo-500 px-3 py-1 rounded-md"
+                onClick={onClose}
               >
                 Sluiten
               </button>
@@ -173,39 +259,36 @@ const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, err
     </div>
   );
 };
-// --- End ShipmentDetailModal ---
 
+type FilterType = "all" | "unsolved" | "fixedToday" | "fixedTotal";
 
 const Issues = () => {
   const [issueReports, setIssueReports] = useState<IssueReport[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [showImportantFirst, setShowImportantFirst] = useState<boolean>(false);
+  const [showImportantFirst, setShowImportantFirst] =
+    useState<boolean>(false);
+  const [currentFilter, setCurrentFilter] = useState<FilterType>("all");
 
-  // --- State for the Detail Modal ---
-  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(
+    null
+  );
   const [shipmentIssues, setShipmentIssues] = useState<IssueReport[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
-  // --- API Call ---
   useEffect(() => {
     const fetchIssueReports = async () => {
+      setLoading(true);
       try {
         const response = await axios.get<IssueReport[]>(
           `${API_BASE_URL}/api/IssueReport`
         );
-        // Initialize isImportant and isFixed flags client-side
-        const initializedData = response.data.map((issue) => ({
-          ...issue,
-          isImportant: false, // Default to not important
-          isFixed: false, // Default to not fixed
-        }));
-        setIssueReports(initializedData);
+        setIssueReports(response.data);
       } catch (e: any) {
-        setError(e.message);
+        setError(e.message || "Failed to fetch issue reports");
       } finally {
         setLoading(false);
       }
@@ -213,23 +296,18 @@ const Issues = () => {
     fetchIssueReports();
   }, []);
 
-  // --- Derived State (Memoized for performance) ---
-
   const totalUnsolvedIssues = useMemo(() => {
     return issueReports.filter((issue) => !issue.isFixed).length;
   }, [issueReports]);
 
   const fixedIssuesToday = useMemo(() => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    today.setHours(0, 0, 0, 0);
 
     return issueReports.filter((issue) => {
-      if (!issue.isFixed) return false;
-      // You'd need to store a 'resolvedAt' timestamp on the issue for this to be accurate.
-      // For now, it will count issues marked as fixed today if their createdAt is today.
-      // If you want accurate "fixed today" count, you need a 'resolvedAt' field in IssueReport model and database.
-      const issueCreatedAt = new Date(issue.createdAt);
-      return issueCreatedAt >= today;
+      if (!issue.isFixed || !issue.resolvedAt) return false;
+      const issueResolvedAt = new Date(issue.resolvedAt);
+      return issueResolvedAt >= today;
     }).length;
   }, [issueReports]);
 
@@ -237,88 +315,163 @@ const Issues = () => {
     return issueReports.filter((issue) => issue.isFixed).length;
   }, [issueReports]);
 
-  // --- Filtering and Sorting ---
   const filteredAndSortedIssues = useMemo(() => {
     let filtered = issueReports.filter(
       (issue) =>
         issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (issue.description &&
           issue.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (issue.shipmentId && issue.shipmentId.toString().includes(searchTerm)) // Allow searching by shipmentId
+        (issue.shipmentId && issue.shipmentId.toString().includes(searchTerm))
     );
 
+    if (currentFilter === "unsolved") {
+      filtered = filtered.filter((issue) => !issue.isFixed);
+    } else if (currentFilter === "fixedToday") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      filtered = filtered.filter((issue) => {
+        if (!issue.isFixed || !issue.resolvedAt) return false;
+        const issueResolvedAt = new Date(issue.resolvedAt);
+        return issueResolvedAt >= today;
+      });
+    } else if (currentFilter === "fixedTotal") {
+      filtered = filtered.filter((issue) => issue.isFixed);
+    }
+
     if (showImportantFirst) {
-      // Sort to show important issues first, then by creation date for consistency
       filtered.sort((a, b) => {
         if (a.isImportant && !b.isImportant) return -1;
         if (!a.isImportant && b.isImportant) return 1;
-        // If importance is the same, sort by creation date (newest first)
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       });
     } else {
-      // If not showing important first, sort by creation date (newest first)
       filtered.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     }
-
     return filtered;
-  }, [issueReports, searchTerm, showImportantFirst]);
+  }, [issueReports, searchTerm, showImportantFirst, currentFilter]);
 
-  // --- Handlers ---
-  const handleToggleImportance = (id: number) => {
-    setIssueReports((prevReports) =>
-      prevReports.map((issue) =>
-        issue.id === id ? { ...issue, isImportant: !issue.isImportant } : issue
-      )
-    );
+  const handleToggleImportance = async (id: number) => {
+    const issueIndex = issueReports.findIndex((issue) => issue.id === id);
+    if (issueIndex === -1) return;
+
+    const issueToUpdate = issueReports[issueIndex];
+    const newIsImportant = !issueToUpdate.isImportant;
+
+    const updatedIssue = { ...issueToUpdate, isImportant: newIsImportant };
+    const updatedReports = [...issueReports];
+    updatedReports[issueIndex] = updatedIssue;
+    setIssueReports(updatedReports); // Optimistic update
+
+    try {
+      await axios.put(`${API_BASE_URL}/api/IssueReport/${id}`, {
+        // Send only the fields that are being updated
+        title: issueToUpdate.title,
+        description: issueToUpdate.description,
+        isImportant: newIsImportant,
+        isFixed: issueToUpdate.isFixed,
+        // shipmentId is not typically changed here
+      });
+    } catch (err) {
+      console.error(`Failed to update importance for issue ${id}:`, err);
+      // Revert UI update if API call fails
+      const revertedReports = [...issueReports];
+      revertedReports[issueIndex] = issueToUpdate; // Revert to original issue
+      setIssueReports(revertedReports);
+      // Optionally, show an error message to the user
+    }
   };
 
-  const handleToggleFixed = (id: number) => {
-    setIssueReports((prevReports) =>
-      prevReports.map((issue) =>
-        issue.id === id ? { ...issue, isFixed: !issue.isFixed } : issue
-      )
-    );
+  const handleToggleFixed = async (id: number) => {
+    const issueIndex = issueReports.findIndex((issue) => issue.id === id);
+    if (issueIndex === -1) return;
+    
+    const issueToUpdate = issueReports[issueIndex];
+    const newIsFixed = !issueToUpdate.isFixed;
+    const newResolvedAt = newIsFixed ? new Date().toISOString() : null;
+
+    const updatedIssue = { ...issueToUpdate, isFixed: newIsFixed, resolvedAt: newResolvedAt };
+    const updatedReports = [...issueReports];
+    updatedReports[issueIndex] = updatedIssue;
+    setIssueReports(updatedReports); // Optimistic update
+
+     // Update shipmentIssues in the modal if it's open and for the same shipment
+    if (isModalOpen && selectedShipment && issueToUpdate.shipmentId === selectedShipment.id) {
+      setShipmentIssues(prev => prev.map(si => si.id === id ? updatedIssue : si));
+    }
+
+
+    try {
+      await axios.put(`${API_BASE_URL}/api/IssueReport/${id}`, {
+        // Send only the fields that are being updated
+        title: issueToUpdate.title,
+        description: issueToUpdate.description,
+        isImportant: issueToUpdate.isImportant,
+        isFixed: newIsFixed,
+        resolvedAt: newResolvedAt,
+      });
+    } catch (err) {
+      console.error(`Failed to update fixed status for issue ${id}:`, err);
+      // Revert UI update if API call fails
+      const revertedReports = [...issueReports];
+      revertedReports[issueIndex] = issueToUpdate; // Revert to original issue
+      setIssueReports(revertedReports);
+       // Revert shipmentIssues in the modal if it was updated
+      if (isModalOpen && selectedShipment && issueToUpdate.shipmentId === selectedShipment.id) {
+        setShipmentIssues(prev => prev.map(si => si.id === id ? issueToUpdate : si));
+      }
+      // Optionally, show an error message to the user
+    }
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  // --- NEW: Handle Issue Card Click to Open Modal ---
+  const handleFilterClick = (filterType: FilterType) => {
+    setCurrentFilter(filterType);
+  };
+
   const handleIssueCardClick = async (issue: IssueReport) => {
     setIsLoadingDetails(true);
     setDetailError(null);
     setSelectedShipment(null);
-    setShipmentIssues([]);
+    setShipmentIssues([]); // Clear previous issues
 
     try {
       let shipment: Shipment | null = null;
       let issuesForShipment: IssueReport[] = [];
 
       if (issue.shipmentId) {
-        // Fetch shipment details if associated
         const shipmentResponse = await axios.get<Shipment>(
           `${API_BASE_URL}/api/Shipments/${issue.shipmentId}`
         );
         shipment = shipmentResponse.data;
 
-        // Fetch all issues for THIS specific shipment
-        const issuesResponse = await axios.get<IssueReport[]>(
-          `${API_BASE_URL}/api/IssueReport/shipment/${issue.shipmentId}`
-        );
-        issuesForShipment = issuesResponse.data;
+        // Fetch all issues for THIS specific shipment from the main issueReports state
+        // This ensures consistency with the data already loaded and optimistically updated
+        issuesForShipment = issueReports.filter(r => r.shipmentId === issue.shipmentId);
+
+        // If for some reason issuesForShipment is empty (e.g. new issue not yet in main list from initial load)
+        // or to ensure freshest data for modal, you might consider re-fetching.
+        // For now, using the main state for consistency with optimistic updates.
+        if (issuesForShipment.length === 0) {
+            // Fallback or alternative: re-fetch specifically for the modal if needed
+            console.warn(`No issues found in local state for shipment ${issue.shipmentId}, considering refetch for modal.`);
+            const issuesResponse = await axios.get<IssueReport[]>(
+              `${API_BASE_URL}/api/IssueReport/shipment/${issue.shipmentId}`
+            );
+            issuesForShipment = issuesResponse.data;
+        }
+
+
       } else {
-        // If the issue is not associated with a shipment,
-        // we can still display the modal but with only the current issue in the "problems" section
-        // and no shipment details.
-        issuesForShipment = [issue];
-        // Optionally, you could set a dummy shipment object if the modal requires it,
-        // or modify the modal to handle null shipment gracefully for non-shipment issues.
+        // Issue not associated with a shipment
+        issuesForShipment = [issue]; // Only show the clicked issue
       }
 
       setSelectedShipment(shipment);
@@ -327,7 +480,9 @@ const Issues = () => {
     } catch (err: any) {
       console.error(`Failed to fetch details for issue ${issue.id}:`, err);
       if (axios.isAxiosError(err) && err.response) {
-        setDetailError(`Fout bij het laden: ${err.response.status} - ${err.response.statusText}`);
+        setDetailError(
+          `Fout bij het laden: ${err.response.status} - ${err.response.statusText}`
+        );
       } else {
         setDetailError("Kon details niet laden.");
       }
@@ -336,179 +491,207 @@ const Issues = () => {
     }
   };
 
-
-  if (loading) {
-    return <div className="p-6 text-white">Loading issue reports...</div>;
+  if (loading && issueReports.length === 0) { // Show loading only on initial load
+    return <div className="p-6 text-white text-center">Laden van issue rapporten...</div>;
   }
 
-  if (error) {
-    return <div className="p-6 text-red-500">Error: {error}</div>;
+  if (error && issueReports.length === 0) { // Show error only if no data could be loaded
+    return <div className="p-6 text-red-500 text-center">Fout: {error}</div>;
   }
 
   return (
-    <div className="space-y-6 p-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 min-h-[92vh]">
+    <div className="space-y-6 p-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 min-h-[calc(100vh-themeHeaderHeight)]"> {/* Adjust min-h if you have a fixed header */}
       <div className="mb-4">
-        <h1 className="text-3xl font-bold text-white">ISSUE DASHBOARD</h1>
+        <h1 className="text-3xl font-bold text-white">Problemen overzicht</h1>
         <p className="text-gray-400">Overzicht van alle gemelde problemen</p>
       </div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Total Unsolved Issues Card */}
-        <div className="bg-indigo-900 rounded-lg p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentFilter === "all" ? "ring-2 ring-blue-400 shadow-blue-500/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleFilterClick("all")}
+        >
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-300 mb-2">Totaal onopgeloste problemen</p>
+              <p className="text-gray-300 mb-2">Alle problemen</p>
+              <h2 className="text-3xl font-bold text-white">
+                {issueReports.length}
+              </h2>
+            </div>
+            <div className="p-3 bg-indigo-700/50 rounded-lg">
+              <Search className="text-blue-300" size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentFilter === "unsolved" ? "ring-2 ring-red-400 shadow-red-500/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleFilterClick("unsolved")}
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-300 mb-2">Totaal onopgelost</p>
               <h2 className="text-3xl font-bold text-white">
                 {totalUnsolvedIssues}
               </h2>
             </div>
-            <div className="p-2 bg-indigo-800 rounded-md">
-              <AlertTriangle className="text-red-400" size={24} />{" "}
+            <div className="p-3 bg-red-700/50 rounded-lg">
+              <AlertTriangle className="text-red-300" size={24} />
             </div>
           </div>
         </div>
 
-        {/* Fixed Issues Today Card */}
-        <div className="bg-indigo-900 rounded-lg p-6">
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentFilter === "fixedToday" ? "ring-2 ring-green-400 shadow-green-500/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleFilterClick("fixedToday")}
+        >
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-300 mb-2">Vandaag opgeloste problemen</p>
+              <p className="text-gray-300 mb-2">Vandaag opgelost</p>
               <h2 className="text-3xl font-bold text-white">
                 {fixedIssuesToday}
               </h2>
             </div>
-            <div className="p-2 bg-indigo-800 rounded-md">
-              <CheckCircle className="text-green-400" size={24} />{" "}
+            <div className="p-3 bg-green-700/50 rounded-lg">
+              <CheckCircle className="text-green-300" size={24} />
             </div>
           </div>
         </div>
-
-        {/* Fixed Issues Total Card */}
-        <div className="bg-indigo-900 rounded-lg p-6">
+        
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentFilter === "fixedTotal" ? "ring-2 ring-yellow-300 shadow-yellow-400/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleFilterClick("fixedTotal")}
+        >
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-300 mb-2">Totaal opgeloste problemen</p>
+              <p className="text-gray-300 mb-2">Totaal opgelost</p>
               <h2 className="text-3xl font-bold text-white">
                 {fixedIssuesTotal}
               </h2>
             </div>
-            <div className="p-2 bg-indigo-800 rounded-md">
-              <Lightbulb className="text-yellow-200" size={24} />{" "}
+            <div className="p-3 bg-yellow-600/50 rounded-lg">
+              <Lightbulb className="text-yellow-200" size={24} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-start gap-4">
-        <div className="relative flex-grow">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
+        <div className="relative flex-grow max-w-md">
           <Input
             type="text"
-            placeholder="Zoek problemen (titel, beschrijving of zending ID)"
+            placeholder="Zoek problemen (titel, desc. of zending ID)"
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full bg-[#1E1B33] text-white rounded pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            startContent={
+            className="w-full" // className passed to wrapper for Input
+            startContent={ // This will be handled by the Input component's internal structure
               <Search
-                className="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+                className="text-gray-400" // Styling for icon if needed by Input
                 size={20}
               />
             }
           />
         </div>
-        <label className="flex items-center text-gray-300 cursor-pointer">
+        <label className="flex items-center text-gray-300 cursor-pointer bg-[#1E1B33] p-2 rounded-md hover:bg-indigo-800/70 transition-colors">
           <input
             type="checkbox"
             checked={showImportantFirst}
             onChange={() => setShowImportantFirst(!showImportantFirst)}
-            className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out bg-[#1E1B33] border-gray-600 rounded mr-2"
+            className="form-checkbox h-5 w-5 text-indigo-500 transition duration-150 ease-in-out bg-gray-700 border-gray-600 rounded focus:ring-indigo-400 mr-2"
           />
           Belangrijke problemen eerst
         </label>
       </div>
 
-      {/* Issue List */}
-      <div className="bg-indigo-900 rounded-lg p-6">
-        <h3 className="text-white font-semibold mb-4">
-          Problemen die nog moeten worden opgelost
+      <div className="bg-indigo-900/70 backdrop-blur-sm rounded-lg p-6 shadow-xl">
+        <h3 className="text-white font-semibold mb-4 text-xl">
+          {currentFilter === "all" && "Alle Gemelde Problemen"}
+          {currentFilter === "unsolved" && "Nog Op Te Lossen Problemen"}
+          {currentFilter === "fixedToday" && "Vandaag Opgeloste Problemen"}
+          {currentFilter === "fixedTotal" && "Alle Opgeloste Problemen"}
+          <span className="text-gray-400 text-sm ml-2">({filteredAndSortedIssues.length})</span>
         </h3>
         {filteredAndSortedIssues.length === 0 ? (
-          <p className="text-gray-400">Geen problemen gevonden.</p>
+          <p className="text-gray-400 text-center py-8">Geen problemen gevonden voor de huidige selectie.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedIssues.map((issue) => (
               <div
                 key={issue.id}
-                // Make the whole card clickable
                 onClick={() => handleIssueCardClick(issue)}
-                className="bg-[#1E1B33] rounded-lg p-4 flex flex-col justify-between shadow-lg cursor-pointer hover:bg-indigo-800/70 hover:shadow-xl hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out"
+                className={`bg-[#1E1B33] rounded-lg p-4 flex flex-col justify-between shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out ${
+                  issue.isFixed ? 'opacity-70 hover:opacity-100' : ''
+                } ${issue.isImportant && !issue.isFixed ? 'border-l-4 border-yellow-500' : 'border-l-4 border-transparent'}`}
               >
                 <div>
-                  <h4 className="text-lg font-semibold text-white mb-2">
+                  <h4 className="text-lg font-semibold text-white mb-2 truncate" title={issue.title}>
+                    {issue.isFixed && <CheckCircle size={16} className="inline mr-2 text-green-500" />}
                     {issue.title}
                   </h4>
                   {issue.description && (
-                    <p className="text-gray-300 text-sm mb-2">
+                    <p className="text-gray-300 text-sm mb-2 line-clamp-2" title={issue.description}>
                       {issue.description}
                     </p>
                   )}
                   {issue.imageUrl && (
                     <img
                       src={issue.imageUrl}
-                      alt="Issue"
+                      alt="Issue context"
                       className="w-full h-32 object-cover rounded-md mb-2"
+                      loading="lazy"
                     />
                   )}
                   {issue.shipmentId && (
-                    // Remove Link, as the whole card is now clickable
                     <p className="text-gray-400 text-xs mb-2">
-                      Zending ID: <span className="font-bold">{issue.shipmentId}</span>
+                      Zending ID:{" "}
+                      <span className="font-bold text-indigo-300">{issue.shipmentId}</span>
                     </p>
                   )}
                   <p className="text-gray-500 text-xs mt-auto">
-                    Aangemaakt op: {new Date(issue.createdAt).toLocaleString()}
+                    Aangemaakt: {new Date(issue.createdAt).toLocaleDateString()}
                   </p>
+                  {issue.resolvedAt && issue.isFixed && (
+                    <p className="text-green-400/80 text-xs mt-1">
+                      Opgelost: {new Date(issue.resolvedAt).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
-                <div className="flex justify-end gap-2 mt-4">
+                <div className="flex justify-end items-center gap-2 mt-4 pt-2 border-t border-gray-700/50">
                   <button
-                    // Prevent propagation to parent div's onClick
-                    onClick={(e) => { e.stopPropagation(); handleToggleImportance(issue.id); }}
-                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleImportance(issue.id);
+                    }}
+                    title={issue.isImportant ? "Verwijder belangrijk" : "Markeer als belangrijk"}
+                    className={`p-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-indigo-700/50 ${
                       issue.isImportant
-                        ? "bg-yellow-500 text-black"
-                        : "bg-indigo-800 text-gray-300 hover:bg-indigo-700"
+                        ? "text-yellow-400"
+                        : "text-gray-400 hover:text-yellow-400"
                     }`}
                   >
-                    {issue.isImportant ? (
-                      <span className="flex items-center">
-                        <Star className="mr-1" size={16} /> Belangrijk
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <Star className="mr-1" size={16} /> Markeer als
-                        belangrijk
-                      </span>
-                    )}
+                    <Star size={18} fill={issue.isImportant ? "currentColor" : "none"} />
                   </button>
                   <button
-                    // Prevent propagation to parent div's onClick
-                    onClick={(e) => { e.stopPropagation(); handleToggleFixed(issue.id); }}
-                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleFixed(issue.id);
+                    }}
+                    title={issue.isFixed ? "Markeer als onopgelost" : "Markeer als opgelost"}
+                    className={`p-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-indigo-700/50 ${
                       issue.isFixed
-                        ? "bg-green-600 text-white"
-                        : "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                        ? "text-green-500"
+                        : "text-gray-400 hover:text-green-500"
                     }`}
                   >
-                    {issue.isFixed ? (
-                      <span className="flex items-center">
-                        <CheckCircle className="mr-1" size={16} /> Opgelost
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <CheckCircle className="mr-1" size={16} /> Markeer als
-                        opgelost
-                      </span>
-                    )}
+                    <CheckCircle size={18} />
                   </button>
                 </div>
               </div>
@@ -517,39 +700,51 @@ const Issues = () => {
         )}
       </div>
 
-      {/* --- Shipment Detail Modal Integration --- */}
       <ShipmentDetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         shipment={selectedShipment}
-        issues={shipmentIssues} // Pass the fetched issues
+        issues={shipmentIssues}
         isLoading={isLoadingDetails}
         error={detailError}
       />
-      {/* --- END NEW --- */}
     </div>
   );
 };
 
 export default Issues;
 
-// Dummy Input component to match NextUI Input styling (replace with actual NextUI Input if available in your project)
+// Dummy Input component (replace with actual NextUI Input or your UI library's Input)
 const Input = ({
+  type = "text",
   placeholder,
   value,
   onChange,
-  className,
-  startContent,
-}: any) => {
+  className, // Wrapper div className
+  startContent, // Icon or element to render at the start
+}: {
+  type?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+  startContent?: React.ReactNode;
+}) => {
   return (
-    <div className={`relative ${className}`}>
-      {startContent}
+    <div className={`relative ${className || ""}`}>
+      {startContent && (
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          {startContent}
+        </div>
+      )}
       <input
-        type="text"
+        type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="w-full bg-[#1E1B33] text-white rounded pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={`w-full bg-[#1E1B33] text-white rounded-md pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          startContent ? "pl-10" : "pl-4"
+        }`}
       />
     </div>
   );

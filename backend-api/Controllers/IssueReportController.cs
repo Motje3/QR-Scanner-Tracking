@@ -1,8 +1,10 @@
+// In backend_api/Controllers/IssueReportController.cs
 
 using backend_api.Models;
 using backend_api.Services;
 using backend_api.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System; // Add for Exception
 
 namespace backend_api.Controllers
 {
@@ -24,7 +26,6 @@ namespace backend_api.Controllers
             return Ok(reports ?? new List<IssueReport>());
         }
 
-        // NEW ENDPOINT: Get Issues by ShipmentId
         [HttpGet("shipment/{shipmentId}")]
         public async Task<ActionResult<IEnumerable<IssueReport>>> GetByShipmentId(int shipmentId)
         {
@@ -78,6 +79,25 @@ namespace backend_api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+        }
+
+        // NEW ENDPOINT: Update IssueReport
+        [HttpPut("{id}")]
+        public async Task<ActionResult<IssueReport>> Update(int id, [FromBody] UpdateIssueReportDto dto)
+        {
+            try
+            {
+                var updatedReport = await _service.UpdateAsync(id, dto);
+                if (updatedReport == null)
+                {
+                    return NotFound($"Issue report with ID {id} not found.");
+                }
+                return Ok(updatedReport);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error updating issue report: {ex.Message}");
             }
         }
     }
