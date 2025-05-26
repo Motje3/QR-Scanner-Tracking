@@ -88,20 +88,3 @@ namespace BackendAPI.Controllers
                 return StatusCode(500, new ProblemDetails { Title = "An unexpected error occurred while creating the shipment." });
             }
         }
-
-        // Example: Add this to a controller for one-time use, then remove it after running
-        [HttpPost("fill-random-omzet")]
-        public async Task<IActionResult> FillRandomOmzet()
-        {
-            var rng = new Random();
-            var shipments = _context.Shipments.ToList();
-            foreach (var s in shipments)
-            {
-                if (s.Omzet == null)
-                    s.Omzet = rng.Next(10000, 100000); // Random revenue between 100 and 10,000
-            }
-            await _context.SaveChangesAsync();
-            return Ok("Omzet filled for existing shipments.");
-        }
-    }
-}
