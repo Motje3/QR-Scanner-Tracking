@@ -2,6 +2,6 @@ namespace BackendAPI.DTOs
 {
     public class StatusUpdateDto
     {
-        public string Status { get; set; } = null!;
+        public string NewStatus { get; set; } = string.Empty;
     }
 }
