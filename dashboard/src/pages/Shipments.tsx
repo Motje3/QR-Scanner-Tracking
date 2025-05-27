@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo  } from "react";
 import axios from "axios";
 import { Input, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner } from "@nextui-org/react";
 import { ClipboardList, Search, AlertCircle, AlertTriangle, CheckCircle, Star, Lightbulb } from "lucide-react";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface IssueReport {
@@ -295,11 +296,38 @@ const Shipments = () => {
   const [filtered, setFiltered] = useState<Shipment[]>([]);
   const [query, setQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [currentShipmentFilter, setCurrentShipmentFilter] = useState<string>("all");
+  const [sortAndSpecialFilterType, setSortAndSpecialFilterType] = useState<string>("Filteren");
+
+  const sortOptions = [
+  "Problemen",
+  "Bestemming",
+  "ID",
+  ];
+
+  const totalGeleverdShipments = useMemo(() => {
+    return shipments.filter((shipment) => shipment.status?.toLowerCase() === "geleverd").length;
+  }, [shipments]);
+
+  const totalOnderwegShipments = useMemo(() => {
+    return shipments.filter((shipment) => shipment.status?.toLowerCase() === "onderweg").length;
+  }, [shipments]);
+
+  const totalInAfwachtingShipments = useMemo(() => {
+    return shipments.filter((shipment) => shipment.status?.toLowerCase() === "in afwachting").length;
+  }, [shipments]);
 
   const uniqueStatuses = [
     "Alle Statussen",
     ...new Set(shipments.map((s) => s.status).filter(Boolean)),
   ];
+
+  const handleShipmentFilterClick = (filterType: string, statusToSet: string | null) => {
+  setCurrentShipmentFilter(filterType);
+  setSelectedStatus(statusToSet); // This will trigger the table filter
+  // Optionally, you might want to clear the text search query when a card is clicked
+  // setQuery(""); 
+  };
 
   // State for the modal
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
@@ -333,20 +361,59 @@ const Shipments = () => {
       .catch((err) => console.error("Failed to fetch shipments:", err));
   }, []); // Empty dependency array means this runs once on mount
 
+  // This useEffect should correctly react to selectedStatus changes
   useEffect(() => {
+    let processedList = [...shipments]; // Start with a mutable copy of all shipments
+
+    // 1. Apply top card filter (driven by `selectedStatus` from `handleShipmentFilterClick`)
+    // `selectedStatus` is updated by the top filter cards.
+    // `currentShipmentFilter` tracks which card is active.
+    if (selectedStatus && selectedStatus !== "Alle Statussen") {
+      processedList = processedList.filter(s => s.status === selectedStatus);
+    }
+
+    // 2. Apply text query filter
     const lowerQuery = query.toLowerCase();
-    const filteredList = shipments.filter(
-      (s) =>
-        (s.id.toString().includes(lowerQuery) || // Make sure to search ID as string
-          s.destination?.toLowerCase().includes(lowerQuery) ||
-          s.status?.toLowerCase().includes(lowerQuery) ||
-          s.assignedTo?.toLowerCase().includes(lowerQuery)) &&
-        (selectedStatus && selectedStatus !== "Alle Statussen"
-          ? s.status === selectedStatus
-          : true)
-    );
-    setFiltered(filteredList);
-  }, [query, shipments, selectedStatus]);
+    if (query) { // Only filter if query is not empty
+      processedList = processedList.filter(
+        s =>
+          s.id.toString().includes(lowerQuery) ||
+          (s.destination && s.destination.toLowerCase().includes(lowerQuery)) ||
+          (s.status && s.status.toLowerCase().includes(lowerQuery)) || // Keep status searchable in text
+          (s.assignedTo && s.assignedTo.toLowerCase().includes(lowerQuery))
+      );
+    }
+
+    // 3. Apply sort/special filter from the modified dropdown
+    // This switch will re-sort `processedList` or filter it further.
+    // It operates on a mutable copy for sorting operations.
+    let listToSortAndFilter = [...processedList];
+
+    switch (sortAndSpecialFilterType) {
+      case "Problemen":
+        listToSortAndFilter = listToSortAndFilter.filter(s => s.hasIssues);
+        // After filtering, you might want a consistent secondary sort, e.g., by newest
+        listToSortAndFilter.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      case "Bestemming":
+        listToSortAndFilter.sort((a, b) => {
+          const destA = a.destination || ""; // Handle null or undefined destinations
+          const destB = b.destination || "";
+          return destA.localeCompare(destB); // Alphabetical sort
+        });
+        break;
+      case "ID":
+        listToSortAndFilter.sort((a, b) => a.id - b.id); // Ascending numerical sort
+        break;
+      case "Filteren":
+      default: // Also handles null or undefined sortAndSpecialFilterType
+        // Default sort: newest first by createdAt
+        listToSortAndFilter.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+    setFiltered(listToSortAndFilter);
+
+  }, [query, shipments, selectedStatus, sortAndSpecialFilterType]);
 
   const inputWrapperBaseStyle =
     "bg-[#1E1B33] border border-[#3A365A] text-white rounded-md transition-colors duration-200";
@@ -418,6 +485,86 @@ const Shipments = () => {
         </div>
       </div>
 
+      {/* Shipment Status Filter Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentShipmentFilter === "all" ? "ring-2 ring-blue-400 shadow-blue-500/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleShipmentFilterClick("all", "Alle Statussen")} // "Alle Statussen" will clear the specific status filter
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-300 mb-2">Alle Zendingen</p>
+              <h2 className="text-3xl font-bold text-white">
+                {shipments.length}
+              </h2>
+            </div>
+            <div className="p-3 bg-indigo-700/50 rounded-lg">
+              <ClipboardList className="text-blue-300" size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentShipmentFilter === "geleverd" ? "ring-2 ring-green-400 shadow-green-500/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleShipmentFilterClick("geleverd", "Geleverd")}
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-300 mb-2">Geleverd</p>
+              <h2 className="text-3xl font-bold text-white">
+                {totalGeleverdShipments}
+              </h2>
+            </div>
+            <div className="p-3 bg-green-700/50 rounded-lg">
+              <CheckCircle className="text-green-300" size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentShipmentFilter === "onderweg" ? "ring-2 ring-orange-400 shadow-orange-500/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleShipmentFilterClick("onderweg", "Onderweg")}
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-300 mb-2">Onderweg</p>
+              <h2 className="text-3xl font-bold text-white">
+                {totalOnderwegShipments}
+              </h2>
+            </div>
+            <div className="p-3 bg-orange-700/50 rounded-lg">
+              {/* Using AlertTriangle for Onderweg as an example, you might want a different icon like Truck if available */}
+              <AlertTriangle className="text-orange-300" size={24} />
+            </div>
+          </div>
+        </div>
+        
+        <div
+          className={`bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
+            currentShipmentFilter === "inAfwachting" ? "ring-2 ring-yellow-300 shadow-yellow-400/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
+          }`}
+          onClick={() => handleShipmentFilterClick("inAfwachting", "In afwachting")}
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-300 mb-2">In Afwachting</p>
+              <h2 className="text-3xl font-bold text-white">
+                {totalInAfwachtingShipments}
+              </h2>
+            </div>
+            <div className="p-3 bg-yellow-600/50 rounded-lg">
+              <Lightbulb className="text-yellow-200" size={24} /> 
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filter bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 p-4 bg-indigo-900/60 backdrop-blur-sm rounded-xl shadow-lg relative z-30">
         {/* Custom Search Input with Clear Button */}
@@ -446,17 +593,19 @@ const Shipments = () => {
         {/* Status Filter and Reset Button (unchanged) */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <CustomDropdown
-            options={uniqueStatuses}
-            selected={selectedStatus}
-            setSelected={setSelectedStatus}
-            placeholder="Filter op status"
+            options={sortOptions}
+            selected={sortAndSpecialFilterType}
+            setSelected={setSortAndSpecialFilterType}
+            placeholder="Sorteer / Filter op..." // New placeholder
           />
           <Button
             className={`${inputWrapperBaseStyle} text-sm h-12 px-4 hover:bg-[#2A2745] min-w-[150px]`}
             variant="flat"
             onPress={() => {
               setQuery("");
-              setSelectedStatus(null);
+              setSelectedStatus("Alle Statussen"); // For the top cards
+              setCurrentShipmentFilter("all");   // Reset active card to "all"
+              setSortAndSpecialFilterType("Filteren"); // Reset the new dropdown
             }}
           >
             Reset Filters
