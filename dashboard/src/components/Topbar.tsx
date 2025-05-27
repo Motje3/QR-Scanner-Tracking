@@ -2,6 +2,8 @@ import React from "react";
 import { Search, Moon, Settings, Download, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { tokens } from "../theme";
+import Papa from "papaparse";
+import axios from "axios";
 
 interface TopbarProps {
   toggleSidebar: () => void;
@@ -11,6 +13,46 @@ interface TopbarProps {
 const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
   // Get the background color from theme tokens
   const bgColor = tokens.custom.background;
+
+  const handleDownloadReport = async () => {
+    try {
+      // Haal alle shipments op
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+      const response = await axios.get(`${API_BASE_URL}/api/Shipments`);
+      const shipments = response.data;
+
+      // Zet om naar CSV (alleen de gewenste kolommen)
+      const csv = Papa.unparse(
+        shipments.map((s: any) => ({
+          ID: s.id,
+          Status: s.status,
+          Bestemming: s.destination,
+          Toegewezen: s.assignedTo,
+          "Verwachte levering": s.expectedDelivery,
+          Gewicht: s.weight,
+          CreatedAt: s.createdAt,
+        })),
+        {
+          quotes: false,
+          delimiter: ",",
+          header: true,
+        }
+      );
+
+      // Download het CSV-bestand
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "shipments-rapport.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Fout bij downloaden van rapport");
+    }
+  };
 
   return (
     <div
@@ -46,7 +88,10 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
         <Link to="/account-settings" className="text-gray-300 hover:text-white">
           <Settings size={20} />
         </Link>
-        <button className="bg-yellow-200 text-indigo-950 px-4 py-2 rounded flex items-center font-medium">
+        <button
+          className="bg-yellow-200 text-indigo-950 px-4 py-2 rounded flex items-center font-medium"
+          onClick={handleDownloadReport}
+        >
           <Download size={18} className="mr-2" />
           Rapport downloaden
         </button>
