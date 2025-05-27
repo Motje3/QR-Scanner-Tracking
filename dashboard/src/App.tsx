@@ -1,6 +1,9 @@
-// App.tsx or your main router file
+// App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '../src/context/AuthContext'; // Import AuthProvider
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+
 import DashboardLayout from '../src/layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Accounts from './pages/Accounts';
@@ -9,65 +12,113 @@ import Shipments from './pages/Shipments';
 import Stats from './pages/Stats';
 import Issues from './pages/Issues';
 import NewShipments from './pages/NewShipment';
-import ShipmentDetail from './components/ShipmentDetail'; // Import the new component
+import ShipmentDetail from './components/ShipmentDetail';
+import Login from './pages/Login'; // Import the new Login page
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <AuthProvider> {/* Wrap the entire application with AuthProvider */}
+        <Routes>
+          {/* Public Route: Login Page */}
+          <Route path="/login" element={<Login />} />
 
-        {/* Routes with DashboardLayout */}
-        <Route path="/dashboard" element={
-          <DashboardLayout>
-            <Dashboard />
-          </DashboardLayout>
-        } />
+          {/* Redirect from root to dashboard (if authenticated, otherwise login) */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        <Route path="/accounts" element={
-          <DashboardLayout>
-            <Accounts />
-          </DashboardLayout>
-        } />
+          {/* Protected Routes (all routes that require login) */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Dashboard />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/account-settings" element={
-          <DashboardLayout>
-            <AccountSettings />
-          </DashboardLayout>
-        } />
+          <Route
+            path="/accounts"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Accounts />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/shipments" element={
-          <DashboardLayout>
-            <Shipments />
-          </DashboardLayout>
-        } />
+          <Route
+            path="/account-settings"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <AccountSettings />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/shipments/:id" element={
-          <DashboardLayout>
-            <ShipmentDetail />
-          </DashboardLayout>
-        } />
+          <Route
+            path="/shipments"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Shipments />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/stats" element={
-          <DashboardLayout>
-            <Stats />
-          </DashboardLayout>
-        } />
+          <Route
+            path="/shipments/:id"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ShipmentDetail />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/issues" element={
-          <DashboardLayout>
-            <Issues />
-          </DashboardLayout>
-        } />
+          <Route
+            path="/stats"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Stats />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/newshipment" element={
-          <DashboardLayout>
-            <NewShipments />
-          </DashboardLayout>
-        } />
+          <Route
+            path="/issues"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Issues />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Add more routes as needed */}
-      </Routes>
+          <Route
+            path="/newshipment"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <NewShipments />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Add more protected routes as needed, following the same pattern */}
+          {/* If a route does not require login, it should NOT be wrapped with ProtectedRoute */}
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }
