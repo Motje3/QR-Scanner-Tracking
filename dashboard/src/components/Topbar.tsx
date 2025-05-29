@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, Moon, Settings, Download, Menu } from "lucide-react";
+import { Search, Moon, Settings, Download, Menu, LogOut } from "lucide-react"; // Import LogOut icon
 import { Link } from "react-router-dom";
 import { tokens } from "../theme";
 import Papa from "papaparse";
@@ -8,20 +8,18 @@ import axios from "axios";
 interface TopbarProps {
   toggleSidebar: () => void;
   isSidebarOpen: boolean;
+  onLogout: () => void; // Add the onLogout prop here
 }
 
-const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
-  // Get the background color from theme tokens
-  const bgColor = tokens.custom.background;
+const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen, onLogout }) => {
+  const bgColor = tokens.custom.background; // Get the background color from theme tokens
 
   const handleDownloadReport = async () => {
     try {
-      // Haal alle shipments op
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const response = await axios.get(`${API_BASE_URL}/api/Shipments`);
       const shipments = response.data;
 
-      // Zet om naar CSV (alleen de gewenste kolommen)
       const csv = Papa.unparse(
         shipments.map((s: any) => ({
           ID: s.id,
@@ -39,7 +37,6 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
         }
       );
 
-      // Download het CSV-bestand
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -95,15 +92,15 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
           <Download size={18} className="mr-2" />
           Rapport downloaden
         </button>
-        <div className="flex items-center ml-4">
-          <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white">
-            <span className="font-bold">T</span>
-          </div>
-          <div className="ml-2">
-            <p className="text-white text-sm">Team-5</p>
-            <p className="text-gray-400 text-xs">Legends</p>
-          </div>
-        </div>
+        {/* Logout Button */}
+        <button
+          onClick={onLogout} // Call the onLogout prop when clicked
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center font-medium transition-colors duration-200"
+          aria-label="Uitloggen"
+        >
+          <LogOut size={18} className="mr-2" />
+          Uitloggen
+        </button>
       </div>
     </div>
   );
