@@ -1,11 +1,10 @@
-import React from 'react';
-import { Mail, Phone, Users, DollarSign, Calendar, TrendingUp } from 'lucide-react';
+import { Mail, Phone, Users, DollarSign } from 'lucide-react';
 
 const Dashboard = () => {
   return (
     <div className="space-y-6">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold text-white">DASHBOARD</h1>
+        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
         <p className="text-gray-400">Welkom bij je dashboard</p>
       </div>
 

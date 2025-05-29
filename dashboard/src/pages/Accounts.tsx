@@ -73,7 +73,7 @@ const Accounts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:5070";
+    import.meta.env.VITE_API_BASE_URL;
 
   const fetchAccounts = async () => {
     setIsLoading(true);
