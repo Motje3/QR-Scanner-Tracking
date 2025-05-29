@@ -1,3 +1,4 @@
+using BackendAPI.Data;
 using BackendAPI.DTOs;
 using BackendAPI.Models;
 using BackendAPI.Services;
@@ -42,9 +43,11 @@ namespace BackendAPI.Controllers
         {
             // get the username from the JWT / cookie
             var username = User.Identity?.Name ?? "unknown";
-
             var updated = await _service.UpdateStatusAsync(id, dto.Status, username);
-            if (updated == null) return NotFound();
+            if (updated == null)
+            {
+                return NotFound();
+            }
             return Ok(updated);
         }
 
@@ -87,6 +90,20 @@ namespace BackendAPI.Controllers
                 Console.WriteLine($"Error creating shipment: {ex.ToString()}");
                 return StatusCode(500, new ProblemDetails { Title = "An unexpected error occurred while creating the shipment." });
             }
+        }
+
+        [HttpPut("fill-random-omzet")]
+        [AllowAnonymous] // Or [Authorize] if you want to restrict access
+        public async Task<IActionResult> FillRandomOmzet([FromServices] AppDbContext context)
+        {
+            var rng = new Random();
+            var shipments = context.Shipments.Where(s => s.Omzet == null).ToList();
+            foreach (var s in shipments)
+            {
+                s.Omzet = rng.Next(5000, 500000);
+            }
+            await context.SaveChangesAsync();
+            return Ok($"{shipments.Count} shipments updated with random omzet.");
         }
     }
 }
