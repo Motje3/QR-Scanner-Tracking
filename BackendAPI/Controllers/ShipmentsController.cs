@@ -43,7 +43,7 @@ namespace BackendAPI.Controllers
         {
             // get the username from the JWT / cookie
             var username = User.Identity?.Name ?? "unknown";
-            var updated = await _service.UpdateStatusAsync(id, dto.NewStatus, username);
+            var updated = await _service.UpdateStatusAsync(id, dto.Status, username);
             if (updated == null)
             {
                 return NotFound();
