@@ -342,21 +342,21 @@ const ShipmentDetails = () => {
             Zendingdetails
           </Text>
           <Text style={{ color: theme.secondaryText, fontSize: wp(4.2) }}>
-            🚚 Status:{" "}
+            Status:{" "}
             <Text style={{ color: "#FACC15" }}>{shipmentStatus}</Text>
           </Text>
           <Text style={{ color: theme.secondaryText, fontSize: wp(4.2) }}>
-            📍 Bestemming:{" "}
+            Bestemming:{" "}
             <Text style={{ color: "#60A5FA" }}>{shipment.destination}</Text>
           </Text>
           <Text style={{ color: theme.secondaryText, fontSize: wp(4.2) }}>
-            ⏳ Verwachte leveringtijd:{" "}
+            Verwachte leverdatum:{" "}
             <Text style={{ color: "#C084FC" }}>
               {shipment.expectedDelivery}
             </Text>
           </Text>
           <Text style={{ color: theme.secondaryText, fontSize: wp(4.2) }}>
-            ⚖️ Gewicht:{" "}
+            Gewicht:{" "}
             <Text style={{ color: "#F87171" }}>{shipment.weight}</Text>
           </Text>
         </LinearGradient>
