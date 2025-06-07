@@ -133,6 +133,98 @@ const NewShipment = () => {
     }
   };
 
+  const dutchCities = [
+    "Amsterdam",
+    "Rotterdam",
+    "Den Haag",
+    "Utrecht",
+    "Eindhoven",
+    "Tilburg",
+    "Groningen",
+    "Almere",
+    "Breda",
+    "Nijmegen",
+    "Enschede",
+    "Apeldoorn",
+    "Haarlem",
+    "Arnhem",
+    "Zaanstad",
+    "Amersfoort",
+    "Haarlemmermeer",
+    "Zwolle",
+    "Leiden",
+    "Maastricht",
+    "Dordrecht",
+    "Ede",
+    "Leeuwarden",
+    "Emmen",
+    "Westland",
+    "Venlo",
+    "Delft",
+    "Deventer",
+    "Sittard-Geleen",
+    "Helmond",
+    "Heerlen",
+    "Hilversum",
+    "Alphen aan den Rijn",
+    "Amstelveen",
+    "Roosendaal",
+    "Purmerend",
+    "Oss",
+    "Schiedam",
+    "Spijkenisse",
+    "Vlaardingen",
+    "Almelo",
+    "Gouda",
+    "Hoorn",
+    "Zaandam",
+    "Assen",
+    "Bergen op Zoom",
+    "Capelle aan den IJssel",
+    "Veenendaal",
+    "Katwijk",
+    "Nieuwegein",
+    "Zeist",
+    "Den Helder",
+    "Hardenberg",
+    "Doetinchem",
+    "Hoogeveen",
+    "Kampen",
+    "Weert",
+    "Terneuzen",
+    "Roermond",
+    "Rijswijk",
+    "Middelburg",
+    "Tiel",
+    "Woerden",
+    "Heerhugowaard",
+    "Lelystad",
+    "Barendrecht",
+    "IJmuiden",
+    "Dronten",
+    "Culemborg",
+    "Veghel",
+  ];
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDestination(value);
+    if (value.length >= 2) {
+      const filtered = dutchCities.filter((city) =>
+        city.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setSuggestions(filtered);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const selectSuggestion = (city: string) => {
+    setDestination(city);
+    setSuggestions([]);
+  };
+
   return (
     <div className="space-y-8 p-4 md:p-8 min-h-[92vh] bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white">
       <div className="flex items-center space-x-4 mb-8">
@@ -184,10 +276,24 @@ const NewShipment = () => {
                 id="destination"
                 type="text"
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
+                onChange={handleDestinationChange} // ← changed handler
                 placeholder="Voer bestemmingsadres of stad in"
                 className={inputClass}
+                autoComplete="off"
               />
+              {suggestions.length > 0 && (
+                <ul className="absolute z-10 mt-1 w-full bg-indigo-950 border border-indigo-600 rounded-md max-h-60 overflow-y-auto shadow-lg">
+                  {suggestions.map((city, index) => (
+                    <li
+                      key={index}
+                      onClick={() => selectSuggestion(city)}
+                      className="px-4 py-2 hover:bg-indigo-800 cursor-pointer text-white"
+                    >
+                      {city}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
