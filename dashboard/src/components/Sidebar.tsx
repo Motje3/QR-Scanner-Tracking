@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
                     <ShoppingCart size={20} className="mr-3" />
-                    <span>Zending maken</span>
+                    <span>Nieuwe zending</span>
                   </Link>
                 </li>
                 <li>
