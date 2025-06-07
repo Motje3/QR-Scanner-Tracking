@@ -7,6 +7,7 @@ import {
   FileText,
   Settings,
   User,
+  PackagePlus,
 } from "lucide-react";
 import { tokens } from "../theme";
 
@@ -71,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     to="/newshipment"
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
-                    <ShoppingCart size={20} className="mr-3" />
+                    <PackagePlus size={20} className="mr-3" />
                     <span>Nieuwe zending</span>
                   </Link>
                 </li>

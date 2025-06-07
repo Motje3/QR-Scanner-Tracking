@@ -13,6 +13,7 @@ import {
   Download,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import DatePicker from "../components/DatePicker";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -322,17 +323,11 @@ const NewShipment = () => {
             <label htmlFor="expectedDelivery" className={labelClass}>
               Verwachte leverdatum
             </label>
-            <div className="relative mt-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <CalendarDays size={iconSize} className="text-gray-400" />
-              </div>
-              <input
-                id="expectedDelivery"
-                type="text"
+            <div className="mt-1">
+              <DatePicker
                 value={expectedDelivery}
-                onChange={(e) => setExpectedDelivery(e.target.value)}
-                placeholder="JJJJ-MM-DD of een omschrijving"
-                className={inputClass}
+                onChange={setExpectedDelivery}
+                placeholder="Selecteer verwachte leverdatum"
               />
             </div>
           </div>
