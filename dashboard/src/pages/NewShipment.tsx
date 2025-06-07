@@ -4,8 +4,6 @@ import {
   PackagePlus,
   MapPin,
   User,
-  CalendarDays,
-  Weight,
   Send,
   CheckCircle,
   XCircle,
@@ -14,12 +12,13 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import DatePicker from "../components/DatePicker";
+import WeightInput from '../components/WeightInput';
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface CreatedShipment {
   id: number;
-  status: string;
   destination?: string;
   assignedTo?: string;
   expectedDelivery?: string;
@@ -28,7 +27,6 @@ interface CreatedShipment {
 }
 
 interface CreateShipmentDto {
-  status: string;
   destination?: string;
   assignedTo?: string;
   expectedDelivery?: string;
@@ -36,7 +34,6 @@ interface CreateShipmentDto {
 }
 
 const NewShipment = () => {
-  const [status, setStatus] = useState("");
   const [destination, setDestination] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [expectedDelivery, setExpectedDelivery] = useState("");
@@ -54,14 +51,7 @@ const NewShipment = () => {
     setIsLoading(true);
     setError(null);
 
-    if (!status) {
-      setError("Status is een verplicht veld.");
-      setIsLoading(false);
-      return;
-    }
-
     const shipmentDto: CreateShipmentDto = {
-      status,
       destination: destination || undefined,
       assignedTo: assignedTo || undefined,
       expectedDelivery: expectedDelivery || undefined,
@@ -91,7 +81,6 @@ const NewShipment = () => {
 
       const newShipmentData: CreatedShipment = await response.json();
       setCreatedShipment(newShipmentData);
-      setStatus("");
       setDestination("");
       setAssignedTo("");
       setExpectedDelivery("");
@@ -243,26 +232,7 @@ const NewShipment = () => {
           onSubmit={handleSubmit}
           className="bg-indigo-900/70 backdrop-blur-md shadow-2xl rounded-xl p-6 md:p-10 space-y-7 max-w-2xl mx-auto"
         >
-          {/* Status Input Group */}
-          <div>
-            <label htmlFor="status" className={labelClass}>
-              Status <span className="text-red-400">*</span>
-            </label>
-            <div className="relative mt-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <CheckCircle size={iconSize} className="text-gray-400" />
-              </div>
-              <input
-                id="status"
-                type="text"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                placeholder="Bijv., In Afwachting, Onderweg"
-                className={inputClass}
-                required
-              />
-            </div>
-          </div>
+          
 
           {/* Destination Input Group */}
           <div>
@@ -337,17 +307,11 @@ const NewShipment = () => {
             <label htmlFor="weight" className={labelClass}>
               Gewicht
             </label>
-            <div className="relative mt-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Weight size={iconSize} className="text-gray-400" />
-              </div>
-              <input
-                id="weight"
-                type="text"
+            <div className="mt-1">
+              <WeightInput
                 value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="Bijv., 10kg, 25lbs"
-                className={inputClass}
+                onChange={setWeight}
+                placeholder="Voer gewicht in"
               />
             </div>
           </div>
