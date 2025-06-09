@@ -76,47 +76,25 @@ const MyIssues: React.FC = () => {
   const fetchIssues = async (isRefreshing = false) => {
     if (!isRefreshing) setLoading(true);
     setError(null);
-    
+
     try {
-      // For now, we'll fetch all issues and filter client-side
-      // Later you can replace this with the backend endpoint
-      const [shipmentsRes, issuesRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/shipments/me`, {
+      // Use the new optimized endpoint that returns issues with shipment data included
+      const response = await fetch(
+        `${API_BASE_URL}/api/IssueReport/assigned-to/${user.fullName}`,
+        {
           headers: {
             "Content-Type": "application/json",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
-        }),
-        fetch(`${API_BASE_URL}/api/IssueReport`, {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }),
-      ]);
-
-      if (!shipmentsRes.ok || !issuesRes.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      const [myShipments, allIssues] = await Promise.all([
-        shipmentsRes.json(),
-        issuesRes.json(),
-      ]);
-
-      // Filter issues for shipments assigned to current user
-      const myShipmentIds = myShipments.map((s: any) => s.id);
-      const myIssues = allIssues.filter((issue: IssueReport) =>
-        issue.shipmentId && myShipmentIds.includes(issue.shipmentId)
+        }
       );
 
-      // Add shipment data to issues
-      const issuesWithShipments = myIssues.map((issue: IssueReport) => {
-        const shipment = myShipments.find((s: any) => s.id === issue.shipmentId);
-        return { ...issue, shipment };
-      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch issues");
+      }
 
-      setIssues(issuesWithShipments);
+      const myIssues = await response.json();
+      setIssues(myIssues);
     } catch (e) {
       console.error("Fetch error:", e);
       setError("Kon problemen niet ophalen");
@@ -198,7 +176,11 @@ const MyIssues: React.FC = () => {
         end={{ x: 0.5, y: 1 }}
         style={styles.fullscreen}
       >
-        <Ionicons name="warning-outline" size={wp(12)} color={theme.errorText} />
+        <Ionicons
+          name="warning-outline"
+          size={wp(12)}
+          color={theme.errorText}
+        />
         <Text style={[styles.error, { color: theme.errorText }]}>{error}</Text>
         <TouchableOpacity
           onPress={() => fetchIssues()}
@@ -219,7 +201,11 @@ const MyIssues: React.FC = () => {
         end={{ x: 0.5, y: 0.5 }}
         style={{ flex: 1 }}
       >
-        <ExpoStatusBar style="light" translucent backgroundColor="transparent" />
+        <ExpoStatusBar
+          style="light"
+          translucent
+          backgroundColor="transparent"
+        />
         <StatusBar
           translucent
           backgroundColor="transparent"
@@ -229,7 +215,10 @@ const MyIssues: React.FC = () => {
         <View style={{ flex: 1, paddingHorizontal: wp(6), paddingTop: hp(6) }}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={handleBack} style={{ marginRight: wp(2) }}>
+            <TouchableOpacity
+              onPress={handleBack}
+              style={{ marginRight: wp(2) }}
+            >
               <Ionicons name="arrow-back" size={30} color={theme.backIcon} />
             </TouchableOpacity>
             <Text style={[styles.headerTitle, { color: theme.text }]}>
@@ -247,7 +236,9 @@ const MyIssues: React.FC = () => {
             <Text style={[styles.emptyTitle, { color: theme.text }]}>
               Geen problemen gevonden
             </Text>
-            <Text style={[styles.emptySubtitle, { color: theme.secondaryText }]}>
+            <Text
+              style={[styles.emptySubtitle, { color: theme.secondaryText }]}
+            >
               Je hebt nog geen problemen gerapporteerd voor je zendingen.
             </Text>
           </View>
@@ -256,8 +247,8 @@ const MyIssues: React.FC = () => {
     );
   }
 
-  const openIssues = issues.filter(i => !i.isFixed).length;
-  const fixedIssues = issues.filter(i => i.isFixed).length;
+  const openIssues = issues.filter((i) => !i.isFixed).length;
+  const fixedIssues = issues.filter((i) => i.isFixed).length;
 
   // Main content
   return (
@@ -293,7 +284,7 @@ const MyIssues: React.FC = () => {
             color={accentColor}
             style={{ alignSelf: "center", marginBottom: hp(1) }}
           />
-          
+
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={[styles.statNumber, { color: theme.warningText }]}>
@@ -303,9 +294,9 @@ const MyIssues: React.FC = () => {
                 Open
               </Text>
             </View>
-            
+
             <View style={styles.statDivider} />
-            
+
             <View style={styles.statItem}>
               <Text style={[styles.statNumber, { color: theme.successText }]}>
                 {fixedIssues}
@@ -314,9 +305,9 @@ const MyIssues: React.FC = () => {
                 Opgelost
               </Text>
             </View>
-            
+
             <View style={styles.statDivider} />
-            
+
             <View style={styles.statItem}>
               <Text style={[styles.statNumber, { color: theme.text }]}>
                 {issues.length}
@@ -371,7 +362,7 @@ const MyIssues: React.FC = () => {
                       {item.title}
                     </Text>
                   </View>
-                  
+
                   <View
                     style={[
                       styles.statusBadge,
@@ -390,7 +381,10 @@ const MyIssues: React.FC = () => {
                 </View>
 
                 <Text
-                  style={[styles.cardDescription, { color: theme.secondaryText }]}
+                  style={[
+                    styles.cardDescription,
+                    { color: theme.secondaryText },
+                  ]}
                   numberOfLines={2}
                 >
                   {item.description}
@@ -404,13 +398,19 @@ const MyIssues: React.FC = () => {
                       color={theme.secondaryText}
                     />
                     <Text
-                      style={[styles.shipmentText, { color: theme.secondaryText }]}
+                      style={[
+                        styles.shipmentText,
+                        { color: theme.secondaryText },
+                      ]}
                     >
-                      #{item.shipmentId} • {item.shipment?.destination || "Onbekend"}
+                      #{item.shipmentId} •{" "}
+                      {item.shipment?.destination || "Onbekend"}
                     </Text>
                   </View>
-                  
-                  <Text style={[styles.dateText, { color: theme.secondaryText }]}>
+
+                  <Text
+                    style={[styles.dateText, { color: theme.secondaryText }]}
+                  >
                     {formatDate(item.createdAt)}
                   </Text>
                 </View>

@@ -74,7 +74,9 @@ namespace BackendAPI.Services
                 {
                     existingReport.ResolvedAt = null;
                 }
-            } else if (dto.ResolvedAt.HasValue) {
+            }
+            else if (dto.ResolvedAt.HasValue)
+            {
                 // If only ResolvedAt is provided, but IsFixed isn't explicitly set,
                 // assume it's meant to be fixed if a ResolvedAt value is provided.
                 existingReport.ResolvedAt = dto.ResolvedAt.Value;
@@ -84,6 +86,14 @@ namespace BackendAPI.Services
 
             await _context.SaveChangesAsync();
             return existingReport;
+        }
+        public async Task<IEnumerable<IssueReport>> GetByAssignedUserAsync(string assignedTo)
+        {
+            return await _context.IssueReports
+                .Include(r => r.Shipment)
+                .Where(r => r.Shipment != null && r.Shipment.AssignedTo == assignedTo)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
         }
     }
 }

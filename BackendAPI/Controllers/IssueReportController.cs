@@ -100,5 +100,12 @@ namespace BackendAPI.Controllers
                 return StatusCode(500, $"Unexpected error updating issue report: {ex.Message}");
             }
         }
+
+        [HttpGet("assigned-to/{assignedTo}")]
+        public async Task<ActionResult<IEnumerable<IssueReport>>> GetIssueReportsForAssignedUser(string assignedTo)
+        {
+            var issueReports = await _service.GetByAssignedUserAsync(assignedTo);
+            return Ok(issueReports);
+        }
     }
 }
