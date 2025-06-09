@@ -1,5 +1,5 @@
 // src/pages/NewShipment.tsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   PackagePlus,
   MapPin,
@@ -11,11 +11,29 @@ import {
   Download,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import axios from "axios";
 import DatePicker from "../components/DatePicker";
-import WeightInput from '../components/WeightInput';
-
+import WeightInput from "../components/WeightInput";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// --- Interface for a registered user (for 'assignedTo' dropdown) ---
+interface User {
+  id: string;
+  name: string;
+}
+
+interface Profile {
+  id: number;
+  username: string;
+  fullName: string;
+  email: string;
+  role: string;
+  imageUrl: string;
+  createdAt: string;
+  active?: boolean;
+  lastLogin?: string;
+}
 
 interface CreatedShipment {
   id: number;
@@ -37,7 +55,7 @@ const NewShipment = () => {
   const [destination, setDestination] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [expectedDelivery, setExpectedDelivery] = useState("");
-  const [weight, setWeight] = useState("");
+  const [weight, setWeight] = useState(""); // Using your WeightInput component
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +63,34 @@ const NewShipment = () => {
     useState<CreatedShipment | null>(null);
 
   const qrCodeRef = useRef<HTMLDivElement>(null);
+
+  const [users, setUsers] = useState<User[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setUsersLoading(true);
+      try {
+        const response = await axios.get<Profile[]>(
+          `${API_BASE_URL}/api/Profile`
+        );
+        const fetchedUsers: User[] = response.data.map((profile) => ({
+          id: String(profile.id),
+          name: profile.fullName,
+        }));
+        setUsers(fetchedUsers);
+        setUsersError(null);
+      } catch (err) {
+        console.error("Failed to fetch users for dropdown:", err);
+        setUsersError("Kon gebruikers niet ophalen.");
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [API_BASE_URL]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +101,7 @@ const NewShipment = () => {
       destination: destination || undefined,
       assignedTo: assignedTo || undefined,
       expectedDelivery: expectedDelivery || undefined,
-      weight: weight || undefined,
+      weight: weight || undefined, // WeightInput already formats this as "25 kg"
     };
 
     try {
@@ -81,6 +127,8 @@ const NewShipment = () => {
 
       const newShipmentData: CreatedShipment = await response.json();
       setCreatedShipment(newShipmentData);
+      
+      // Reset form
       setDestination("");
       setAssignedTo("");
       setExpectedDelivery("");
@@ -195,6 +243,7 @@ const NewShipment = () => {
     "Culemborg",
     "Veghel",
   ];
+  
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,12 +281,10 @@ const NewShipment = () => {
           onSubmit={handleSubmit}
           className="bg-indigo-900/70 backdrop-blur-md shadow-2xl rounded-xl p-6 md:p-10 space-y-7 max-w-2xl mx-auto"
         >
-          
-
-          {/* Destination Input Group */}
+          {/* Destination Input Group with Autofill */}
           <div>
             <label htmlFor="destination" className={labelClass}>
-              Bestemming
+              Bestemming <span className="text-red-400">*</span>
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -247,10 +294,11 @@ const NewShipment = () => {
                 id="destination"
                 type="text"
                 value={destination}
-                onChange={handleDestinationChange} // ← changed handler
+                onChange={handleDestinationChange}
                 placeholder="Voer bestemmingsadres of stad in"
                 className={inputClass}
                 autoComplete="off"
+                required
               />
               {suggestions.length > 0 && (
                 <ul className="absolute z-10 mt-1 w-full bg-indigo-950 border border-indigo-600 rounded-md max-h-60 overflow-y-auto shadow-lg">
@@ -268,30 +316,48 @@ const NewShipment = () => {
             </div>
           </div>
 
-          {/* Assigned To Input Group */}
+          {/* Assigned To Dropdown */}
           <div>
             <label htmlFor="assignedTo" className={labelClass}>
-              Toegewezen Aan (Gebruiker/Chauffeur)
+              Toegewezen Aan (Gebruiker/Chauffeur) <span className="text-red-400">*</span>
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <User size={iconSize} className="text-gray-400" />
               </div>
-              <input
+              <select
                 id="assignedTo"
-                type="text"
                 value={assignedTo}
                 onChange={(e) => setAssignedTo(e.target.value)}
-                placeholder="Gebruikersnaam of ID van de toegewezen persoon"
-                className={inputClass}
-              />
+                className={`${inputClass} appearance-none pr-10`}
+                disabled={usersLoading}
+                required
+              >
+                <option value="">
+                  {usersLoading ? "Laden..." : "Selecteer een gebruiker"}
+                </option>
+                {users.map((user) => (
+                  <option key={user.id} value={user.name}>
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                <svg
+                  className="fill-current h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
             </div>
           </div>
 
-          {/* Expected Delivery Input Group */}
+          {/* Expected Delivery Date Picker */}
           <div>
             <label htmlFor="expectedDelivery" className={labelClass}>
-              Verwachte leverdatum
+              Verwachte leverdatum <span className="text-red-400">*</span>
             </label>
             <div className="mt-1">
               <DatePicker
@@ -302,10 +368,10 @@ const NewShipment = () => {
             </div>
           </div>
 
-          {/* Weight Input Group */}
+          {/* Weight Input */}
           <div>
             <label htmlFor="weight" className={labelClass}>
-              Gewicht
+              Gewicht <span className="text-red-400">*</span>
             </label>
             <div className="mt-1">
               <WeightInput
@@ -350,7 +416,6 @@ const NewShipment = () => {
             </span>
           </p>
 
-          {/* Added ref to this div */}
           <div
             ref={qrCodeRef}
             className="p-4 bg-white inline-block rounded-lg shadow-inner mt-2"
@@ -373,7 +438,7 @@ const NewShipment = () => {
           </button>
           <button
             onClick={() => setCreatedShipment(null)}
-            className="mt-3 w-full bg-transparent hover:bg-indigo-800 border border-indigo-700 text-indigo-300 font-medium py-2 px-6 rounded-md transition-colors duration-300"
+            className="mt-3 w-full bg-indigo-700 hover:bg-indigo-600 text-white font-medium py-2 px-6 rounded-md transition-colors duration-300 shadow-md"
           >
             Nog een Zending Aanmaken
           </button>

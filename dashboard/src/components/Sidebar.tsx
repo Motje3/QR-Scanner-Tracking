@@ -2,12 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import {
   Home,
-  ShoppingCart,
-  Users,
+  Truck,
+  Plus,
+  ChartLine,
   FileText,
   Settings,
-  User,
-  PackagePlus,
+  Users,
 } from "lucide-react";
 import { tokens } from "../theme";
 
@@ -63,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     to="/shipments"
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
-                    <ShoppingCart size={20} className="mr-3" />
+                    <Truck size={20} className="mr-3" />
                     <span>Zendingen</span>
                   </Link>
                 </li>
@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     to="/newshipment"
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
-                    <PackagePlus size={20} className="mr-3" />
+                    <Plus size={20} className="mr-3" />
                     <span>Nieuwe zending</span>
                   </Link>
                 </li>
@@ -81,7 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     to="/stats"
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
-                    <Users size={20} className="mr-3" />
+                    <ChartLine size={20} className="mr-3" />
                     <span>Statistieken</span>
                   </Link>
                 </li>
@@ -106,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     to="/accounts"
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
-                    <Settings size={20} className="mr-3" />
+                    <Users size={20} className="mr-3" />
                     <span>Accounts</span>
                   </Link>
                 </li>
@@ -116,8 +116,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     to="/account-settings"
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
-                    <User size={20} className="mr-3" />
-                    <span>Account Settings</span>
+                    <Settings size={20} className="mr-3" />
+                    <span>Settings</span>
                   </Link>
                 </li>
               </ul>

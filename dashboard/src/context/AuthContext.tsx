@@ -1,6 +1,9 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import axios for making API requests
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -11,39 +14,61 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize isAuthenticated based on localStorage to persist login across refreshes
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     const storedAuth = localStorage.getItem('isAuthenticated');
-    return storedAuth === 'true'; // Convert string to boolean
+    return storedAuth === 'true';
   });
 
   const navigate = useNavigate();
 
-  // Update localStorage whenever isAuthenticated changes
   useEffect(() => {
     localStorage.setItem('isAuthenticated', String(isAuthenticated));
   }, [isAuthenticated]);
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    // In a real application, you would make an API call here:
-    // const response = await axios.post('/api/login', { username, password });
-    // if (response.data.success) {
-    //   setIsAuthenticated(true);
-    //   return true;
-    // }
-    // return false;
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/profile/login`, { username, password }); // Corrected path to /api/profile/login
 
-    // For now, a simple mock login:
-    if (username === 'admin' && password === 'admin') { // Or your desired credentials
-      setIsAuthenticated(true);
-      return true;
+      // Check if the login was successful based on your backend's response structure
+      // The backend returns a 'token' and a 'user' object on success
+      if (response.status === 200 && response.data.token && response.data.user) {
+        setIsAuthenticated(true);
+        // Optionally, store the token or user details in localStorage
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('userProfile', JSON.stringify(response.data.user)); // Store user profile as string
+        return true;
+      } else {
+        // This 'else' block might be hit if the status is 200 but data is unexpected
+        console.error('Login failed: Unexpected response structure', response.data);
+        return false;
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // The server responded with a status code other than 2xx
+          // For example, 401 Unauthorized for invalid credentials
+          console.error('Login error (server response):', error.response.data.message || error.response.statusText);
+          // Return false here, allowing the Login.tsx to show the error
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error('No response received:', error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error('Error setting up request:', error.message);
+        }
+      } else {
+        console.error('Unexpected login error:', error);
+      }
+      // Return false on any error so the Login.tsx component can display a message
+      return false;
     }
-    return false;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    navigate('/login'); // Redirect to login page after logout
+    localStorage.removeItem('authToken'); // Clear token on logout
+    localStorage.removeItem('userProfile'); // Clear user profile on logout
+    navigate('/login');
   };
 
   return (

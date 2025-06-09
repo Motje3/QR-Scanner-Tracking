@@ -70,7 +70,17 @@ const Login = () => {
           </button>
         </form>
         <p className="text-center text-gray-500 text-sm mt-6">
-          <a href="#" className="hover:text-purple-400">Wachtwoord vergeten?</a>
+          {/* Changed href="#" to onClick to navigate */}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault(); // Prevent default link behavior
+              navigate('/forgot-password'); // Navigate to the new forgot password route
+            }}
+            className="hover:text-purple-400"
+          >
+            Wachtwoord vergeten?
+          </a>
         </p>
       </div>
     </div>

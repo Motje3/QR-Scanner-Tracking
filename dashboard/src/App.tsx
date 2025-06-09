@@ -14,6 +14,7 @@ import Issues from './pages/Issues';
 import NewShipments from './pages/NewShipment';
 import ShipmentDetail from './components/ShipmentDetail';
 import Login from './pages/Login'; // Import the new Login page
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
         <Routes>
           {/* Public Route: Login Page */}
           <Route path="/login" element={<Login />} />
+          
+          {/* New Public Route: Forgot Password Page */}
+          <Route path="/forgot-password" element={<ForgotPassword />} /> {/* Add this line */}
 
           {/* Redirect from root to dashboard (if authenticated, otherwise login) */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
