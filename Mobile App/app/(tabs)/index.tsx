@@ -162,6 +162,42 @@ const Home = () => {
           </LinearGradient>
         </TouchableOpacity>
 
+        {/* My Issues Button - Replace the first "Feedback geven" */}
+        <TouchableOpacity
+          style={{
+            borderRadius: wp(3),
+            overflow: "hidden",
+            width: "100%",
+            marginBottom: hp(2),
+          }}
+          onPress={() => {
+            setTimeout(() => {
+              router.push("/homescreen/MyIssues"); // lowercase file name
+            }, 50);
+          }}
+        >
+          <LinearGradient
+            colors={["#DC2626", "#7F1D1D"]} // Red gradient for issues
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              padding: wp(6),
+              borderRadius: wp(3),
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Ionicons
+              name="warning-outline" // Better icon for issues
+              size={wp(10)}
+              color="#fff"
+            />
+            <Text style={{ color: "#fff", fontSize: wp(4), marginTop: hp(1) }}>
+              Mijn Problemen
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
         {/* Geef Feedback Button */}
         <TouchableOpacity
           style={{
