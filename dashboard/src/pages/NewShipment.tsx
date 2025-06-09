@@ -103,43 +103,10 @@ const NewShipment = () => {
     fetchUsers();
   }, [API_BASE_URL]); // Dependency on API_BASE_URL
 
-  // --- Effect for destination autofill simulation ---
-  useEffect(() => {
-    if (destination.length > 2) {
-      // Simulate API call for address suggestions
-      const fetchSuggestions = setTimeout(() => {
-        const mockAddresses = [
-          "Coolsingel 1, 3011 AA Rotterdam",
-          "Kalverstraat 220, 1012 PJ Amsterdam",
-          "Neude 1, 3511 RP Utrecht",
-          "Plein 25, 2511 CS Den Haag",
-          "High Tech Campus 1, 5656 AE Eindhoven",
-          "Stationsplein 45, 3013 AK Rotterdam",
-          "Damrak 1, 1012 LG Amsterdam",
-        ];
-        const filteredSuggestions = mockAddresses.filter((address) =>
-          address.toLowerCase().includes(destination.toLowerCase())
-        );
-        setDestinationSuggestions(filteredSuggestions);
-      }, 300); // Debounce to prevent too many API calls
-
-      return () => clearTimeout(fetchSuggestions);
-    } else {
-      setDestinationSuggestions([]);
-    }
-  }, [destination]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-
-    // No need to check status, as it's fixed
-    // if (!status) {
-    //   setError("Status is een verplicht veld.");
-    //   setIsLoading(false);
-    //   return;
-    // }
 
     const shipmentDto: CreateShipmentDto = {
       status, // 'In afwachting'
@@ -271,17 +238,8 @@ const NewShipment = () => {
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="Voer bestemmingsadres of stad in"
                 className={inputClass}
-                list="destination-suggestions" // Link to datalist
                 required
               />
-              {/* Datalist for suggestions */}
-              {destinationSuggestions.length > 0 && (
-                <datalist id="destination-suggestions">
-                  {destinationSuggestions.map((suggestion, index) => (
-                    <option key={index} value={suggestion} />
-                  ))}
-                </datalist>
-              )}
             </div>
           </div>
 
@@ -296,8 +254,8 @@ const NewShipment = () => {
               </div>
               <select
                 id="assignedTo"
-                value={assignedTo} // 'assignedTo' still holds the ID
-                onChange={(e) => setAssignedTo(e.target.value)} // We directly update 'assignedTo' with the selected <option>'s value (which is the ID)
+                value={assignedTo}
+                onChange={(e) => setAssignedTo(e.target.value)}
                 className={`${inputClass} appearance-none pr-10`}
                 disabled={usersLoading}
                 required
@@ -339,7 +297,6 @@ const NewShipment = () => {
                 value={expectedDelivery}
                 onChange={(e) => setExpectedDelivery(e.target.value)}
                 className={`${inputClass} !pr-3`} // Adjust padding for date picker
-                placeholder="JJJJ-MM-DD"
                 required
               />
             </div>
@@ -359,7 +316,7 @@ const NewShipment = () => {
                 type="number" // Allow only numbers
                 value={weightValue}
                 onChange={(e) => setWeightValue(e.target.value)}
-                placeholder="Bijv., 10"
+                placeholder="Bijv. 10"
                 className={`${inputClass} flex-grow`}
                 required
               />
