@@ -172,7 +172,7 @@ const Home = () => {
           }}
           onPress={() => {
             setTimeout(() => {
-              router.push("/homescreen/MyIssues"); // lowercase file name
+              router.push("../homescreen/MyIssues"); // relative path to the file
             }, 50);
           }}
         >
