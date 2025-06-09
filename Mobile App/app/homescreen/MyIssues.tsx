@@ -78,23 +78,55 @@ const MyIssues: React.FC = () => {
     setError(null);
 
     try {
-      // Use the new optimized endpoint that returns issues with shipment data included
-      const response = await fetch(
-        `${API_BASE_URL}/api/IssueReport/assigned-to/${user.fullName}`,
-        {
+      // Use the existing working endpoint that requires authorization
+      const [shipmentsRes, issuesRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/shipments/me`, {
           headers: {
             "Content-Type": "application/json",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
-        }
-      );
+        }),
+        fetch(`${API_BASE_URL}/api/IssueReport`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }),
+      ]);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch issues");
+      if (!shipmentsRes.ok || !issuesRes.ok) {
+        throw new Error("Failed to fetch data");
       }
 
-      const myIssues = await response.json();
-      setIssues(myIssues);
+      const [myShipments, allIssues] = await Promise.all([
+        shipmentsRes.json(),
+        issuesRes.json(),
+      ]);
+
+      // DEBUG: Let's see what we get
+      console.log("🚚 My shipments from /me endpoint:", myShipments);
+      console.log("📋 All issues:", allIssues);
+
+      // Filter issues for shipments assigned to current user
+      const myShipmentIds = myShipments.map((s: any) => s.id);
+      console.log("🔍 My shipment IDs:", myShipmentIds);
+
+      const myIssues = allIssues.filter(
+        (issue: IssueReport) =>
+          issue.shipmentId && myShipmentIds.includes(issue.shipmentId)
+      );
+
+      console.log("⚠️ Filtered issues for my shipments:", myIssues);
+
+      // Add shipment data to issues
+      const issuesWithShipments = myIssues.map((issue: IssueReport) => {
+        const shipment = myShipments.find(
+          (s: any) => s.id === issue.shipmentId
+        );
+        return { ...issue, shipment };
+      });
+
+      setIssues(issuesWithShipments);
     } catch (e) {
       console.error("Fetch error:", e);
       setError("Kon problemen niet ophalen");
