@@ -112,7 +112,7 @@ const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, err
                     <div><p className="text-indigo-300 text-sm">Status:</p><p className="text-lg font-semibold">{shipment.status}</p></div>
                     <div><p className="text-indigo-300 text-sm">Bestemming:</p><p className="text-lg font-semibold">{shipment.destination || "-"}</p></div>
                     <div><p className="text-indigo-300 text-sm">Toegewezen Aan:</p><p className="text-lg font-semibold">{shipment.assignedTo || "-"}</p></div>
-                    <div><p className="text-indigo-300 text-sm">Verwachte Levering:</p><p className="text-lg font-semibold">{shipment.expectedDelivery || "-"}</p></div>
+                    <div><p className="text-indigo-300 text-sm">Verwachte leverdatum:</p><p className="text-lg font-semibold">{shipment.expectedDelivery || "-"}</p></div>
                     <div><p className="text-indigo-300 text-sm">Gewicht:</p><p className="text-lg font-semibold">{shipment.weight || "-"}</p></div>
                     <div><p className="text-indigo-300 text-sm">Aangemaakt Op:</p><p className="text-lg font-semibold">{new Date(shipment.createdAt).toLocaleString()}</p></div>
                     {shipment.lastUpdatedBy && (<div><p className="text-indigo-300 text-sm">Laatst Bijgewerkt Door:</p><p className="text-lg font-semibold">{shipment.lastUpdatedBy}</p></div>)}

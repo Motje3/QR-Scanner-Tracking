@@ -131,7 +131,7 @@ const ShipmentDetail = () => {
           </div>
           <div>
             <p>
-              <strong>Verwachte levering:</strong> {shipment.expectedDelivery}
+              <strong> Verwachte leverdatum:</strong> {shipment.expectedDelivery}
             </p>
             <p>
               <strong>Gewicht:</strong> {shipment.weight}

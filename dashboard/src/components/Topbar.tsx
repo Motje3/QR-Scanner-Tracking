@@ -26,7 +26,7 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar, isSidebarOpen, onLogout 
           Status: s.status,
           Bestemming: s.destination,
           Toegewezen: s.assignedTo,
-          "Verwachte levering": s.expectedDelivery,
+          "Verwachte leverdatum": s.expectedDelivery,
           Gewicht: s.weight,
           CreatedAt: s.createdAt,
         })),

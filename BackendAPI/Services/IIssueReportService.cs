@@ -12,6 +12,7 @@ namespace BackendAPI.Services
         Task<IEnumerable<IssueReport>> GetAllAsync();
         Task<IssueReport> CreateAsync(IssueReport report);
         Task<IEnumerable<IssueReport>> GetByShipmentIdAsync(int shipmentId);
-        Task<IssueReport?> UpdateAsync(int id, UpdateIssueReportDto dto); // NEW: Update method
+        Task<IssueReport?> UpdateAsync(int id, UpdateIssueReportDto dto);
+        Task<IEnumerable<IssueReport>> GetByAssignedUserAsync(string assignedTo);
     }
 }

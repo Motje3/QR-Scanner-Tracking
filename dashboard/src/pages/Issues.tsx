@@ -125,7 +125,7 @@ const ShipmentDetailModal = ({
                 </p>
               </div>
               <div>
-                <p className="text-indigo-300 text-sm">Verwachte Levering:</p>
+                <p className="text-indigo-300 text-sm">Verwachte leverdatum:</p>
                 <p className="text-lg font-semibold">
                   {shipment.expectedDelivery || "-"}
                 </p>

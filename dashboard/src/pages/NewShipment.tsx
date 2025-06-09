@@ -4,8 +4,6 @@ import {
   PackagePlus,
   MapPin,
   User,
-  CalendarDays,
-  Weight,
   Send,
   CheckCircle,
   XCircle,
@@ -14,6 +12,8 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import axios from "axios";
+import DatePicker from "../components/DatePicker";
+import WeightInput from "../components/WeightInput";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -37,7 +37,6 @@ interface Profile {
 
 interface CreatedShipment {
   id: number;
-  status: string;
   destination?: string;
   assignedTo?: string;
   expectedDelivery?: string;
@@ -46,7 +45,6 @@ interface CreatedShipment {
 }
 
 interface CreateShipmentDto {
-  status: string;
   destination?: string;
   assignedTo?: string;
   expectedDelivery?: string;
@@ -54,18 +52,10 @@ interface CreateShipmentDto {
 }
 
 const NewShipment = () => {
-  // --- Status is now fixed to 'In afwachting' ---
-  const [status] = useState("In afwachting");
   const [destination, setDestination] = useState("");
-  // --- New state for destination suggestions ---
-  const [destinationSuggestions, setDestinationSuggestions] = useState<string[]>(
-    []
-  );
   const [assignedTo, setAssignedTo] = useState("");
   const [expectedDelivery, setExpectedDelivery] = useState("");
-  // --- New state for weight value and unit ---
-  const [weightValue, setWeightValue] = useState("");
-  const [weightUnit, setWeightUnit] = useState("KG"); // Default unit
+  const [weight, setWeight] = useState(""); // Using your WeightInput component
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +65,7 @@ const NewShipment = () => {
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
   const [users, setUsers] = useState<User[]>([]);
-  const [usersLoading, setUsersLoading] = useState(true); // New loading state for users
+  const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -83,11 +73,10 @@ const NewShipment = () => {
       setUsersLoading(true);
       try {
         const response = await axios.get<Profile[]>(
-          `${API_BASE_URL}/api/Profile` // Use your existing API endpoint
+          `${API_BASE_URL}/api/Profile`
         );
-        // Map the fetched Profile data to the simpler User interface for the dropdown
         const fetchedUsers: User[] = response.data.map((profile) => ({
-          id: String(profile.id), // Ensure ID is a string if your select value expects it
+          id: String(profile.id),
           name: profile.fullName,
         }));
         setUsers(fetchedUsers);
@@ -101,7 +90,7 @@ const NewShipment = () => {
     };
 
     fetchUsers();
-  }, [API_BASE_URL]); // Dependency on API_BASE_URL
+  }, [API_BASE_URL]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,12 +98,10 @@ const NewShipment = () => {
     setError(null);
 
     const shipmentDto: CreateShipmentDto = {
-      status, // 'In afwachting'
       destination: destination || undefined,
       assignedTo: assignedTo || undefined,
       expectedDelivery: expectedDelivery || undefined,
-      // --- Combine weight value and unit ---
-      weight: weightValue ? `${weightValue}${weightUnit}` : undefined,
+      weight: weight || undefined, // WeightInput already formats this as "25 kg"
     };
 
     try {
@@ -140,13 +127,12 @@ const NewShipment = () => {
 
       const newShipmentData: CreatedShipment = await response.json();
       setCreatedShipment(newShipmentData);
-      // --- Reset only relevant fields, status is fixed ---
-      // setStatus("");
+      
+      // Reset form
       setDestination("");
       setAssignedTo("");
       setExpectedDelivery("");
-      setWeightValue(""); // Reset weight value
-      setWeightUnit("KG"); // Reset weight unit
+      setWeight("");
     } catch (err: any) {
       setError(err.message || "Aanmaken van zending mislukt.");
       console.error(err);
@@ -185,6 +171,99 @@ const NewShipment = () => {
     }
   };
 
+  const dutchCities = [
+    "Amsterdam",
+    "Rotterdam",
+    "Den Haag",
+    "Utrecht",
+    "Eindhoven",
+    "Tilburg",
+    "Groningen",
+    "Almere",
+    "Breda",
+    "Nijmegen",
+    "Enschede",
+    "Apeldoorn",
+    "Haarlem",
+    "Arnhem",
+    "Zaanstad",
+    "Amersfoort",
+    "Haarlemmermeer",
+    "Zwolle",
+    "Leiden",
+    "Maastricht",
+    "Dordrecht",
+    "Ede",
+    "Leeuwarden",
+    "Emmen",
+    "Westland",
+    "Venlo",
+    "Delft",
+    "Deventer",
+    "Sittard-Geleen",
+    "Helmond",
+    "Heerlen",
+    "Hilversum",
+    "Alphen aan den Rijn",
+    "Amstelveen",
+    "Roosendaal",
+    "Purmerend",
+    "Oss",
+    "Schiedam",
+    "Spijkenisse",
+    "Vlaardingen",
+    "Almelo",
+    "Gouda",
+    "Hoorn",
+    "Zaandam",
+    "Assen",
+    "Bergen op Zoom",
+    "Capelle aan den IJssel",
+    "Veenendaal",
+    "Katwijk",
+    "Nieuwegein",
+    "Zeist",
+    "Den Helder",
+    "Hardenberg",
+    "Doetinchem",
+    "Hoogeveen",
+    "Kampen",
+    "Weert",
+    "Terneuzen",
+    "Roermond",
+    "Rijswijk",
+    "Middelburg",
+    "Tiel",
+    "Woerden",
+    "Heerhugowaard",
+    "Lelystad",
+    "Barendrecht",
+    "IJmuiden",
+    "Dronten",
+    "Culemborg",
+    "Veghel",
+  ];
+  
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDestination(value);
+    if (value.length >= 2) {
+      const filtered = dutchCities.filter((city) =>
+        city.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setSuggestions(filtered);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const selectSuggestion = (city: string) => {
+    setDestination(city);
+    setSuggestions([]);
+  };
+
   return (
     <div className="space-y-8 p-4 md:p-8 min-h-[92vh] bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white">
       <div className="flex items-center space-x-4 mb-8">
@@ -202,30 +281,10 @@ const NewShipment = () => {
           onSubmit={handleSubmit}
           className="bg-indigo-900/70 backdrop-blur-md shadow-2xl rounded-xl p-6 md:p-10 space-y-7 max-w-2xl mx-auto"
         >
-          {/* Status Input Group (fixed to 'In afwachting') */}
-          <div>
-            <label htmlFor="status" className={labelClass}>
-              Status
-            </label>
-            <div className="relative mt-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <CheckCircle size={iconSize} className="text-gray-400" />
-              </div>
-              <input
-                id="status"
-                type="text"
-                value={status} // Value is fixed
-                className={inputClass}
-                readOnly // Make it read-only
-                aria-readonly="true" // For accessibility
-              />
-            </div>
-          </div>
-
           {/* Destination Input Group with Autofill */}
           <div>
             <label htmlFor="destination" className={labelClass}>
-              Bestemming 
+              Bestemming <span className="text-red-400">*</span>
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -235,18 +294,32 @@ const NewShipment = () => {
                 id="destination"
                 type="text"
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
+                onChange={handleDestinationChange}
                 placeholder="Voer bestemmingsadres of stad in"
                 className={inputClass}
+                autoComplete="off"
                 required
               />
+              {suggestions.length > 0 && (
+                <ul className="absolute z-10 mt-1 w-full bg-indigo-950 border border-indigo-600 rounded-md max-h-60 overflow-y-auto shadow-lg">
+                  {suggestions.map((city, index) => (
+                    <li
+                      key={index}
+                      onClick={() => selectSuggestion(city)}
+                      className="px-4 py-2 hover:bg-indigo-800 cursor-pointer text-white"
+                    >
+                      {city}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
           {/* Assigned To Dropdown */}
           <div>
             <label htmlFor="assignedTo" className={labelClass}>
-              Toegewezen Aan (Gebruiker/Chauffeur)
+              Toegewezen Aan (Gebruiker/Chauffeur) <span className="text-red-400">*</span>
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -264,9 +337,8 @@ const NewShipment = () => {
                   {usersLoading ? "Laden..." : "Selecteer een gebruiker"}
                 </option>
                 {users.map((user) => (
-                  <option key={user.name} value={user.name}>
-                    {user.name}{" "}
-                    {/* This is the crucial part: we display the user's name */}
+                  <option key={user.id} value={user.name}>
+                    {user.name}
                   </option>
                 ))}
               </select>
@@ -285,51 +357,28 @@ const NewShipment = () => {
           {/* Expected Delivery Date Picker */}
           <div>
             <label htmlFor="expectedDelivery" className={labelClass}>
-              Verwachte Levering
+              Verwachte leverdatum <span className="text-red-400">*</span>
             </label>
-            <div className="relative mt-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <CalendarDays size={iconSize} className="text-gray-400" />
-              </div>
-              <input
-                id="expectedDelivery"
-                type="date" // Changed to date type
+            <div className="mt-1">
+              <DatePicker
                 value={expectedDelivery}
-                onChange={(e) => setExpectedDelivery(e.target.value)}
-                className={`${inputClass} !pr-3`} // Adjust padding for date picker
-                required
+                onChange={setExpectedDelivery}
+                placeholder="Selecteer verwachte leverdatum"
               />
             </div>
           </div>
 
-          {/* Weight Input with Unit Dropdown */}
+          {/* Weight Input */}
           <div>
-            <label htmlFor="weightValue" className={labelClass}>
-              Gewicht
+            <label htmlFor="weight" className={labelClass}>
+              Gewicht <span className="text-red-400">*</span>
             </label>
-            <div className="relative mt-1 flex">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Weight size={iconSize} className="text-gray-400" />
-              </div>
-              <input
-                id="weightValue"
-                type="number" // Allow only numbers
-                value={weightValue}
-                onChange={(e) => setWeightValue(e.target.value)}
-                placeholder="Bijv. 10"
-                className={`${inputClass} flex-grow`}
-                required
+            <div className="mt-1">
+              <WeightInput
+                value={weight}
+                onChange={setWeight}
+                placeholder="Voer gewicht in"
               />
-              <select
-                id="weightUnit"
-                value={weightUnit}
-                onChange={(e) => setWeightUnit(e.target.value)}
-                className="ml-2 bg-indigo-800 border border-indigo-700 text-white py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600 appearance-none shadow-sm hover:border-indigo-600"
-              >
-                <option value="KG">KG</option>
-                <option value="LBS">LBS</option>
-                <option value="Pounds">Pounds</option>
-              </select>
             </div>
           </div>
 
