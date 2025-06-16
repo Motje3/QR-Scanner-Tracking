@@ -15,5 +15,16 @@ namespace BackendAPI.Data
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
         public DbSet<AppFeedback> AppFeedbacks { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Map the Role enum to your existing text column
+            modelBuilder.Entity<Profile>()
+                .Property(p => p.Role)
+                .HasConversion<string>()   
+                .HasColumnType("text")     // match your Postgres column type
+                .IsRequired();
+        }
     }
 }

@@ -40,7 +40,8 @@ namespace BackendAPI.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim("userId", user.Id.ToString())
+                new Claim("userId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
             };
 
             var key = new SymmetricSecurityKey(keyBytes);

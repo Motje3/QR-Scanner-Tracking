@@ -36,6 +36,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    // Option A: a named policy
+    options.AddPolicy("AdminOrManager", policy =>
+        policy.RequireRole("Admin", "Manager"));
+});
+
 // 🔓 CORS for frontend access
 builder.Services.AddCors(options =>
 {
@@ -106,6 +113,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication(); // 🔐 Important: must come before Authorization
+
 app.UseAuthorization();
 
 app.MapControllers();

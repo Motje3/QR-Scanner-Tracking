@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BackendAPI.Models;
 
 namespace BackendAPI.DTOs
 {
@@ -23,6 +24,6 @@ namespace BackendAPI.DTOs
 
         [Required(ErrorMessage = "Role is required.")]
         [StringLength(50, ErrorMessage = "Role cannot exceed 50 characters.")]
-        public required string Role { get; set; } // e.g., "user", "admin", "manager"
+        public required Role Role { get; set; } // e.g., "user", "admin", "manager"
     }
 }

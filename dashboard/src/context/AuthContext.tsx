@@ -1,13 +1,19 @@
 // src/context/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import axios for making API requests
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Import axios for making API requests
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
 }
 
@@ -15,60 +21,83 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    const storedAuth = localStorage.getItem('isAuthenticated');
-    return storedAuth === 'true';
+    const storedAuth = localStorage.getItem("isAuthenticated");
+    return storedAuth === "true";
   });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    localStorage.setItem('isAuthenticated', String(isAuthenticated));
+    localStorage.setItem("isAuthenticated", String(isAuthenticated));
   }, [isAuthenticated]);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/profile/login`, { username, password }); // Corrected path to /api/profile/login
+  interface LoginResult {
+    success: boolean;
+    message?: string;
+  }
 
-      // Check if the login was successful based on your backend's response structure
-      // The backend returns a 'token' and a 'user' object on success
-      if (response.status === 200 && response.data.token && response.data.user) {
-        setIsAuthenticated(true);
-        // Optionally, store the token or user details in localStorage
-        localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('userProfile', JSON.stringify(response.data.user)); // Store user profile as string
-        return true;
-      } else {
-        // This 'else' block might be hit if the status is 200 but data is unexpected
-        console.error('Login failed: Unexpected response structure', response.data);
-        return false;
-      }
-    } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          // The server responded with a status code other than 2xx
-          // For example, 401 Unauthorized for invalid credentials
-          console.error('Login error (server response):', error.response.data.message || error.response.statusText);
-          // Return false here, allowing the Login.tsx to show the error
-        } else if (error.request) {
-          // The request was made but no response was received
-          console.error('No response received:', error.request);
+  const login = async (
+    username: string,
+    password: string
+  ): Promise<LoginResult> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/profile/login`, {
+        username,
+        password,
+      });
+
+      if (
+        response.status === 200 &&
+        response.data.token &&
+        response.data.user
+      ) {
+        const user = response.data.user;
+
+        // Only allow Admin or Manager through
+        if (user.role === "Admin" || user.role === "Manager") {
+          setIsAuthenticated(true);
+          localStorage.setItem("authToken", response.data.token);
+          localStorage.setItem("userProfile", JSON.stringify(user));
+          return { success: true };
         } else {
-          // Something happened in setting up the request that triggered an Error
-          console.error('Error setting up request:', error.message);
+          console.warn(`Access denied for role: ${user.role}`);
+          return {
+            success: false,
+            message: "Je hebt geen toegang tot het dashboard.",
+          };
         }
       } else {
-        console.error('Unexpected login error:', error);
+        console.error(
+          "Login failed: Unexpected response structure",
+          response.data
+        );
+        return {
+          success: false,
+          message: "Onverwachte serverreactie tijdens inloggen.",
+        };
       }
-      // Return false on any error so the Login.tsx component can display a message
-      return false;
+    } catch (error: any) {
+      let msg = "Er is iets misgegaan bij het inloggen.";
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Use the server-provided message if available
+          msg = error.response.data?.message || error.response.statusText;
+        } else if (error.request) {
+          msg = "Geen respons ontvangen van de server.";
+        } else {
+          msg = error.message;
+        }
+      }
+      console.error("Login error:", msg);
+      return { success: false, message: msg };
     }
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('authToken'); // Clear token on logout
-    localStorage.removeItem('userProfile'); // Clear user profile on logout
-    navigate('/login');
+    localStorage.removeItem("authToken"); // Clear token on logout
+    localStorage.removeItem("userProfile"); // Clear user profile on logout
+    navigate("/login");
   };
 
   return (
@@ -81,7 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
