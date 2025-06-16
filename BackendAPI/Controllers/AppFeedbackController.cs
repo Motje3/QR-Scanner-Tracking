@@ -2,6 +2,7 @@ using BackendAPI.Services;
 using BackendAPI.DTOs;
 using BackendAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BackendAPI.Controllers
 {
@@ -55,7 +56,7 @@ namespace BackendAPI.Controllers
 
         // GET: api/AppFeedback
         [HttpGet]
-        // [Authorize(Roles = "Admin")] // Example: Only Admins can get all feedback
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult<IEnumerable<AppFeedback>>> GetAllFeedback()
         {
             try
