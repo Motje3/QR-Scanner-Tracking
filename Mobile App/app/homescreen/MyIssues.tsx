@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
+  Modal,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
@@ -458,6 +459,84 @@ const MyIssues: React.FC = () => {
           showsVerticalScrollIndicator={false}
         />
       </View>
+
+      {selectedIssue && (
+        <Modal
+          visible={showModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowModal(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "#000000aa",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                width: "90%",
+                backgroundColor: theme.cardBg,
+                padding: wp(5),
+                borderRadius: wp(3),
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 6,
+                elevation: 10,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: wp(5),
+                  fontWeight: "bold",
+                  color: theme.text,
+                  marginBottom: hp(1),
+                }}
+              >
+                {selectedIssue.title}
+              </Text>
+
+              <Text
+                style={{ color: theme.secondaryText, marginBottom: hp(1.5) }}
+              >
+                {selectedIssue.description}
+              </Text>
+
+              <Text style={{ color: theme.secondaryText }}>
+                Zending: #{selectedIssue.shipmentId} –{" "}
+                {selectedIssue.shipment?.destination || "Onbekend"}
+              </Text>
+
+              <Text style={{ color: theme.secondaryText }}>
+                Status: {getIssueStatusText(selectedIssue)}
+              </Text>
+
+              <Text style={{ color: theme.secondaryText, marginBottom: hp(2) }}>
+                Gerapporteerd op: {formatDate(selectedIssue.createdAt)}
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => setShowModal(false)}
+                style={{
+                  backgroundColor: accentColor,
+                  paddingVertical: hp(1),
+                  borderRadius: wp(2),
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{ color: "#fff", fontWeight: "600", fontSize: wp(4) }}
+                >
+                  Sluiten
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </LinearGradient>
   );
 };
