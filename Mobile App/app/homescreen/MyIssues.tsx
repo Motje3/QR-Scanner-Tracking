@@ -45,6 +45,8 @@ const MyIssues: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedIssue, setSelectedIssue] = useState<IssueReport | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const theme = {
     background: darkMode ? "#030014" : "#ffffff",
