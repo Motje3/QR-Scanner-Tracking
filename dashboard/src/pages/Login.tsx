@@ -1,25 +1,26 @@
 // src/pages/Login.tsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Lock, User } from 'lucide-react'; // Import icons
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Lock, User } from "lucide-react"; // Import icons
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError(""); // Clear previous errors
 
-    const success = await login(username, password);
+    const { success, message } = await login(username, password);
     if (success) {
-      navigate('/dashboard'); // Redirect to dashboard on successful login
+      navigate("/dashboard");
     } else {
-      setError('Ongeldige gebruikersnaam of wachtwoord.');
+      // Show the API’s actual error if we have one, otherwise fallback
+      setError(message ?? "Ongeldige gebruikersnaam of wachtwoord.");
     }
   };
 
@@ -28,13 +29,23 @@ const Login = () => {
       <div className="bg-indigo-900/80 backdrop-blur-sm p-8 rounded-lg shadow-2xl w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Login</h1>
-          <p className="text-gray-400">Welkom terug! Log in om verder te gaan.</p>
+          <p className="text-gray-400">
+            Welkom terug! Log in om verder te gaan.
+          </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="username" className="block text-gray-300 text-sm font-semibold mb-2">Gebruikersnaam</label>
+            <label
+              htmlFor="username"
+              className="block text-gray-300 text-sm font-semibold mb-2"
+            >
+              Gebruikersnaam
+            </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+              <User
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                size={20}
+              />
               <input
                 type="text"
                 id="username"
@@ -47,9 +58,17 @@ const Login = () => {
             </div>
           </div>
           <div>
-            <label htmlFor="password" className="block text-gray-300 text-sm font-semibold mb-2">Wachtwoord</label>
+            <label
+              htmlFor="password"
+              className="block text-gray-300 text-sm font-semibold mb-2"
+            >
+              Wachtwoord
+            </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+              <Lock
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                size={20}
+              />
               <input
                 type="password"
                 id="password"
@@ -75,7 +94,7 @@ const Login = () => {
             href="#"
             onClick={(e) => {
               e.preventDefault(); // Prevent default link behavior
-              navigate('/forgot-password'); // Navigate to the new forgot password route
+              navigate("/forgot-password"); // Navigate to the new forgot password route
             }}
             className="hover:text-purple-400"
           >

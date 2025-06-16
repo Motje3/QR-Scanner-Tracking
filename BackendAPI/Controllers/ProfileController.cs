@@ -37,6 +37,7 @@ namespace BackendAPI.Controllers
                 {
                     user.Id,
                     user.Username,
+                    role = user.Role.ToString(),
                     user.AccentColor,
                     user.DarkMode,
                     user.NotificationsEnabled
