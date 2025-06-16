@@ -369,12 +369,8 @@ const MyIssues: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={() => {
-                if (item.shipmentId) {
-                  router.push({
-                    pathname: "/shipment/shipmentdetails",
-                    params: { qrData: item.shipmentId.toString() },
-                  });
-                }
+                setSelectedIssue(item);
+                setShowModal(true);
               }}
             >
               <LinearGradient
