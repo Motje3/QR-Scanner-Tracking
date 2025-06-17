@@ -1,8 +1,9 @@
 // src/pages/ForgotPassword.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // For making API requests
 import { Mail, Lock } from 'lucide-react'; // Import icons for input fields
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -12,12 +13,25 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
+  const [loading, setLoading] = useState(() => {
+    return localStorage.getItem('forgotPasswordLoaded') === 'true' ? false : true;
+  }); // Loading state
 
   const [emailError, setEmailError] = useState('');
   const [newPassError, setNewPassError] = useState('');
   const [confirmPassError, setConfirmPassError] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [requestSent, setRequestSent] = useState(false);
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+        localStorage.setItem('forgotPasswordLoaded', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   const validateFields = () => {
     let isValid = true;
@@ -57,6 +71,7 @@ const ForgotPassword = () => {
     if (!validateFields()) {
       return;
     }
+    setLoading(true); // Start loading
 
     try {
       // Assuming your backend endpoint is /api/PasswordReset
@@ -77,8 +92,12 @@ const ForgotPassword = () => {
         setGeneralError('Netwerkfout of onbekende fout. Probeer het later opnieuw.');
       }
       console.error("Password reset error:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
+
+  if (loading) return <LoadingSpinner />;
 
   if (requestSent) {
     return (
@@ -182,7 +201,7 @@ const ForgotPassword = () => {
             type="submit"
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
           >
-            Verstuur verzoek
+            {loading ? <LoadingSpinner /> : 'Verstuur verzoek'}
           </button>
         </form>
         <p className="text-center text-gray-500 text-sm mt-6">

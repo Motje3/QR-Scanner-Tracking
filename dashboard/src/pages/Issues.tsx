@@ -7,6 +7,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import axios from "axios";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -278,6 +279,19 @@ const Issues = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+  const [firstLoad, setFirstLoad] = useState(() => {
+    return localStorage.getItem('issuesLoaded') === 'true' ? false : true;
+  });
+
+  useEffect(() => {
+    if (firstLoad) {
+      const timer = setTimeout(() => {
+        setFirstLoad(false);
+        localStorage.setItem('issuesLoaded', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [firstLoad]);
 
   useEffect(() => {
     const fetchIssueReports = async () => {
@@ -491,8 +505,10 @@ const Issues = () => {
     }
   };
 
+  if (firstLoad) return <LoadingSpinner />;
+
   if (loading && issueReports.length === 0) { // Show loading only on initial load
-    return <div className="p-6 text-white text-center">Laden van issue rapporten...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error && issueReports.length === 0) { // Show error only if no data could be loaded

@@ -1,6 +1,24 @@
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, Users, DollarSign } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard = () => {
+  const [loading, setLoading] = useState(() => {
+    return localStorage.getItem('dashboardLoaded') === 'true' ? false : true;
+  });
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+        localStorage.setItem('dashboardLoaded', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
+  if (loading) return <LoadingSpinner />;
+
   return (
     <div className="space-y-6">
       <div className="mb-4">

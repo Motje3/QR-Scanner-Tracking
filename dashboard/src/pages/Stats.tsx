@@ -3,6 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { API_BASE_URL } from '../config/env';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const formatEuro = (value: number | null) =>
   value != null ? `€${value.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-';
@@ -11,6 +12,9 @@ const Stats = () => {
   const [stats, setStats] = useState<any>(null);
   const [selected, setSelected] = useState('jaarOmzet');
   const [error, setError] = useState<string | null>(null);
+  const [firstLoad, setFirstLoad] = useState(() => {
+    return localStorage.getItem('statsLoaded') === 'true' ? false : true;
+  });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/stats/overview`)
@@ -22,8 +26,19 @@ const Stats = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (firstLoad) {
+      const timer = setTimeout(() => {
+        setFirstLoad(false);
+        localStorage.setItem('statsLoaded', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [firstLoad]);
+
   if (error) return <div className="text-red-500">{error}</div>;
-  if (!stats) return <div className="text-white">Laden...</div>;
+  if (firstLoad) return <LoadingSpinner />;
+  if (!stats) return <LoadingSpinner />;
 
   const statOptions = [
     {

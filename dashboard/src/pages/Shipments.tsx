@@ -17,6 +17,7 @@ import {
   CheckCircle,
   Lightbulb,
 } from "lucide-react";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -172,6 +173,10 @@ const Shipments = () => {
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  const [firstLoad, setFirstLoad] = useState(() => {
+    return localStorage.getItem('shipmentsLoaded') === 'true' ? false : true;
+  });
+
   const sortOptions = ["Problemen", "Bestemming", "ID"];
 
   useEffect(() => {
@@ -197,6 +202,16 @@ const Shipments = () => {
     };
     fetchShipments();
   }, []);
+
+  useEffect(() => {
+    if (firstLoad) {
+      const timer = setTimeout(() => {
+        setFirstLoad(false);
+        localStorage.setItem('shipmentsLoaded', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [firstLoad]);
 
   const filteredAndSortedShipments = useMemo(() => {
     let processedList = selectedStatus && selectedStatus !== "Alle Statussen"
@@ -283,6 +298,8 @@ const Shipments = () => {
   const cardClass = (status: string) => `bg-indigo-900/80 backdrop-blur-sm rounded-lg p-6 cursor-pointer hover:bg-indigo-800/70 transition-all duration-200 ${
     selectedStatus === status ? "ring-2 ring-blue-400 shadow-blue-500/30 shadow-lg" : "hover:shadow-md hover:shadow-indigo-500/20"
   }`; // Consolidated card styling
+
+  if (firstLoad) return <LoadingSpinner />;
 
   return (
     <div className="p-6 space-y-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 min-h-[92vh]">

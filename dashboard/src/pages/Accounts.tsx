@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Input } from "@nextui-org/react";
 import axios from "axios";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 interface Profile {
   id: number;
@@ -41,6 +42,9 @@ interface ValidationErrors {
 }
 
 const Accounts = () => {
+  const [firstLoad, setFirstLoad] = useState(() => {
+    return localStorage.getItem('accountsLoaded') === 'true' ? false : true;
+  });
   const [accounts, setAccounts] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -464,8 +468,9 @@ const Accounts = () => {
       </div>
 
       {/* Accounts table container */}
+      {firstLoad && <LoadingSpinner />}
       {isLoading && (
-        <div className="text-center py-4 text-gray-400">Accounts laden...</div>
+        <LoadingSpinner />
       )}
       {error && <div className="text-center py-4 text-red-400">{error}</div>}
       {!isLoading && !error && (

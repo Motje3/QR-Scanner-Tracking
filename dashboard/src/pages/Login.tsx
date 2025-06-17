@@ -3,19 +3,25 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Lock, User } from "lucide-react"; // Import icons
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(() => {
+    return localStorage.getItem('loginLoaded') === 'true' ? false : true;
+  }); // New loading state
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); // Clear previous errors
+    setLoading(true); // Start loading
 
     const { success, message } = await login(username, password);
+    setLoading(false); // Stop loading
     if (success) {
       navigate("/dashboard");
     } else {
@@ -23,6 +29,19 @@ const Login = () => {
       setError(message ?? "Ongeldige gebruikersnaam of wachtwoord.");
     }
   };
+
+  React.useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+        localStorage.setItem('loginLoaded', 'true');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
+  // Show LoadingSpinner while login is being processed
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 p-4">
