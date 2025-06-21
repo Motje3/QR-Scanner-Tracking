@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Input } from "@nextui-org/react";
 import axios from "axios";
-import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface Profile {
   id: number;
@@ -43,7 +43,7 @@ interface ValidationErrors {
 
 const Accounts = () => {
   const [firstLoad, setFirstLoad] = useState(() => {
-    return localStorage.getItem('accountsLoaded') === 'true' ? false : true;
+    return localStorage.getItem("accountsLoaded") === "true" ? false : true;
   });
   const [accounts, setAccounts] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,6 +69,7 @@ const Accounts = () => {
 
   const [editRole, setEditRole] = useState("");
   const [openEditRoleDropdown, setOpenEditRoleDropdown] = useState(false);
+  const [openCreateRoleDropdown, setOpenCreateRoleDropdown] = useState(false);
 
   // Validation states
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
@@ -76,8 +77,7 @@ const Accounts = () => {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchAccounts = async () => {
     setIsLoading(true);
@@ -93,6 +93,22 @@ const Accounts = () => {
       setError("Kon accounts niet ophalen.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getRoleName = (role: string | number) => {
+    // Handle both string and number cases
+    const roleValue = typeof role === "string" ? role : String(role);
+
+    switch (roleValue) {
+      case "1":
+        return "Manager";
+      case "2":
+        return "Admin";
+      case "0":
+        return "User";
+      default:
+        return roleValue; // Return as-is if it's already a string like "Admin"
     }
   };
 
@@ -207,14 +223,17 @@ const Accounts = () => {
 
   // --- Filter Logic Fix ---
   const filteredAccounts = accounts.filter((account) => {
+    const roleName = getRoleName(account.role);
+
     const matchesSearchTerm =
-      account.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.role.toLowerCase().includes(searchTerm.toLowerCase());
+      account.fullName.includes(searchTerm) ||
+      account.email?.includes(searchTerm) ||
+      account.username.includes(searchTerm) ||
+      roleName.includes(searchTerm);
 
     const matchesRole =
-      selectedRole === "" || account.role.toLowerCase() === selectedRole.toLowerCase();
+      selectedRole === "" ||
+      account.role.toLowerCase() === selectedRole.toLowerCase();
 
     const matchesStatus =
       selectedStatus === "" ||
@@ -227,7 +246,7 @@ const Accounts = () => {
 
   const handleEdit = (account: Profile) => {
     setSelectedAccount(account);
-    setEditRole(account.role);
+    setEditRole(getRoleName(account.role));
     setIsEditModalOpen(true);
   };
 
@@ -376,28 +395,24 @@ const Accounts = () => {
       <div className="bg-indigo-900/70 backdrop-blur-md rounded-xl shadow-lg p-4 flex flex-col md:flex-row items-center gap-4 relative z-20">
         {/* Search Input */}
         <div className="relative flex-grow w-full md:w-auto">
-          <Input
-            isClearable
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+            <Search className="text-gray-400 pointer-events-none" size={18} />
+          </div>
+          <input
+            type="text"
             placeholder="Zoek op naam, email, rol..."
             value={searchTerm}
-            onValueChange={setSearchTerm}
-            startContent={
-              <Search className="text-gray-400 pointer-events-none" size={18} />
-            }
-            classNames={{
-              inputWrapper:
-                "bg-indigo-800/80 border-indigo-700/50 rounded-lg shadow-sm h-11 group-data-[focus=true]:border-purple-500 group-data-[focus=true]:ring-2 group-data-[focus=true]:ring-purple-500/20 transition-all duration-200 ease-in-out",
-              input:
-                "text-white placeholder:text-gray-500 text-sm focus:outline-none",
-              clearButton: "text-gray-400 hover:text-white text-xl",
-            }}
-            style={
-              {
-                "--nextui-focus-outline": "none",
-                "--nextui-outline-color": "transparent",
-              } as React.CSSProperties
-            }
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-indigo-800/80 border border-indigo-700/50 rounded-lg shadow-sm h-11 pl-10 pr-4 text-white placeholder:text-gray-500 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 ease-in-out"
           />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {/* Custom Dropdown for Roles */}
@@ -468,10 +483,7 @@ const Accounts = () => {
       </div>
 
       {/* Accounts table container */}
-      {firstLoad && <LoadingSpinner />}
-      {isLoading && (
-        <LoadingSpinner />
-      )}
+      {isLoading && <LoadingSpinner />}
       {error && <div className="text-center py-4 text-red-400">{error}</div>}
       {!isLoading && !error && (
         <div className="bg-indigo-900/70 backdrop-blur-md shadow-2xl rounded-xl p-4 md:p-6 relative">
@@ -510,25 +522,26 @@ const Accounts = () => {
                     <td className="py-3 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          account.role?.toLowerCase() === "admin"
+                          getRoleName(account.role) === "Admin"
                             ? "bg-purple-600/70 text-purple-100"
-                            : account.role?.toLowerCase() === "manager"
-                            ? "bg-blue-600/70 text-blue-100"
-                            : "bg-indigo-600/70 text-indigo-100"
+                            : getRoleName(account.role) === "Manager"
+                              ? "bg-blue-600/70 text-blue-100"
+                              : "bg-indigo-600/70 text-indigo-100"
                         }`}
                       >
-                        {account.role}
+                        {getRoleName(account.role)}
                       </span>
                     </td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          account.active
+                          account.active !== false // Changed this line
                             ? "bg-green-600/70 text-green-100"
                             : "bg-red-600/70 text-red-100"
                         }`}
                       >
-                        {account.active ? "Actief" : "Inactief"}
+                        {account.active !== false ? "Actief" : "Inactief"}{" "}
+                        {/* Changed this line */}
                       </span>
                     </td>
                     <td className="py-3 px-4">
@@ -649,7 +662,7 @@ const Accounts = () => {
                     onClick={() => setOpenEditRoleDropdown((prev) => !prev)}
                     className="flex items-center justify-between w-full bg-indigo-800 border border-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm h-11 hover:bg-indigo-700/90 hover:border-indigo-600/60 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500"
                   >
-                    <span>{editRole}</span>
+                    <span>{getRoleName(editRole)}</span>
                     <ChevronDown
                       size={18}
                       className={`ml-2 transition-transform duration-200 ${
@@ -770,28 +783,43 @@ const Accounts = () => {
                 <label className="block text-sm text-gray-300 mb-1">
                   Rol <span className="text-red-400">*</span>
                 </label>
-                <select
-                  value={newRole}
-                  onChange={(e) => handleFieldChange("role", e.target.value)}
-                  className={`w-full bg-indigo-800 border rounded-md p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200 ease-in-out cursor-pointer appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkw4IDEwTDEyIDYiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==')] bg-no-repeat bg-right-3 bg-center pr-10 ${
-                    validationErrors.role
-                      ? "border-red-500 focus:border-red-400 focus:ring-red-400/50"
-                      : "border-indigo-700 focus:border-purple-500"
-                  }`}
-                >
-                  <option value="" className="bg-indigo-800 text-white">
-                    Selecteer een rol
-                  </option>
-                  <option value="User" className="bg-indigo-800 text-white">
-                    User
-                  </option>
-                  <option value="Admin" className="bg-indigo-800 text-white">
-                    Admin
-                  </option>
-                  <option value="Manager" className="bg-indigo-800 text-white">
-                    Manager
-                  </option>
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setOpenCreateRoleDropdown((prev) => !prev)}
+                    className={`flex items-center justify-between w-full bg-indigo-800 border rounded-md p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200 ease-in-out ${
+                      validationErrors.role
+                        ? "border-red-500 focus:border-red-400 focus:ring-red-400/50"
+                        : "border-indigo-700 focus:border-purple-500"
+                    }`}
+                  >
+                    <span className={newRole ? "text-white" : "text-gray-400"}>
+                      {newRole || "Selecteer een rol"}
+                    </span>
+                    <ChevronDown
+                      size={18}
+                      className={`ml-2 transition-transform duration-200 ${
+                        openCreateRoleDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {openCreateRoleDropdown && (
+                    <ul className="absolute z-[999] mt-2 w-full bg-indigo-800/90 backdrop-blur-md rounded-lg shadow-md border border-indigo-700/50">
+                      {["User", "Admin", "Manager"].map((role) => (
+                        <li
+                          key={role}
+                          className="px-4 py-2 text-sm text-white hover:bg-indigo-700/70 cursor-pointer"
+                          onClick={() => {
+                            handleFieldChange("role", role);
+                            setOpenCreateRoleDropdown(false);
+                          }}
+                        >
+                          {role}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
                 <ErrorMessage error={validationErrors.role} />
               </div>
 
