@@ -1,11 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, Users, DollarSign } from 'lucide-react';
+import { Mail, Phone, Users, DollarSign, AlertTriangle, Star, CheckCircle } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import axios from 'axios';
+
+interface IssueReport {
+  id: number;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  shipmentId: number | null;
+  createdAt: string;
+  isImportant: boolean;
+  isFixed: boolean;
+  resolvedAt: string | null;
+}
+
+interface Shipment {
+  id: number;
+  status: string;
+  destination: string;
+  assignedTo: string;
+  expectedDelivery: string;
+  weight: string;
+  createdAt: string;
+  lastUpdatedBy: string | null;
+  lastUpdatedAt: string | null;
+}
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(() => {
     return localStorage.getItem('dashboardLoaded') === 'true' ? false : true;
   });
+  
+  const [recentIssues, setRecentIssues] = useState<IssueReport[]>([]);
+  const [issuesLoading, setIssuesLoading] = useState(true);
+  const [issuesError, setIssuesError] = useState<string | null>(null);
+
+  const [recentShipments, setRecentShipments] = useState<Shipment[]>([]);
+  const [shipmentsLoading, setShipmentsLoading] = useState(true);
+  const [shipmentsError, setShipmentsError] = useState<string | null>(null);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (loading) {
@@ -16,6 +51,97 @@ const Dashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [loading]);
+
+  useEffect(() => {
+    const fetchRecentIssues = async () => {
+      setIssuesLoading(true);
+      try {
+        const response = await axios.get<IssueReport[]>(
+          `${API_BASE_URL}/api/IssueReport`
+        );
+        // Sort by creation date (newest first) and take first 10
+        const sortedIssues = response.data
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 10);
+        setRecentIssues(sortedIssues);
+      } catch (err: any) {
+        setIssuesError(err.message || "Failed to fetch recent issues");
+      } finally {
+        setIssuesLoading(false);
+      }
+    };
+
+    const fetchRecentShipments = async () => {
+      setShipmentsLoading(true);
+      try {
+        const response = await axios.get<Shipment[]>(
+          `${API_BASE_URL}/api/Shipments`
+        );
+        // Sort by creation date (newest first) and take first 10
+        const sortedShipments = response.data
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 10);
+        setRecentShipments(sortedShipments);
+      } catch (err: any) {
+        setShipmentsError(err.message || "Failed to fetch recent shipments");
+      } finally {
+        setShipmentsLoading(false);
+      }
+    };
+
+    if (!loading) {
+      fetchRecentIssues();
+      fetchRecentShipments();
+    }
+  }, [loading, API_BASE_URL]);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+      return 'Vandaag';
+    } else if (diffDays === 2) {
+      return 'Gisteren';
+    } else if (diffDays <= 7) {
+      return `${diffDays - 1} dagen geleden`;
+    } else {
+      return date.toLocaleDateString('nl-NL', { 
+        day: 'numeric', 
+        month: 'short',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+    }
+  };
+
+  const formatShipmentDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('nl-NL', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getShipmentStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "geleverd":
+      case "delivered":
+        return "bg-green-600/20 text-green-300 border border-green-500/30";
+      case "onderweg":
+      case "in transit":
+        return "bg-orange-600/20 text-orange-300 border border-orange-500/30";
+      case "in afwachting":
+      case "pending":
+        return "bg-yellow-600/20 text-yellow-300 border border-yellow-500/30";
+      case "failed":
+        return "bg-red-600/20 text-red-300 border border-red-500/30";
+      default:
+        return "bg-gray-600/20 text-gray-300 border border-gray-500/30";
+    }
+  };
 
   if (loading) return <LoadingSpinner />;
 
@@ -88,46 +214,129 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Grafiek Placeholder */}
+      {/* Recent Issues Widget */}
       <div className="bg-indigo-900 rounded-lg p-6 h-80 relative">
-        <h3 className="text-white font-semibold mb-4">Verkooptrends</h3>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-gray-400">Grafiek wordt hier geïmplementeerd</p>
+        <div className="flex items-center mb-4">
+          <AlertTriangle className="text-red-400 mr-2" size={24} />
+          <h3 className="text-white font-semibold text-xl">Recente problemen</h3>
         </div>
+        
+        {issuesLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-gray-400">Laden van problemen...</div>
+          </div>
+        ) : issuesError ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-red-400">Fout bij laden: {issuesError}</p>
+          </div>
+        ) : recentIssues.length === 0 ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center">
+              <CheckCircle className="text-green-400 mx-auto mb-2" size={32} />
+              <p className="text-gray-400">Geen recente problemen!</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3 overflow-y-auto h-60">
+            {recentIssues.map((issue) => (
+              <div
+                key={issue.id}
+                className={`flex items-start justify-between p-3 rounded-lg transition-colors hover:bg-indigo-800/50 ${
+                  issue.isFixed ? 'bg-indigo-800/30 opacity-70' : 'bg-indigo-800/50'
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    {issue.isImportant && !issue.isFixed && (
+                      <Star className="text-yellow-400 flex-shrink-0" size={14} fill="currentColor" />
+                    )}
+                    {issue.isFixed && (
+                      <CheckCircle className="text-green-400 flex-shrink-0" size={14} />
+                    )}
+                    <h4 className="text-white text-sm font-medium truncate" title={issue.title}>
+                      {issue.title}
+                    </h4>
+                  </div>
+                  
+                  {issue.description && (
+                    <p className="text-gray-300 text-xs mb-1 line-clamp-1" title={issue.description}>
+                      {issue.description}
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center gap-3 text-xs text-gray-400">
+                    <span>{formatDate(issue.createdAt)}</span>
+                    {issue.shipmentId && (
+                      <span className="text-indigo-300">
+                        Zending #{issue.shipmentId}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 ml-3">
+                  {!issue.isFixed ? (
+                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                  ) : (
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Tabel Placeholder */}
+      {/* Recent Shipments Table */}
       <div className="bg-indigo-900 rounded-lg p-6">
-        <h3 className="text-white font-semibold mb-4">Recente transacties</h3>
-        <table className="w-full text-left">
-          <thead>
-            <tr className="text-gray-400 border-b border-indigo-800">
-              <th className="py-3 px-4">ID</th>
-              <th className="py-3 px-4">Gebruikers-ID</th>
-              <th className="py-3 px-4">Aangemaakt op</th>
-              <th className="py-3 px-4">Aantal producten</th>
-              <th className="py-3 px-4">Kosten</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-300">
-            {[1, 2, 3, 4, 5].map((row) => (
-              <tr key={row} className="border-b border-indigo-800">
-                <td className="py-3 px-4">637010f74f03239c72c0001b{row}</td>
-                <td className="py-3 px-4">637010cf103233{row}c0000124</td>
-                <td className="py-3 px-4">2022-11-29T01:09:39.558Z</td>
-                <td className="py-3 px-4">{row}</td>
-                <td className="py-3 px-4">€{(row * 500 + 123.45).toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="flex justify-between items-center mt-4 text-gray-400">
-          <div>Rijen per pagina: 10</div>
-          <div className="flex gap-2">
-            <button className="px-3 py-1 border border-indigo-800 rounded">Vorige</button>
-            <button className="px-3 py-1 border border-indigo-800 rounded">Volgende</button>
-          </div>
-        </div>
+        <h3 className="text-white font-semibold mb-4">Recente zendingen</h3>
+        
+        {shipmentsLoading ? (
+          <div className="text-center py-8 text-gray-400">Laden van zendingen...</div>
+        ) : shipmentsError ? (
+          <div className="text-center py-8 text-red-400">Fout bij laden: {shipmentsError}</div>
+        ) : recentShipments.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">Geen zendingen gevonden</div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="text-gray-400 border-b border-indigo-800">
+                    <th className="py-3 px-4">ID</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Bestemming</th>
+                    <th className="py-3 px-4">Toegewezen aan</th>
+                    <th className="py-3 px-4">Aangemaakt op</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-300">
+                  {recentShipments.map((shipment) => (
+                    <tr key={shipment.id} className="border-b border-indigo-800 hover:bg-indigo-800/30 transition-colors">
+                      <td className="py-3 px-4 font-medium">#{shipment.id}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getShipmentStatusColor(shipment.status)}`}>
+                          {shipment.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">{shipment.destination || "-"}</td>
+                      <td className="py-3 px-4">{shipment.assignedTo || "-"}</td>
+                      <td className="py-3 px-4">{formatShipmentDate(shipment.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-between items-center mt-4 text-gray-400 text-sm">
+              <div>Toont {recentShipments.length} van de meest recente zendingen</div>
+              <div className="flex gap-2">
+                <button className="px-3 py-1 border border-indigo-800 rounded hover:bg-indigo-800 transition-colors">
+                  Alle zendingen
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
