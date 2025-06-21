@@ -242,14 +242,14 @@ const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-300 mb-2">Jaarlijkse verkoop</p>
-              <h2 className="text-3xl font-bold text-white">65152</h2>
+              <h2 className="text-3xl font-bold text-white">Nog te implementeren</h2>
               <p className="text-green-400 mt-2">+43%</p>
             </div>
             <div className="p-2 bg-indigo-800 rounded-md">
               <DollarSign className="text-yellow-200" size={24} />
             </div>
           </div>
-          <p className="text-gray-400 text-sm mt-4">Sinds vorige maand</p>
+          <p className="text-gray-400 text-sm mt-4">Sinds vorige jaar</p>
         </div>
       </div>
 
