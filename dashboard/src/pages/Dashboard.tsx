@@ -37,6 +37,7 @@ const Dashboard = () => {
   const [issuesError, setIssuesError] = useState<string | null>(null);
 
   const [recentShipments, setRecentShipments] = useState<Shipment[]>([]);
+  const [allShipments, setAllShipments] = useState<Shipment[]>([]);
   const [shipmentsLoading, setShipmentsLoading] = useState(true);
   const [shipmentsError, setShipmentsError] = useState<string | null>(null);
 
@@ -77,7 +78,9 @@ const Dashboard = () => {
         const response = await axios.get<Shipment[]>(
           `${API_BASE_URL}/api/Shipments`
         );
-        // Sort by creation date (newest first) and take first 10
+        // Store all shipments for calculations
+        setAllShipments(response.data);
+        // Sort by creation date (newest first) and take first 10 for display
         const sortedShipments = response.data
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 10);
@@ -125,6 +128,36 @@ const Dashboard = () => {
     });
   };
 
+  const getShipmentsToday = () => {
+    if (!allShipments.length) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    return allShipments.filter(shipment => {
+      const shipmentDate = new Date(shipment.createdAt);
+      return shipmentDate >= today && shipmentDate < tomorrow;
+    }).length;
+  };
+
+  const getShipmentsThisMonth = () => {
+    if (!allShipments.length) return 0;
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    return allShipments.filter(shipment => {
+      const shipmentDate = new Date(shipment.createdAt);
+      return shipmentDate >= startOfMonth && shipmentDate <= endOfMonth;
+    }).length;
+  };
+
+  const getUnresolvedIssues = () => {
+    if (!recentIssues.length) return 0;
+    return recentIssues.filter(issue => !issue.isFixed).length;
+  };
+
   const getShipmentStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "geleverd":
@@ -153,34 +186,21 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Totaal Klanten Kaart */}
-        <div className="bg-indigo-900 rounded-lg p-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-300 mb-2">Totaal klanten</p>
-              <h2 className="text-3xl font-bold text-white">5251</h2>
-              <p className="text-green-400 mt-2">+14%</p>
-            </div>
-            <div className="p-2 bg-indigo-800 rounded-md">
-              <Mail className="text-yellow-200" size={24} />
-            </div>
-          </div>
-          <p className="text-gray-400 text-sm mt-4">Sinds vorige maand</p>
-        </div>
-
         {/* Zendingen Vandaag Kaart */}
         <div className="bg-indigo-900 rounded-lg p-6">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-300 mb-2">Zendingen vandaag</p>
-              <h2 className="text-3xl font-bold text-white">7916</h2>
-              <p className="text-green-400 mt-2">+21%</p>
+              <h2 className="text-3xl font-bold text-white">
+                {shipmentsLoading ? "..." : getShipmentsToday()}
+              </h2>
+              <p className="text-green-400 mt-2">Nieuw vandaag</p>
             </div>
             <div className="p-2 bg-indigo-800 rounded-md">
               <Phone className="text-yellow-200" size={24} />
             </div>
           </div>
-          <p className="text-gray-400 text-sm mt-4">Sinds vorige maand</p>
+          <p className="text-gray-400 text-sm mt-4">Aangemaakt vandaag</p>
         </div>
 
         {/* Maandelijkse Zendingen Kaart */}
@@ -188,14 +208,33 @@ const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-300 mb-2">Maandelijkse zendingen</p>
-              <h2 className="text-3xl font-bold text-white">59525</h2>
-              <p className="text-green-400 mt-2">+5%</p>
+              <h2 className="text-3xl font-bold text-white">
+                {shipmentsLoading ? "..." : getShipmentsThisMonth()}
+              </h2>
+              <p className="text-blue-400 mt-2">Deze maand</p>
             </div>
             <div className="p-2 bg-indigo-800 rounded-md">
               <Users className="text-yellow-200" size={24} />
             </div>
           </div>
-          <p className="text-gray-400 text-sm mt-4">Sinds vorige maand</p>
+          <p className="text-gray-400 text-sm mt-4">Aangemaakt deze maand</p>
+        </div>
+
+        {/* Totaal Onopgeloste Problemen Kaart */}
+        <div className="bg-indigo-900 rounded-lg p-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-300 mb-2">Onopgeloste problemen</p>
+              <h2 className="text-3xl font-bold text-white">
+                {issuesLoading ? "..." : getUnresolvedIssues()}
+              </h2>
+              <p className="text-red-400 mt-2">Vereist actie</p>
+            </div>
+            <div className="p-2 bg-indigo-800 rounded-md">
+              <AlertTriangle className="text-yellow-200" size={24} />
+            </div>
+          </div>
+          <p className="text-gray-400 text-sm mt-4">Nog op te lossen</p>
         </div>
 
         {/* Jaarlijkse Verkoop Kaart */}
