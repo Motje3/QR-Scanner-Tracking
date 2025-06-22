@@ -242,14 +242,14 @@ const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-300 mb-2">Jaarlijkse verkoop</p>
-              <h2 className="text-3xl font-bold text-white">Nog te implementeren</h2>
+              <h2 className="text-3xl font-bold text-white">65152</h2>
               <p className="text-green-400 mt-2">+43%</p>
             </div>
             <div className="p-2 bg-indigo-800 rounded-md">
               <DollarSign className="text-yellow-200" size={24} />
             </div>
           </div>
-          <p className="text-gray-400 text-sm mt-4">Sinds vorige jaar</p>
+          <p className="text-gray-400 text-sm mt-4">Sinds vorige maand</p>
         </div>
       </div>
 
@@ -280,8 +280,8 @@ const Dashboard = () => {
             {recentIssues.map((issue) => (
               <div
                 key={issue.id}
-                className={`flex items-start justify-between p-3 rounded-lg transition-colors hover:bg-indigo-800/50 ${
-                  issue.isFixed ? 'bg-indigo-800/30 opacity-70' : 'bg-indigo-800/50'
+                className={`flex items-start justify-between p-3 rounded-lg transition-colors hover:bg-slate-700/60 ${
+                  issue.isFixed ? 'bg-slate-700/40 opacity-70' : 'bg-slate-700/50'
                 }`}
               >
                 <div className="flex-1 min-w-0">
