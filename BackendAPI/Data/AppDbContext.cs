@@ -14,6 +14,8 @@ namespace BackendAPI.Data
         public DbSet<IssueReport> IssueReports { get; set; }
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
         public DbSet<AppFeedback> AppFeedbacks { get; set; }
+        public DbSet<UserSettings> UserSettings { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,7 +24,7 @@ namespace BackendAPI.Data
             // Map the Role enum to your existing text column
             modelBuilder.Entity<Profile>()
                 .Property(p => p.Role)
-                .HasConversion<string>()   
+                .HasConversion<string>()
                 .HasColumnType("text")     // match your Postgres column type
                 .IsRequired();
         }
