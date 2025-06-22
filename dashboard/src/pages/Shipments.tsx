@@ -92,7 +92,7 @@ const ShipmentDetailModal = ({ isOpen, onClose, shipment, issues, isLoading, err
   const allProblemsResolved = useMemo(() => issues.length > 0 && issues.every((issue) => issue.isFixed), [issues]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl" scrollBehavior="inside" backdrop="blur" className="bg-[#1E1B33] text-white">
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl" scrollBehavior="inside" backdrop="blur" className="bg-[#1E1B33] text-white" hideCloseButton={true}>
       <ModalContent>
         {(onClose) => (
           <>
