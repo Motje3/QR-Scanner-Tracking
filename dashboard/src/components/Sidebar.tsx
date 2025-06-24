@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             </div>
             <div className="px-6 py-3">
               <p className="text-gray-400 text-sm uppercase font-semibold mb-2">
-                Client Facing
+                OPERATIONEEL
               </p>
               <ul className="space-y-2">
                 <li>
@@ -98,7 +98,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             </div>
             <div className="px-6 py-3">
               <p className="text-gray-400 text-sm uppercase font-semibold mb-2">
-                Management
+                BEHEER
               </p>
               <ul className="space-y-2">
                 <li>
@@ -107,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
                     <Users size={20} className="mr-3" />
-                    <span>Accounts</span>
+                    <span>Gebruikers</span>
                   </Link>
                 </li>
                 {/* New Account Settings link */}
@@ -117,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     className="flex items-center py-2 px-4 rounded-md text-gray-300 hover:bg-indigo-800"
                   >
                     <Settings size={20} className="mr-3" />
-                    <span>Settings</span>
+                    <span>Instellingen</span>
                   </Link>
                 </li>
               </ul>
@@ -130,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
           </div>
           <div>
             <p className="font-medium">Team-5</p>
-            <p className="text-xs text-gray-400">Legends</p>
+            <p className="text-xs text-gray-400">For life</p>
           </div>
         </div>
       </div>
