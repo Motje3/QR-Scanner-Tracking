@@ -30,7 +30,7 @@ interface RegisterUserDto {
   password?: string;
   fullName: string;
   email?: string;
-  role: string;
+  role: number;
 }
 
 interface ValidationErrors {
@@ -109,6 +109,19 @@ const Accounts = () => {
         return "User";
       default:
         return roleValue; // Return as-is if it's already a string like "Admin"
+    }
+  };
+
+  const convertRoleToEnum = (roleString: string): number => {
+    switch (roleString) {
+      case "User":
+        return 0;
+      case "Manager":
+        return 1;
+      case "Admin":
+        return 2;
+      default:
+        return 0; // Default to User if unknown
     }
   };
 
@@ -296,7 +309,7 @@ const Accounts = () => {
       password: newPassword,
       fullName: newFullName,
       email: newEmail || undefined,
-      role: newRole,
+      role: convertRoleToEnum(newRole),
     };
 
     try {
