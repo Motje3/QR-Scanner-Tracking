@@ -81,58 +81,48 @@ const MyIssues: React.FC = () => {
     setError(null);
 
     try {
-      // Use the existing working endpoint that requires authorization
-      const [shipmentsRes, issuesRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/shipments/me`, {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }),
-        fetch(`${API_BASE_URL}/api/IssueReport`, {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }),
-      ]);
+      console.log("🔍 Current user object:", user);
+      console.log("🔑 Current token:", token ? "Token exists" : "No token");
 
-      if (!shipmentsRes.ok || !issuesRes.ok) {
-        throw new Error("Failed to fetch data");
+      // First, let's try the dedicated endpoint
+      // You might need to adjust what user property to use here
+      const userIdentifier = user?.username || user?.id || user?.email;
+      console.log("👤 Using user identifier:", userIdentifier);
+
+      if (!userIdentifier) {
+        throw new Error("No user identifier available");
       }
 
-      const [myShipments, allIssues] = await Promise.all([
-        shipmentsRes.json(),
-        issuesRes.json(),
-      ]);
-
-      // DEBUG: Let's see what we get
-      console.log("🚚 My shipments from /me endpoint:", myShipments);
-      console.log("📋 All issues:", allIssues);
-
-      // Filter issues for shipments assigned to current user
-      const myShipmentIds = myShipments.map((s: any) => s.id);
-      console.log("🔍 My shipment IDs:", myShipmentIds);
-
-      const myIssues = allIssues.filter(
-        (issue: IssueReport) =>
-          issue.shipmentId && myShipmentIds.includes(issue.shipmentId)
+      const response = await fetch(
+        `${API_BASE_URL}/api/IssueReport/assigned-to/${userIdentifier}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
       );
 
-      console.log("⚠️ Filtered issues for my shipments:", myIssues);
+      console.log("📡 Response status:", response.status);
+      console.log("📡 Response ok:", response.ok);
 
-      // Add shipment data to issues
-      const issuesWithShipments = myIssues.map((issue: IssueReport) => {
-        const shipment = myShipments.find(
-          (s: any) => s.id === issue.shipmentId
-        );
-        return { ...issue, shipment };
-      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ API Error:", errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
+      }
 
-      setIssues(issuesWithShipments);
+      const issues = await response.json();
+      console.log("✅ Issues from assigned-to endpoint:", issues);
+
+      setIssues(issues || []);
     } catch (e) {
-      console.error("Fetch error:", e);
-      setError("Kon problemen niet ophalen");
+      console.error("💥 Fetch error:", e);
+      setError(
+        `Kon problemen niet ophalen: ${
+          e instanceof Error ? e.message : String(e)
+        }`
+      );
     } finally {
       setLoading(false);
       if (isRefreshing) setRefreshing(false);
@@ -584,7 +574,7 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   card: {
-    padding: wp(4),
+    padding: wp(5),
     borderRadius: wp(3),
     marginBottom: hp(2),
     shadowColor: "#000",
@@ -593,6 +583,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
     position: "relative",
+    minHeight: hp(16),
   },
   cardHeader: {
     flexDirection: "row",
@@ -646,7 +637,7 @@ const styles = StyleSheet.create({
   cardAction: {
     position: "absolute",
     right: wp(4),
-    top: "50%",
+    top: "65%",
     transform: [{ translateY: -wp(2.5) }],
   },
   emptyContainer: {
