@@ -23,7 +23,6 @@ namespace BackendAPI.DTOs
         public string? Email { get; set; } // Making email optional for creation by admin
 
         [Required(ErrorMessage = "Role is required.")]
-        [StringLength(50, ErrorMessage = "Role cannot exceed 50 characters.")]
         public required Role Role { get; set; } // e.g., "user", "admin", "manager"
     }
 }

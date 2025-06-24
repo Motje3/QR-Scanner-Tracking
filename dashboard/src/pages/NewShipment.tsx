@@ -21,6 +21,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface User {
   id: string;
   name: string;
+  username: string;
 }
 
 interface Profile {
@@ -77,7 +78,8 @@ const NewShipment = () => {
         );
         const fetchedUsers: User[] = response.data.map((profile) => ({
           id: String(profile.id),
-          name: profile.fullName,
+          name: profile.fullName, // Display "Mo"
+          username: profile.username, // But store "Motje"
         }));
         setUsers(fetchedUsers);
         setUsersError(null);
@@ -127,7 +129,7 @@ const NewShipment = () => {
 
       const newShipmentData: CreatedShipment = await response.json();
       setCreatedShipment(newShipmentData);
-      
+
       // Reset form
       setDestination("");
       setAssignedTo("");
@@ -243,7 +245,7 @@ const NewShipment = () => {
     "Culemborg",
     "Veghel",
   ];
-  
+
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -319,7 +321,8 @@ const NewShipment = () => {
           {/* Assigned To Dropdown */}
           <div>
             <label htmlFor="assignedTo" className={labelClass}>
-              Toegewezen Aan (Gebruiker/Chauffeur) <span className="text-red-400">*</span>
+              Toegewezen Aan (Gebruiker/Chauffeur){" "}
+              <span className="text-red-400">*</span>
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -337,7 +340,7 @@ const NewShipment = () => {
                   {usersLoading ? "Laden..." : "Selecteer een gebruiker"}
                 </option>
                 {users.map((user) => (
-                  <option key={user.id} value={user.name}>
+                  <option key={user.id} value={user.username}>
                     {user.name}
                   </option>
                 ))}

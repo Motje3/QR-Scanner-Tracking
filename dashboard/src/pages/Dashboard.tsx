@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
-  Mail,
-  Phone,
-  Users,
+  Truck,
+  TrendingUp,
   DollarSign,
   AlertTriangle,
   Star,
@@ -248,7 +247,7 @@ const Dashboard = () => {
                 <p className="text-green-400 mt-2">Nieuw vandaag</p>
               </div>
               <div className="p-2 bg-indigo-800 rounded-md">
-                <Phone className="text-yellow-200" size={24} />
+                <Truck className="text-yellow-200" size={24} />
               </div>
             </div>
             <p className="text-gray-400 text-sm mt-4">Aangemaakt vandaag</p>
@@ -265,7 +264,7 @@ const Dashboard = () => {
                 <p className="text-blue-400 mt-2">Deze maand</p>
               </div>
               <div className="p-2 bg-indigo-800 rounded-md">
-                <Users className="text-yellow-200" size={24} />
+                <TrendingUp className="text-yellow-200" size={24} />
               </div>
             </div>
             <p className="text-gray-400 text-sm mt-4">Aangemaakt deze maand</p>
